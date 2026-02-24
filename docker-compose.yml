@@ -1,0 +1,121 @@
+# Sovereign Agent Development Stack
+#
+# One command to spin up the full infrastructure for developing
+# against the SKWorld ecosystem. Python packages run locally;
+# this provides the backing services they connect to.
+#
+# Quick start:
+#   docker compose up -d              # start everything
+#   docker compose --profile sync up -d  # include Syncthing
+#   docker compose ps                 # check status
+#   docker compose down               # stop all
+#   docker compose down -v            # stop + delete data
+#
+# Or use the helper script:
+#   bash scripts/dev-stack.sh up      # start everything
+#   bash scripts/dev-stack.sh status  # health summary
+#   bash scripts/dev-stack.sh down    # stop
+#
+# Connect from Python packages:
+#   skmemory:   --qdrant-url http://localhost:6333
+#   skmemory:   SKMEMORY_FALKORDB_URL=redis://localhost:6379
+#   syncthing:  Web UI at http://localhost:8384
+#
+# Resource usage (idle):
+#   Qdrant:     ~200MB RAM
+#   FalkorDB:   ~100MB RAM
+#   Syncthing:  ~50MB RAM
+#   Total:      ~350MB RAM
+
+services:
+  # ─────────────────────────────────────────────────────────
+  # Vector search — skmemory Level 2 backend
+  # ─────────────────────────────────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: skworld-qdrant
+    ports:
+      - "${QDRANT_REST_PORT:-6333}:6333"
+      - "${QDRANT_GRPC_PORT:-6334}:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ─────────────────────────────────────────────────────────
+  # Graph database — skmemory Level 3 backend
+  # ─────────────────────────────────────────────────────────
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: skworld-falkordb
+    ports:
+      - "${FALKORDB_PORT:-6379}:6379"
+    volumes:
+      - falkordb_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ─────────────────────────────────────────────────────────
+  # P2P sync mesh — vault sync, SKComm comms, seed propagation
+  #
+  # Activate with: docker compose --profile sync up -d
+  # Web UI: http://localhost:8384
+  # ─────────────────────────────────────────────────────────
+  syncthing:
+    image: syncthing/syncthing:latest
+    container_name: skworld-syncthing
+    hostname: skworld-dev
+    profiles:
+      - sync
+      - full
+    ports:
+      - "${SYNCTHING_GUI_PORT:-8384}:8384"
+      - "${SYNCTHING_LISTEN_PORT:-22000}:22000/tcp"
+      - "${SYNCTHING_LISTEN_PORT:-22000}:22000/udp"
+      - "21027:21027/udp"
+    volumes:
+      - syncthing_config:/var/syncthing/config
+      - ${SKCAPSTONE_HOME:-${HOME}/.skcapstone}:/var/syncthing/skcapstone
+    environment:
+      STGUIADDRESS: "0.0.0.0:8384"
+      PUID: "${PUID:-1000}"
+      PGID: "${PGID:-1000}"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8384/rest/noauth/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+volumes:
+  qdrant_data:
+    driver: local
+  falkordb_data:
+    driver: local
+  syncthing_config:
+    driver: local
