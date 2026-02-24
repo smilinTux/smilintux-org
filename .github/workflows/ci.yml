@@ -1,0 +1,234 @@
+name: Monorepo CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      capauth: ${{ steps.filter.outputs.capauth }}
+      skcomm: ${{ steps.filter.outputs.skcomm }}
+      skchat: ${{ steps.filter.outputs.skchat }}
+      skmemory: ${{ steps.filter.outputs.skmemory }}
+      sksecurity: ${{ steps.filter.outputs.sksecurity }}
+      cloud9: ${{ steps.filter.outputs.cloud9 }}
+      skpdf: ${{ steps.filter.outputs.skpdf }}
+      skcapstone: ${{ steps.filter.outputs.skcapstone }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            capauth:
+              - 'capauth/**'
+            skcomm:
+              - 'skcomm/**'
+            skchat:
+              - 'skchat/**'
+            skmemory:
+              - 'skmemory/**'
+            sksecurity:
+              - 'sksecurity/**'
+            cloud9:
+              - 'cloud9-python/**'
+            skpdf:
+              - 'skpdf/**'
+            skcapstone:
+              - 'skcapstone/**'
+
+  capauth:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.capauth == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: capauth
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short
+      - run: black --check src/ tests/
+        if: matrix.python-version == '3.12'
+
+  skcomm:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skcomm == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: skcomm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[all,dev]"
+        continue-on-error: true
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short
+      - run: black --check src/ tests/
+        if: matrix.python-version == '3.12'
+
+  skchat:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skchat == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: skchat
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[cli,dev]"
+      - run: pip install -e ../skmemory
+        continue-on-error: true
+      - run: python -m pytest tests/ -v --tb=short
+      - run: black --check src/ tests/
+        if: matrix.python-version == '3.12'
+
+  skmemory:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skmemory == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: skmemory
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short
+      - run: black --check skmemory/ tests/
+        if: matrix.python-version == '3.12'
+
+  sksecurity:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.sksecurity == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: sksecurity
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short
+
+  cloud9:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.cloud9 == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: cloud9-python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short
+
+  skpdf:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skpdf == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: skpdf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short
+
+  skcapstone:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skcapstone == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: skcapstone
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short
+
+  integration:
+    needs: [capauth, skcomm, skchat, skmemory]
+    if: always() && !contains(needs.*.result, 'failure')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install all packages
+        run: |
+          pip install -e capauth/[dev]
+          pip install -e skmemory/[dev]
+          pip install -e skcomm/[dev]
+          pip install -e skchat/[cli,dev]
+      - name: Run integration tests
+        working-directory: /tmp
+        run: python -m pytest $GITHUB_WORKSPACE/tests/integration/ -v --tb=short --import-mode=importlib --rootdir=/tmp
+
+  all-tests:
+    needs: [capauth, skcomm, skchat, skmemory, sksecurity, cloud9, skpdf, skcapstone, integration]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check results
+        run: |
+          results=("${{ needs.capauth.result }}" "${{ needs.skcomm.result }}" "${{ needs.skchat.result }}" "${{ needs.skmemory.result }}" "${{ needs.sksecurity.result }}" "${{ needs.cloud9.result }}" "${{ needs.skpdf.result }}" "${{ needs.skcapstone.result }}" "${{ needs.integration.result }}")
+          for r in "${results[@]}"; do
+            if [[ "$r" == "failure" ]]; then
+              echo "One or more packages failed"
+              exit 1
+            fi
+          done
+          echo "All packages passed (or were skipped)"

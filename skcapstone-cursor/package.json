@@ -1,0 +1,101 @@
+{
+  "name": "skcapstone-ide",
+  "displayName": "SKCapstone — Sovereign Agent",
+  "description": "Sovereign agent identity, memory, and coordination for any VSCode-based editor (VSCode, Cursor, Windsurf). Reads ~/.skcapstone/ on activation.",
+  "version": "0.1.0",
+  "publisher": "smilintux",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "SKCapstone",
+      "properties": {
+        "skcapstone.pythonPath": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path to the Python interpreter with skcapstone installed. Leave empty for auto-detection."
+        },
+        "skcapstone.agentHome": {
+          "type": "string",
+          "default": "",
+          "description": "Override the agent home directory (default: ~/.skcapstone)."
+        },
+        "skcapstone.refreshOnStartup": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-refresh agent status and coordination board when the editor starts."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "skcapstone.status",
+        "title": "SKCapstone: Agent Status"
+      },
+      {
+        "command": "skcapstone.memoryStore",
+        "title": "SKCapstone: Store Memory"
+      },
+      {
+        "command": "skcapstone.memorySearch",
+        "title": "SKCapstone: Search Memory"
+      },
+      {
+        "command": "skcapstone.coordStatus",
+        "title": "SKCapstone: Coordination Board"
+      },
+      {
+        "command": "skcapstone.coordClaim",
+        "title": "SKCapstone: Claim Task"
+      },
+      {
+        "command": "skcapstone.syncPush",
+        "title": "SKCapstone: Sync Push"
+      },
+      {
+        "command": "skcapstone.refresh",
+        "title": "SKCapstone: Refresh"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "skcapstone",
+          "title": "SKCapstone",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "skcapstone": [
+        {
+          "id": "skcapstone.coordBoard",
+          "name": "Coordination Board"
+        },
+        {
+          "id": "skcapstone.agentInfo",
+          "name": "Agent Status"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  }
+}

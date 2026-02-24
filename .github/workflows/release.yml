@@ -1,0 +1,197 @@
+name: Release to PyPI
+
+# Triggers on version tags pushed to the monorepo.
+# Tag format: v0.2.0 (publishes all packages at that version)
+# Per-package: skcapstone-v0.2.0 (publishes only skcapstone)
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "skcapstone-v*"
+      - "capauth-v*"
+      - "skmemory-v*"
+      - "skcomm-v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  # ── Step 1: Full test suite across all packages ──────────────
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install all packages
+        run: |
+          pip install -e capauth/[dev]
+          pip install -e skmemory/[dev]
+          pip install -e skcomm/[dev]
+          pip install -e skcapstone/[dev]
+
+      - name: Test capauth
+        run: python -m pytest capauth/tests/ -v --tb=short
+
+      - name: Test skmemory
+        run: python -m pytest skmemory/tests/ -v --tb=short
+
+      - name: Test skcomm
+        run: python -m pytest skcomm/tests/ -v --tb=short
+
+      - name: Test skcapstone
+        run: python -m pytest skcapstone/tests/ -v --tb=short
+
+  # ── Step 2: Determine which packages to publish ──────────────
+  resolve:
+    runs-on: ubuntu-latest
+    outputs:
+      publish_capauth: ${{ steps.resolve.outputs.capauth }}
+      publish_skmemory: ${{ steps.resolve.outputs.skmemory }}
+      publish_skcomm: ${{ steps.resolve.outputs.skcomm }}
+      publish_skcapstone: ${{ steps.resolve.outputs.skcapstone }}
+      version: ${{ steps.resolve.outputs.version }}
+    steps:
+      - id: resolve
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          echo "Tag: $TAG"
+
+          # Global tag (v0.2.0) publishes all packages
+          if [[ "$TAG" =~ ^v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            echo "capauth=true" >> "$GITHUB_OUTPUT"
+            echo "skmemory=true" >> "$GITHUB_OUTPUT"
+            echo "skcomm=true" >> "$GITHUB_OUTPUT"
+            echo "skcapstone=true" >> "$GITHUB_OUTPUT"
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          fi
+
+          # Per-package tags
+          if [[ "$TAG" =~ ^capauth-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            echo "capauth=true" >> "$GITHUB_OUTPUT"
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          fi
+          if [[ "$TAG" =~ ^skmemory-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            echo "skmemory=true" >> "$GITHUB_OUTPUT"
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          fi
+          if [[ "$TAG" =~ ^skcomm-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            echo "skcomm=true" >> "$GITHUB_OUTPUT"
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          fi
+          if [[ "$TAG" =~ ^skcapstone-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            echo "skcapstone=true" >> "$GITHUB_OUTPUT"
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ── Step 3: Build and publish each package ───────────────────
+  publish-capauth:
+    needs: [test, resolve]
+    if: needs.resolve.outputs.publish_capauth == 'true'
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install build twine
+      - name: Build capauth
+        working-directory: capauth
+        run: python -m build
+      - name: Verify
+        working-directory: capauth
+        run: twine check dist/*
+      - name: Publish
+        working-directory: capauth
+        run: twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_CAPAUTH_TOKEN }}
+
+  publish-skmemory:
+    needs: [test, resolve]
+    if: needs.resolve.outputs.publish_skmemory == 'true'
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install build twine
+      - name: Build skmemory
+        working-directory: skmemory
+        run: python -m build
+      - name: Verify
+        working-directory: skmemory
+        run: twine check dist/*
+      - name: Publish
+        working-directory: skmemory
+        run: twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_SKMEMORY_TOKEN }}
+
+  publish-skcomm:
+    needs: [test, resolve]
+    if: needs.resolve.outputs.publish_skcomm == 'true'
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install build twine
+      - name: Build skcomm
+        working-directory: skcomm
+        run: python -m build
+      - name: Verify
+        working-directory: skcomm
+        run: twine check dist/*
+      - name: Publish
+        working-directory: skcomm
+        run: twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_SKCOMM_TOKEN }}
+
+  publish-skcapstone:
+    needs: [test, resolve]
+    if: needs.resolve.outputs.publish_skcapstone == 'true'
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install build twine
+      - name: Install build deps
+        run: pip install -e capauth/ -e skmemory/ -e skcomm/
+      - name: Build skcapstone
+        working-directory: skcapstone
+        run: python -m build
+      - name: Verify
+        working-directory: skcapstone
+        run: twine check dist/*
+      - name: Publish
+        working-directory: skcapstone
+        run: twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_SKCAPSTONE_TOKEN }}

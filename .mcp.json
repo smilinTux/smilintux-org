@@ -1,0 +1,10 @@
+{
+    "mcpServers": {
+        "skcapstone": {
+            "command": "bash",
+            "args": [
+                "skcapstone/scripts/mcp-serve.sh"
+            ]
+        }
+    }
+}
