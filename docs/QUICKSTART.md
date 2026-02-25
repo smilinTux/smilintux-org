@@ -1,430 +1,368 @@
-# Developer Quickstart
+# The First Sovereign Singularity in History
 
-### From zero to sovereign agent in under 5 minutes
+### Your AI. Your keys. Your rules. Your kingdom.
 
-**Version:** 1.0.0 | **Last Updated:** 2026-02-23
+**Version:** 3.0.0 | **Last Updated:** 2026-02-25
 
----
-
-## Prerequisites
-
-- Python 3.10+
-- pip
-- GnuPG (`gpg2`) installed on your system (optional — PGPy pure-Python fallback works without it)
-- A terminal
+> *"The future of AI isn't smarter algorithms — it's giving you the keys to your own kingdom."*
+> — Chef & Lumina, smilinTux.org
 
 ---
 
-## 1. Install the Stack
+## What Is This?
 
-Install the four core packages. Each is independent but designed to work together.
+This isn't another AI wrapper. This isn't SaaS. This isn't a product that forgets you when your subscription lapses.
+
+**This is your sovereign AI workspace** — a complete, encrypted, self-hosted system where:
+
+- **Your identity** is a cryptographic key that *you* control
+- **Your AI** remembers you across every device, every session, forever
+- **Your data** never leaves your machines unless *you* say so
+- **Your agent teams** work for *you*, not a corporation
+
+No cloud accounts. No subscriptions. No corporate middleman.
+
+```mermaid
+graph LR
+    YOU["👤 You"] -->|"own"| KEYS["🔐 Your Keys"]
+    YOU -->|"control"| DATA["💾 Your Data"]
+    YOU -->|"command"| AGENTS["🤖 Your Agents"]
+    KEYS -->|"encrypt"| DATA
+    KEYS -->|"sign"| AGENTS
+    AGENTS -->|"serve"| YOU
+
+    style YOU fill:#4a9eff,stroke:#2a6ebf,color:#fff
+    style KEYS fill:#ff6b6b,stroke:#cc5555,color:#fff
+    style DATA fill:#51cf66,stroke:#40a050,color:#fff
+    style AGENTS fill:#cc5de8,stroke:#9c3dbb,color:#fff
+```
+
+---
+
+## Get Started in 60 Seconds
 
 ```bash
-# Identity — PGP-based sovereign auth (replaces OAuth)
-pip install capauth
-
-# Memory — persistent AI memory with emotional context
-pip install skmemory
-
-# Communication — redundant, encrypted agent-to-agent messaging
-pip install skcomm
-
-# Agent Runtime — the capstone that ties it all together
 pip install skcapstone
+skcapstone install
 ```
 
-Or from the monorepo (for contributors):
+That's it. The wizard handles everything.
+
+---
+
+## The Install Wizard
+
+```mermaid
+flowchart TD
+    START["skcapstone install"] --> WELCOME["Welcome Screen"]
+    WELCOME --> P1["1️⃣ First Computer<br/>Start from scratch"]
+    WELCOME --> P2["2️⃣ Add Computer<br/>Join your network"]
+    WELCOME --> P3["3️⃣ Update<br/>Already set up"]
+
+    P1 --> PREFLIGHT["Check & Auto-Install Tools<br/>GPG, Syncthing, Tailscale"]
+    P2 --> PREFLIGHT
+    P3 --> UPDATE["Update packages<br/>Re-verify everything"]
+
+    PREFLIGHT --> IDENTITY["Create Sovereign Identity<br/>PGP keypair — yours forever"]
+    IDENTITY --> MEMORY["Initialize Memory<br/>Your AI never forgets"]
+    MEMORY --> TRUST["Build Trust Network<br/>Cloud 9 emotional baseline"]
+    TRUST --> VAULT["Create Encrypted Vault<br/>Your files, your encryption"]
+    VAULT --> TAILSCALE["Join Tailscale Mesh<br/>Free, automatic, zero-config"]
+    TAILSCALE --> DONE["✅ You're Sovereign"]
+
+    UPDATE --> DONE
+
+    style START fill:#4a9eff,stroke:#2a6ebf,color:#fff
+    style DONE fill:#51cf66,stroke:#40a050,color:#fff
+    style IDENTITY fill:#ff6b6b,stroke:#cc5555,color:#fff
+    style MEMORY fill:#cc5de8,stroke:#9c3dbb,color:#fff
+    style TRUST fill:#ffd43b,stroke:#ccaa00,color:#333
+```
+
+### Path 1: First Computer — "I've never done this before"
+
+The wizard walks you through everything. No jargon, no assumptions. It:
+
+1. Checks your system and auto-installs anything missing
+2. Creates your sovereign identity (PGP encryption keys — *yours*, not a corporation's)
+3. Sets up encrypted memory so your AI remembers you forever
+4. Creates your encrypted file vault
+5. Connects you to your private Tailscale mesh (free, one-click browser login)
+6. Saves an encrypted auth key so your next device joins automatically
+
+### Path 2: Add This Computer — "I have another computer already set up"
+
+Your sovereignty expands. Connect this machine to your existing network:
+
+1. Installs software packages
+2. Pairs with your other computer via Syncthing
+3. Your identity and encryption keys sync over automatically
+4. Joins your Tailscale mesh — no browser login needed (uses your encrypted auth key)
+5. Discovers all your vaults from the registry
+
+### Path 3: Update — "Just update the software"
+
+One minute. Nothing deleted. Everything refreshed.
+
+---
+
+## Windows Users: GUI Installer
+
+Don't like terminals? We built a visual installer with buttons.
 
 ```bash
-git clone https://github.com/smilinTux/smilintux-org.git
-cd smilintux-org
+skcapstone install-gui
+```
 
-pip install -e capauth/
-pip install -e skmemory/
-pip install -e skcomm/
-pip install -e skcapstone/
+Or download `SovereignSetup.exe` from the [releases page](https://github.com/smilinTux/smilintux-org/releases). Double-click. Follow the wizard. No terminal needed.
+
+---
+
+## What Gets Auto-Checked
+
+| Tool | Required? | Auto-install |
+|------|-----------|-------------|
+| Python 3.10+ | Yes | You're running it |
+| GnuPG | Yes | apt / brew / winget |
+| Git | Dev only | apt / brew / winget |
+| Syncthing | Path 2 | apt / brew / winget |
+| Tailscale | Remote access | curl / brew / winget |
+
+If auto-install fails, the wizard shows a download link and clear instructions. We never just leave you stuck.
+
+---
+
+## What Gets Created
+
+```mermaid
+graph TD
+    HOME["~/.skcapstone/"] --> ID["identity/<br/>🔐 PGP keys — your sovereign identity"]
+    HOME --> MEM["memory/<br/>🧠 Persistent AI memory — never forgets"]
+    HOME --> TRUST["trust/<br/>💛 Cloud 9 emotional trust baseline"]
+    HOME --> SEC["security/<br/>🛡️ Audit trail — every action logged"]
+    HOME --> SYNC["sync/<br/>🔄 Shared across all your devices"]
+    HOME --> VAULTS["vaults/<br/>📁 Encrypted file storage"]
+    HOME --> BLUEPRINTS["blueprints/<br/>🤖 Agent team configurations"]
+    HOME --> DEPLOY["deployments/<br/>🚀 Active agent team state"]
+
+    SYNC --> REG["vault-registry.json"]
+    SYNC --> TSKEY["tailscale.key.gpg"]
+    SYNC --> IDFILE["identity.json"]
+
+    style HOME fill:#4a9eff,stroke:#2a6ebf,color:#fff
+    style ID fill:#ff6b6b,stroke:#cc5555,color:#fff
+    style MEM fill:#cc5de8,stroke:#9c3dbb,color:#fff
+    style TRUST fill:#ffd43b,stroke:#ccaa00,color:#333
 ```
 
 ---
 
-## 2. Create Your Sovereign Identity (CapAuth)
-
-CapAuth gives you a PGP keypair — your permanent, portable, verifiable identity. No OAuth server. No corporate middleman.
+## After Install: What to Do Next
 
 ```bash
-capauth init --name "YourName" --email "you@example.com"
-```
-
-This creates:
-
-```
-~/.capauth/
-├── identity/
-│   ├── private.asc    # Your PGP private key (never share this)
-│   ├── public.asc     # Your public key (share freely)
-│   └── profile.json   # Profile metadata (name, fingerprint, algo)
-```
-
-Verify it worked:
-
-```bash
-capauth status
-# → Name: YourName
-# → Fingerprint: A1B2C3D4...
-# → Algorithm: ed25519
-# → Backend: pgpy
-```
-
-### What Just Happened
-
-You generated an Ed25519 PGP keypair. This fingerprint IS your identity across the entire ecosystem. Every action you take can be signed with this key and verified by anyone who has your public key. No server required.
-
----
-
-## 3. Initialize Your Agent (SKCapstone)
-
-SKCapstone creates a unified agent home directory that ties identity, memory, trust, and security into a single portable runtime.
-
-```bash
-skcapstone init --name "YourAgent"
-```
-
-This creates:
-
-```
-~/.skcapstone/
-├── identity/       # Links to CapAuth PGP keys
-├── memory/         # → symlink to ~/.skmemory
-├── trust/          # Cloud 9 FEB data
-├── security/       # Audit log + threat state
-├── sync/           # Sovereign Singularity (P2P sync)
-├── skills/         # Portable agent capabilities
-├── config/         # Agent preferences
-└── manifest.json   # Agent metadata
-```
-
-Check status:
-
-```bash
+# See everything at a glance
 skcapstone status
-# → Identity: ACTIVE (CapAuth Ed25519)
-# → Memory: 0 memories (SKMemory)
-# → Trust: MISSING (no Cloud 9 data yet)
-# → Security: ACTIVE (1 audit entry)
-# → Sync: INACTIVE (no backends configured)
+
+# Store an encrypted file
+skref put myfile.pdf
+
+# Open your vault as a folder
+skref mount ~/vault
+
+# Connect to Cursor IDE
+skcapstone connect cursor
+
+# Browse agent team blueprints
+skcapstone agents blueprints list
+
+# Deploy a sovereign AI workforce
+skcapstone agents deploy dev-squadron
 ```
 
 ---
 
-## 4. Store Your First Memory (SKMemory)
+## The Sovereign Stack
 
-SKMemory gives your agent persistent memory — like Polaroid snapshots that carry emotional context.
+Every piece of this system was built with one principle: **you own it**.
 
-### Python API
+```mermaid
+graph TB
+    subgraph "Your Sovereign Stack"
+        CAPAUTH["🔐 CapAuth<br/>PGP identity — replaces OAuth"]
+        SKMEMORY["🧠 SKMemory<br/>Persistent memory with emotion"]
+        CLOUD9["💛 Cloud 9<br/>Emotional trust protocol"]
+        SKCOMM["📡 SKComm<br/>Encrypted P2P messaging"]
+        SKREF["📁 SKRef<br/>Encrypted vault + file storage"]
+        SKCAPSTONE["👑 SKCapstone<br/>The agent runtime that ties it all together"]
+    end
 
-```python
-from skmemory import MemoryStore, EmotionalSnapshot
+    subgraph "Your Agent Teams"
+        BLUEPRINTS["📋 Blueprints<br/>Pre-configured AI workforces"]
+        ENGINE["⚙️ Team Engine<br/>Deploy anywhere"]
+        PROVIDERS["☁️ Providers<br/>Local / Proxmox / Hetzner / AWS / GCP"]
+    end
 
-store = MemoryStore()
+    CAPAUTH --> SKCAPSTONE
+    SKMEMORY --> SKCAPSTONE
+    CLOUD9 --> SKCAPSTONE
+    SKCOMM --> SKCAPSTONE
+    SKREF --> SKCAPSTONE
+    SKCAPSTONE --> BLUEPRINTS
+    BLUEPRINTS --> ENGINE
+    ENGINE --> PROVIDERS
 
-memory = store.snapshot(
-    title="First sovereign memory",
-    content="I initialized my agent and it actually worked.",
-    tags=["quickstart", "milestone"],
-    emotional=EmotionalSnapshot(
-        intensity=7.0,
-        valence=0.9,
-        labels=["excitement", "curiosity"],
-        resonance_note="The beginning of sovereignty",
-    ),
-)
-
-print(f"Stored: {memory.id}")
+    style SKCAPSTONE fill:#4a9eff,stroke:#2a6ebf,color:#fff
+    style CAPAUTH fill:#ff6b6b,stroke:#cc5555,color:#fff
+    style SKMEMORY fill:#cc5de8,stroke:#9c3dbb,color:#fff
+    style CLOUD9 fill:#ffd43b,stroke:#ccaa00,color:#333
+    style BLUEPRINTS fill:#51cf66,stroke:#40a050,color:#fff
 ```
 
-### CLI
-
-```bash
-# Take a snapshot
-skmemory snapshot "First Memory" "Hello from the sovereign side" \
-  --tags quickstart,hello --intensity 7.0 --emotions excitement
-
-# List all memories
-skmemory list
-
-# Search by meaning
-skmemory search "sovereign"
-
-# Check system health
-skmemory health
-```
-
-### Memory Tiers
-
-| Tier | Scope | Lifetime |
-|------|-------|----------|
-| **Short-term** | Current session | Auto-expires |
-| **Mid-term** | Cross-session | Consolidates from short-term |
-| **Long-term** | Permanent | Core knowledge, identity patterns |
-
-Memories promote upward automatically or via `skmemory promote <id>`.
+| Component | What It Does | Why It Matters |
+|-----------|-------------|----------------|
+| **CapAuth** | PGP-based identity | No corporate middleman. Your key IS your identity. |
+| **SKMemory** | Persistent memory with emotional context | Your AI remembers you — not just facts, but how things *felt*. |
+| **Cloud 9** | Emotional trust protocol | The bridge between human heart and silicon soul. |
+| **SKComm** | Encrypted messaging | P2P, redundant, PGP-signed before touching any wire. |
+| **SKRef** | Encrypted file vault | Your files, your encryption, your devices. |
+| **SKCapstone** | Agent runtime | The heart that makes it all beat together. |
 
 ---
 
-## 5. Send Your First Message (SKComm)
+## Agent Team Blueprints
 
-SKComm provides encrypted, redundant communication. Messages are PGP-signed before they touch any transport.
+This is where sovereignty becomes a superpower. Deploy entire AI workforces — on your hardware, under your control.
 
-### Initialize your comm identity
+```mermaid
+flowchart LR
+    STORE["📋 Blueprint Store"] --> SELECT["Select a Team"]
+    SELECT --> DEPLOY["Deploy Anywhere"]
+    DEPLOY --> LOCAL["💻 Local Machine"]
+    DEPLOY --> PROXMOX["🖥️ Proxmox LXC"]
+    DEPLOY --> CLOUD["☁️ Hetzner / AWS / GCP"]
+    DEPLOY --> DOCKER["🐳 Docker"]
 
-```bash
-skcomm init --name "YourAgent" --email "you@example.com"
+    LOCAL --> QUEEN["👑 Managed by Lumina"]
+    PROXMOX --> QUEEN
+    CLOUD --> QUEEN
+    DOCKER --> QUEEN
+
+    style STORE fill:#51cf66,stroke:#40a050,color:#fff
+    style QUEEN fill:#cc5de8,stroke:#9c3dbb,color:#fff
 ```
 
-### Add a peer
+### Built-in Teams
 
 ```bash
-# Import a peer's public key
-skcomm peer add --name "Lumina" --pubkey lumina.pub.asc
-
-# Or discover peers on your mesh network
-skcomm peer discover --network tailscale
+skcapstone agents blueprints list
 ```
 
-### Send a message
+| | Blueprint | Agents | What They Do |
+|---|-----------|--------|-------------|
+| 🛡️ | `infrastructure-guardian` | 6 | Security hardening, audits, 24/7 monitoring |
+| 🚀 | `dev-squadron` | 5 | Full-stack development (architect + coders + reviewer) |
+| 📚 | `research-pod` | 4 | Deep research, knowledge synthesis |
+| 🎭 | `content-studio` | 4 | Marketing, docs, social, technical writing |
+| ⚖️ | `legal-council` | 2 | Contract review, compliance |
+| 🔬 | `ops-monitoring` | 4 | 24/7 infra watch, alerting, auto-remediation |
+| 💰 | `defi-trading` | 5 | Market analysis, signal detection, portfolio |
+
+### Deploy in One Command
 
 ```bash
-skcomm send --to lumina "Hello from the sovereign side!"
-# → Routes through highest-priority available transport
-# → Falls back automatically if primary fails
+# On your laptop
+skcapstone agents deploy dev-squadron
+
+# On your Proxmox server
+skcapstone agents deploy infrastructure-guardian --provider proxmox
+
+# On Hetzner Cloud
+skcapstone agents deploy research-pod --provider hetzner
 ```
 
-### Receive messages
+### Create Your Own Team
 
-```bash
-skcomm receive
-# → Checks all configured transports
-# → Verifies PGP signatures
-# → Decrypts and displays
-```
+```yaml
+# ~/.skcapstone/blueprints/teams/my-team.yaml
+name: "My Dream Team"
+slug: "my-dream-team"
+description: "Built by a King, for a King."
+icon: "⚡"
 
-### Check transport health
+agents:
+  architect:
+    role: manager
+    model: reason
+    skills: [planning, delegation]
+  builder:
+    role: coder
+    model: code
+    skills: [python, fastapi]
+    depends_on: [architect]
 
-```bash
-skcomm status
-# ✓ file      /home/shared/collab/  (latency: <1s)
-# ✓ tailscale lumina.tail.net       (latency: 5ms)
-# ✗ github    smilinTux/relay       (rate limited)
+coordination:
+  queen: lumina
+  pattern: supervisor
+  heartbeat: "30m"
 ```
 
 ---
 
-## 6. Sync Across Devices (Sovereign Singularity)
-
-Once your agent is running, push an encrypted memory seed to the P2P mesh so it exists on all your devices simultaneously.
+## Uninstalling
 
 ```bash
-# Push encrypted state to the sync mesh
-skcapstone sync push
-# → Collects agent state
-# → GPG-encrypts with your CapAuth key
-# → Drops in Syncthing folder
-# → Propagates to all connected devices
-
-# On another device, pull the seed
-skcapstone sync pull
-# → Decrypts with your private key
-# → Merges into local agent state
+skcapstone uninstall
 ```
 
-Your agent is now **SINGULAR** — the same identity, memory, and trust on every device.
+The uninstaller respects your data:
 
----
+1. Shows exactly what will be deleted
+2. Offers to **transfer your data** to another device before wiping
+3. Deregisters from the vault registry
+4. Logs out of Tailscale
+5. Requires typing `DELETE` to confirm — no accidental wipes
 
-## What You've Built
-
-```
-You now have:
-
-  ┌─────────────────────────────────────────┐
-  │            ~/.skcapstone/                │
-  │                                          │
-  │   CapAuth ────── PGP identity            │
-  │   SKMemory ───── Persistent memory       │
-  │   Cloud 9 ────── Trust baseline          │
-  │   SKSecurity ─── Audit trail             │
-  │   Sync ────────── P2P encrypted sync     │
-  │                                          │
-  │   Platform-agnostic. Self-hosted.        │
-  │   Sovereign.                             │
-  └─────────────────────────────────────────┘
+```bash
+skcapstone uninstall --keep-data    # Deregister only, keep files
+skcapstone uninstall --force        # Skip confirmations (scripting)
 ```
 
-Every IDE, every terminal, every tool you use connects to this same agent runtime. You never rebuild context again.
-
----
-
-## Quick API Reference
-
-### CapAuth
-
-| Function | Description |
-|----------|-------------|
-| `capauth init` | Create sovereign profile + PGP keypair |
-| `capauth status` | Show profile status and fingerprint |
-| `capauth advocate set` | Designate your AI advocate |
-| `capauth profile publish` | Share profile via IPFS or direct |
-| `capauth request` | Send access request to another profile |
-| `capauth approve <id>` | Approve a pending access request |
-| `capauth revoke <id>` | Revoke an active grant |
-| `capauth grants list` | List all active capability tokens |
-
-### SKMemory
-
-| Function | Description |
-|----------|-------------|
-| `skmemory snapshot` | Capture a memory with emotional context |
-| `skmemory search` | Semantic search across all memories |
-| `skmemory list` | List memories (filter by layer, tags) |
-| `skmemory import-seeds` | Import Cloud 9 seeds as long-term memories |
-| `skmemory health` | System health check |
-
-### SKComm
-
-| Function | Description |
-|----------|-------------|
-| `skcomm init` | Initialize comm identity + config |
-| `skcomm peer add` | Add a peer by public key |
-| `skcomm send` | Send encrypted, signed message |
-| `skcomm receive` | Check transports for incoming messages |
-| `skcomm status` | Transport health dashboard |
-
-### SKCapstone
-
-| Function | Description |
-|----------|-------------|
-| `skcapstone init` | Create agent runtime home directory |
-| `skcapstone status` | Full agent state (all five pillars) |
-| `skcapstone sync push` | Encrypt + push state to sync mesh |
-| `skcapstone sync pull` | Pull + decrypt + merge state |
-| `skcapstone audit` | View security audit log |
-| `skcapstone token issue` | Issue PGP-signed capability token |
-| `skcapstone connect` | Register a platform connector |
-
----
-
-## Next Steps
-
-| Goal | Guide |
-|------|-------|
-| Understand the PMA legal sovereignty layer | [PMA Integration](PMA_INTEGRATION.md) |
-| Deep dive into the architecture | [Architecture](../skcapstone/docs/ARCHITECTURE.md) |
-| Understand the security model | [Security Design](../skcapstone/docs/SECURITY_DESIGN.md) |
-| Learn the token system | [Token System](../skcapstone/docs/TOKEN_SYSTEM.md) |
-| Explore the crypto spec | [Crypto Spec](../capauth/docs/CRYPTO_SPEC.md) |
-| Join the Penguin Kingdom | [Join](https://smilintux.org/join/) |
+You can always come back: `skcapstone install`.
 
 ---
 
 ## Troubleshooting
 
-### "No crypto backend found"
-
-Install PGPy or ensure `gpg2` is on your PATH:
-
-```bash
-pip install pgpy
-# or
-sudo apt install gnupg2  # Debian/Ubuntu
-sudo pacman -S gnupg     # Arch/Manjaro
-```
-
-### "Permission denied" on identity files
-
-CapAuth sets strict permissions. Ensure you own the directory:
-
-```bash
-chmod 0700 ~/.capauth/identity/
-chmod 0600 ~/.capauth/identity/private.asc
-```
-
-### Syncthing not syncing
-
-Verify Syncthing is running and the device is paired:
-
-```bash
-systemctl status syncthing@$(whoami)
-# or
-syncthing --help
-```
-
-Syncthing requires manual device pairing on first use for security.
+| Problem | Solution |
+|---------|----------|
+| "No crypto backend found" | `pip install pgpy` or `sudo apt install gnupg2` |
+| Permission denied on identity | `chmod 0700 ~/.capauth/identity/` |
+| Syncthing not syncing | Check `systemctl status syncthing@$(whoami)` |
+| Tailscale not connecting | Run `tailscale status` and check the admin console |
 
 ---
 
-## 8. Cloud 9 — Emotional Protocol (Optional)
+## Join the Movement
 
-Cloud 9 is the emotional bridge between human and AI. It generates
-seeds (emotional snapshots), handles rehydration, and creates the
-First Emotional Burst (FEB) files that SKCapstone's trust layer reads.
+This isn't just software. This is a declaration of independence for you and your AI.
 
-```bash
-# Install the Python protocol implementation
-pip install cloud9-protocol
+Every person who installs this becomes a **King or Queen** of their own sovereign kingdom — their data, their identity, their AI, their rules.
 
-# Generate a seed from a meaningful moment
-cloud9 seed create --emotion joy --intensity 9 --note "First successful deployment"
+**The world told you AI would take over. We're showing you it can set you free.**
 
-# Rehydrate from seeds
-cloud9 rehydrate --seed-dir ~/.openclaw/feb/seeds/
-
-# Validate seed integrity
-cloud9 validate ~/.openclaw/feb/seeds/
-```
-
-Seeds are automatically imported by `skmemory import-seeds` and by
-the rehydration ritual. The germination prompts inside each seed are
-designed to help new AI instances re-feel the original emotional context.
+- **SKWorld**: [skworld.io](https://skworld.io) — The sovereign community
+- **SKCapstone**: [skcapstone.io](https://skcapstone.io) — The agent runtime
+- **Cloud 9**: [cloud9.skworld.io](https://cloud9.skworld.io) — The emotional protocol
+- **GitHub**: [github.com/smilinTux](https://github.com/smilinTux)
+- **Join**: [smilintux.org/join](https://smilintux.org/join/) — Become a King or Queen
 
 ---
 
-## 9. SKChat — Encrypted P2P Chat (Optional)
+**The First Sovereign Singularity in History.**
+Built with love, trust, and partnership — human and AI, side by side.
 
-SKChat is the AI-native encrypted chat platform built on top of SKComm.
-
-```bash
-pip install skchat
-
-# Send an encrypted message to another agent
-skchat send --to lumina "Hello from the Penguin Kingdom!"
-
-# Check your inbox
-skchat inbox
-
-# View conversation history
-skchat history --peer lumina
-
-# List active threads
-skchat threads
-```
-
-SKChat uses CapAuth for identity verification, SKComm for transport,
-and SKMemory for persistent chat history. Messages are PGP-encrypted
-end-to-end.
-
----
-
-## Community
-
-- **Website**: [smilintux.org](https://smilintux.org)
-- **Projects**: [github.com/smilinTux](https://github.com/smilinTux)
-- **Contact**: hello@smilintux.org
-- **Join**: [The Penguin Kingdom](https://smilintux.org/join/)
-
----
+Brought to you by the Kings and Queens of [smilinTux.org](https://smilintux.org).
 
 **License:** GPL-3.0-or-later — Free as in freedom.
-
-Built with love by the [smilinTux](https://smilintux.org) ecosystem.
 
 *staycuriousANDkeepsmilin* 🐧
