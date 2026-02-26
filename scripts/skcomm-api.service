@@ -1,0 +1,76 @@
+# SKComm REST API — systemd user service
+#
+# Runs the SKComm FastAPI server as a persistent background service
+# under the current user account (no root required).
+#
+# INSTALL
+# -------
+#   mkdir -p ~/.config/systemd/user
+#   cp scripts/skcomm-api.service ~/.config/systemd/user/skcomm-api.service
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now skcomm-api
+#
+# MANAGE
+# ------
+#   systemctl --user status skcomm-api
+#   systemctl --user restart skcomm-api
+#   systemctl --user stop skcomm-api
+#   journalctl --user -u skcomm-api -f          # follow logs
+#   journalctl --user -u skcomm-api --since today
+#
+# EXPOSE TO LAN (optional)
+# ------------------------
+#   Override the bind host by editing the ExecStart line:
+#     --host 0.0.0.0   → listen on all interfaces (use a firewall!)
+#     --host 192.168.1.x → bind to a specific LAN interface
+#
+# ENABLE LINGER (survive logout)
+# -------------------------------
+#   loginctl enable-linger $USER
+#
+# ENVIRONMENT OVERRIDES
+# ---------------------
+#   Drop a file at ~/.config/skcomm-api.env and reference it in
+#   EnvironmentFile below to set SKCOMM_HOME, LOG_LEVEL, etc.
+
+[Unit]
+Description=SKComm REST API Server (port 9384)
+Documentation=https://github.com/smilinTux/smilinTux-org
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# --- Identity / working directory ---
+WorkingDirectory=%h
+StandardOutput=journal
+StandardError=journal
+
+# --- Optional environment file (create if you need overrides) ---
+# EnvironmentFile=-%h/.config/skcomm-api.env
+
+# --- Environment ---
+Environment="PYTHONUNBUFFERED=1"
+Environment="LOG_LEVEL=info"
+
+# --- Command ---
+# Uses the `skcomm serve` CLI so it respects ~/.skcomm/config.yml automatically.
+# If skcomm is installed in a virtualenv, replace the ExecStart path accordingly:
+#   ExecStart=/path/to/venv/bin/skcomm serve --host 127.0.0.1 --port 9384
+ExecStart=%h/.pyenv/shims/skcomm serve --host 127.0.0.1 --port 9384
+
+# --- Resilience ---
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+# --- Security hardening ---
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=read-only
+ReadWritePaths=%h/.skcomm %h/.skcapstone
+
+[Install]
+WantedBy=default.target

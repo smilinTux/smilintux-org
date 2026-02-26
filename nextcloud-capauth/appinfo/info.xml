@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>capauth</id>
+    <name>CapAuth Passwordless Login</name>
+    <summary>Passwordless PGP-based authentication via CapAuth</summary>
+    <description><![CDATA[
+Enable passwordless login to Nextcloud using CapAuth sovereign identity.
+
+Instead of username and password, users authenticate by proving ownership
+of their PGP private key. No passwords stored. No PII on server. Zero-knowledge.
+
+Requires a running CapAuth Verification Service (capauth-service).
+
+Features:
+- Passwordless PGP challenge-response authentication
+- Zero PII stored server-side (fingerprint only)
+- Auto-enrollment for new keys
+- Admin approval mode for high-security deployments
+- OIDC-compatible claims from client-asserted profiles
+- Works with capauth CLI, browser extension, and QR mobile login
+    ]]></description>
+    <version>1.0.0</version>
+    <licence>gpl</licence>
+    <author>smilinTux</author>
+    <namespace>CapAuth</namespace>
+    <category>security</category>
+    <category>authentication</category>
+    <bugs>https://github.com/smilinTux/nextcloud-capauth/issues</bugs>
+    <repository>https://github.com/smilinTux/nextcloud-capauth</repository>
+    <dependencies>
+        <nextcloud min-version="28" max-version="31"/>
+    </dependencies>
+    <settings>
+        <admin>OCA\CapAuth\Settings\AdminSettings</admin>
+    </settings>
+</info>

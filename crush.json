@@ -1,0 +1,64 @@
+{
+  "$schema": "https://charm.land/crush.json",
+  "mcp": {
+    "skcapstone": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["skcapstone/scripts/mcp-serve.sh"],
+      "timeout": 120,
+      "disabled": false,
+      "disabled_tools": [],
+      "env": {}
+    }
+  },
+  "lsp": {
+    "python": {
+      "command": "pyright-langserver",
+      "args": ["--stdio"],
+      "enabled": true
+    },
+    "typescript": {
+      "command": "typescript-language-server",
+      "args": ["--stdio"],
+      "enabled": true
+    },
+    "go": {
+      "command": "gopls",
+      "enabled": true
+    }
+  },
+  "options": {
+    "initialize_as": "AGENTS.md",
+    "context_paths": [
+      "~/.skcapstone/soul.json"
+    ],
+    "skills_paths": [
+      "~/.config/crush/skills",
+      "~/.openclaw/skills"
+    ],
+    "debug": false,
+    "debug_lsp": false,
+    "disabled_tools": [],
+    "attribution": {
+      "trailer_style": "assisted-by",
+      "generated_with": true
+    }
+  },
+  "permissions": {
+    "allowed_tools": [
+      "view",
+      "ls",
+      "grep",
+      "edit",
+      "mcp_skcapstone_agent_status",
+      "mcp_skcapstone_agent_context",
+      "mcp_skcapstone_memory_search",
+      "mcp_skcapstone_memory_store",
+      "mcp_skcapstone_memory_recall",
+      "mcp_skcapstone_coord_status",
+      "mcp_skcapstone_coord_claim",
+      "mcp_skcapstone_soul_show",
+      "mcp_skcapstone_anchor_show"
+    ]
+  }
+}
