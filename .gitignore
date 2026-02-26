@@ -26,4 +26,66 @@ node_modules/
 
 # Task files
 tasks.json
-tasks/ 
+tasks/
+
+# Embedded git repositories (separate repos)
+# These are tracked as separate repositories, not submodules
+skcapstone/
+skcomm/
+skchat/
+skskills/
+skseal/
+skref/
+skpdf/
+skmemory/
+skyforge/
+sksecurity/
+skaid/
+skforge/
+skdata/
+skgraph/
+skstacks/
+skvector/
+skworld/
+cloud9/
+cloud9-python/
+sksovereign-agent/
+capauth/
+skhelp/
+
+# Legacy / redirect repos
+skills/
+skills-io/
+skchat-io/
+skcomm-io/
+skcapstone-io/
+sksecurity-io/
+skstacks-io/
+skgraph-io/
+skvector-io/
+skworld-io/
+skyforge-io/
+skaid-io/
+skforge-io/
+skdata-io/
+souls-skworld/
+souls-skworld-io/
+teddybanks-skworld/
+teddybanks-skworld-io/
+lumina-skworld/
+lumina-skworld-io/
+
+# Other projects
+smilinTux.github.io/
+assets/
+mcporter/
+nextcloud-gtd/
+nextcloud-talk/
+nextcloud-capauth/
+context-separation/
+context-separation-skill/
+oauth-helper-skill/
+openclaw-skills/
+capauth-io/
+.github-repo/
+soul-blueprints/ 
