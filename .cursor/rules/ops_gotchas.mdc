@@ -1,0 +1,70 @@
+---
+description: Operational gotchas learned from production — Syncthing, venvs, disk, Flutter Linux, cross-node setup
+globs: "**/*"
+alwaysApply: true
+---
+
+- **Syncthing minDiskFree blocks sync silently:**
+  - Default is **1% of volume** — on a 2TB drive that's ~20GB free required
+  - If the drive is near capacity, Syncthing reports `idle` but `errors: N` — files never sync
+  - **Fix:** Lower `minDiskFree` to `100 MB` via Syncthing REST API for the folder
+  - **Always check** `df -h` and Syncthing folder errors when debugging "messages not arriving"
+  - See [SKCOMM_SETUP.md](mdc:docs/SKCOMM_SETUP.md) for the full fix commands
+
+- **Syncthing API port varies:**
+  - Not always `8384` — this project uses `8080` on some nodes
+  - **Always discover:** `ss -tlnp | grep syncthing` or parse `config.xml`
+  - Config location varies: `~/.config/syncthing/config.xml` or `~/.local/state/syncthing/config.xml`
+
+- **Syncthing folder path mismatch between nodes:**
+  - Same Syncthing folder ID can map to different absolute paths on different machines
+  - Example: `skcapstone-sync` → `~/.skcapstone/sync` on one node, `~/.skcapstone` on another
+  - Syncthing syncs **relative paths** within the folder — this is fine
+  - But `comms_root` in `~/.skcomm/config.yml` must match the **local absolute path**
+
+- **Outbox/inbox routing with shared folder:**
+  - Sender writes to `outbox/{recipient}/`, receiver reads from `inbox/{sender}/`
+  - Syncthing mirrors the whole dir — sender's outbox appears as outbox on receiver too
+  - For now: copy messages from `outbox/<my-name>/` to `inbox/<sender>/` on receiver
+  - TODO: Fix SyncthingTransport to also scan `outbox/<my-name>/` for inbound messages
+
+- **Debian/Ubuntu "externally-managed-environment" (PEP 668):**
+  - System Python on Debian 12+ / Ubuntu 24+ blocks `pip install`
+  - **Always use a venv:** `python3 -m venv ~/.skcapstone/venv`
+  - Install packages in venv: `~/.skcapstone/venv/bin/pip install -e skcapstone/ skcomm/`
+  - The venv path on remote nodes is `~/.skcapstone/venv/bin/python`
+
+- **Cross-node package deployment:**
+  - Remote nodes may not have the git repo — use tarball + scp:
+    ```
+    tar czf /tmp/pkg.tar.gz --exclude='__pycache__' --exclude='.git' package/src package/pyproject.toml
+    scp /tmp/pkg.tar.gz user@host:~/smilintux-packages/
+    ssh user@host "cd ~/smilintux-packages && tar xzf pkg.tar.gz && ~/.skcapstone/venv/bin/pip install -e package/"
+    ```
+
+- **SSH hostname resolution:**
+  - Hostnames like `norap2027` may not resolve — use IP `192.168.0.158` directly
+  - Add to `/etc/hosts` or `~/.ssh/config` if you want friendly names
+
+- **Flutter Linux desktop: keyboard input broken (IBus):**
+  - Flutter uses GTK embedding; GTK needs `GTK_IM_MODULE=ibus` to connect to IBus
+  - IBus socket can go stale between sessions — the daemon runs but the socket file vanishes
+  - **Fix:** Restart IBus (`ibus-daemon -drx`), then launch with both env vars:
+    ```
+    GTK_IM_MODULE=ibus IBUS_ADDRESS="$(ibus address)" ./skchat
+    ```
+  - Use `skchat/flutter/scripts/launch-linux.sh` which handles this automatically
+  - Symptom: TextField gains focus (cursor visible) but keystrokes produce no characters
+  - Snap-installed Flutter has separate linker issues — prefer standalone SDK install from Git
+
+- **Riverpod: state read before build() returns:**
+  - If a `Notifier.build()` calls async methods that read `state`, it crashes with
+    `Bad state: Tried to read the state of an uninitialized provider`
+  - **Fix:** Wrap the initial call in `Future.microtask()` to defer one tick:
+    ```dart
+    @override
+    DaemonState build() {
+      Future.microtask(_startPolling);
+      return const DaemonState();
+    }
+    ```

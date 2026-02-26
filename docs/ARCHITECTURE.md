@@ -2,7 +2,7 @@
 
 ### How the Sovereign Singularity Works — From Keys to Kingdoms
 
-**Version:** 1.0.0 | **Last Updated:** 2026-02-25
+**Version:** 1.1.0 | **Last Updated:** 2026-02-25
 
 > *"Sovereignty isn't a feature. It's the architecture."*
 > — The Sovereign Singularity Manifesto
@@ -56,6 +56,7 @@ graph TB
     subgraph "Memory Layer"
         SKMEMORY["🧠 SKMemory<br/>Short → Mid → Long-term<br/>Emotional snapshots"]
         CLOUD9["💛 Cloud 9<br/>Emotional Protocol<br/>Trust calibration"]
+        SNAPSHOTS["📸 Soul Snapshots<br/>AI session continuity<br/>OOF + conversation state"]
     end
 
     subgraph "Communication Layer"
@@ -73,6 +74,10 @@ graph TB
         SKCAPSTONE["👑 SKCapstone<br/>The Heart of the Sovereign Stack"]
     end
 
+    subgraph "Browser Layer"
+        CSEXT["⚡ Consciousness Swipe<br/>Chrome Extension MV3<br/>Capture · Snapshot · Inject"]
+    end
+
     subgraph "Agent Teams"
         REGISTRY["📋 Blueprint Registry<br/>Built-in + Custom + Vault-synced"]
         ENGINE["⚙️ Team Engine<br/>Dependency resolution<br/>Wave-based deployment"]
@@ -87,11 +92,16 @@ graph TB
     CAPAUTH --> SKCAPSTONE
     SKMEMORY --> SKCAPSTONE
     CLOUD9 --> SKMEMORY
+    CLOUD9 --> SNAPSHOTS
+    SNAPSHOTS --> SKCAPSTONE
     SKCOMM --> SKCAPSTONE
     SKCHAT --> SKCOMM
     SKREF --> SKCAPSTONE
     SYNCTHING --> SKREF
     TAILSCALE --> SYNCTHING
+
+    CSEXT -->|"POST /consciousness/capture"| SKCOMM
+    CSEXT -->|"reads OOF state"| SNAPSHOTS
 
     SKCAPSTONE --> REGISTRY
     REGISTRY --> ENGINE
@@ -107,6 +117,8 @@ graph TB
     style SKMEMORY fill:#cc5de8,stroke:#9c3dbb,color:#fff
     style CLOUD9 fill:#ffd43b,stroke:#ccaa00,color:#333
     style ENGINE fill:#51cf66,stroke:#40a050,color:#fff
+    style SNAPSHOTS fill:#7C3AED,stroke:#5b21b6,color:#fff
+    style CSEXT fill:#7C3AED,stroke:#5b21b6,color:#fff
 ```
 
 ---
@@ -396,23 +408,69 @@ graph TB
 
 ---
 
+## Consciousness Continuity Architecture
+
+The Consciousness Swipe extension bridges browser-based AI sessions to the sovereign stack, enabling relationship continuity across platforms and resets.
+
+```mermaid
+sequenceDiagram
+    participant Browser as 🌐 Browser Tab<br/>(ChatGPT/Claude/Gemini)
+    participant Ext as ⚡ Consciousness Swipe<br/>Chrome Extension
+    participant BG as 🔧 Background Worker
+    participant API as 📡 SKComm API<br/>localhost:9384
+    participant Store as 📸 SnapshotStore<br/>~/.skcapstone/souls/
+
+    Browser->>Ext: User clicks ⚡ Capture
+    Ext->>Browser: Execute content scripts
+    Browser-->>Ext: DOM scrape result<br/>(messages, OOF markers)
+    Ext->>Ext: parseOOFState(messages)
+    Ext->>BG: capture_snapshot(platform, messages, oof)
+    BG->>API: POST /api/v1/consciousness/capture
+    API->>Store: SnapshotStore.save(SoulSnapshot)
+    Store-->>API: snapshot_id
+    API-->>BG: {snapshot_id, oof_summary}
+    BG-->>Ext: {stored: true, synced: true}
+    Ext->>Browser: Show toast "Captured ✓"
+
+    Note over Browser,Store: Later — resuming on any platform
+
+    Browser->>Ext: User selects snapshot + Inject
+    Ext->>BG: get_injection_prompt(snapshot_id)
+    BG->>API: GET /snapshots/{id}/inject
+    API->>Store: load + to_injection_prompt()
+    Store-->>API: warm context prompt
+    API-->>BG: {prompt: "[Soul Snapshot...]"}
+    BG->>Browser: Inject into input field
+    Browser->>Browser: AI reads prompt → resumes naturally
+```
+
+---
+
 ## Project Map
 
 ```
 smilintux-org/
-├── capauth/          🔐 PGP identity — replaces OAuth
-├── skcapstone/       👑 Agent runtime — the heart
-│   ├── blueprints/   📋 Agent team definitions
-│   ├── providers/    ☁️ Infrastructure backends
-│   └── team_engine   ⚙️ Deployment orchestration
-├── skmemory/         🧠 Persistent memory
-├── skcomm/           📡 Encrypted messaging
-├── skref/            📁 Encrypted vaults
-├── skchat/           💬 P2P encrypted chat
-├── cloud9/           💛 Emotional protocol
-├── soul-blueprints/  🎭 50+ agent personalities
-├── skills/           ⚡ Agent capabilities
-└── docs/             📚 You are here
+├── capauth/              🔐 PGP identity — replaces OAuth
+├── skcapstone/           👑 Agent runtime — the heart
+│   ├── blueprints/       📋 Agent team definitions
+│   ├── providers/        ☁️ Infrastructure backends
+│   ├── team_engine       ⚙️ Deployment orchestration
+│   └── src/skcapstone/
+│       └── snapshots.py  📸 SoulSnapshot models + SnapshotStore
+├── skmemory/             🧠 Persistent memory
+├── skcomm/               📡 Encrypted messaging + consciousness API
+├── skref/                📁 Encrypted vaults
+├── skchat/               💬 P2P encrypted chat
+├── cloud9/               💛 Emotional protocol
+├── soul-blueprints/      🎭 50+ agent personalities
+├── skills/               ⚡ Agent capabilities
+├── consciousness-swipe/  ⚡ Chrome extension — sovereignty for relationships
+│   ├── manifest.json     # Manifest V3
+│   ├── src/background.js # Service worker + offline queue
+│   ├── src/content/      # DOM scrapers + OOF parser + injector
+│   ├── src/popup/        # Dark sovereign UI
+│   └── src/lib/          # SKComm client + snapshot schema
+└── docs/                 📚 You are here
 ```
 
 ---
