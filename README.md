@@ -73,6 +73,22 @@ pip install skchat       # Messaging
 pip install skcomm       # Transport
 ```
 
+### Developer Install (from source)
+
+Clone the monorepo and install every package in editable mode:
+
+```bash
+git clone https://github.com/smilinTux/smilintux-org.git
+cd smilintux-org
+bash scripts/install-all.sh
+```
+
+This installs all 12 SK* packages with editable (`-e`) mode and verifies every CLI is on your PATH. Use `--check` to see what's already installed:
+
+```bash
+bash scripts/install-all.sh --check
+```
+
 ---
 
 ## 🏗️ Architecture
