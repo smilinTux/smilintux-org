@@ -150,7 +150,7 @@ function extractTimestamp(el) {
  *
  * @returns {{messages: Array<{role: string, content: string, timestamp: string|null}>, metadata: Object}}
  */
-export function scrapeConversation() {
+function scrapeConversation() {
   const messages = [];
   const errors = [];
 

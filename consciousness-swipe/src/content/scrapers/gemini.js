@@ -198,7 +198,7 @@ function scrapeViaContainer() {
  *
  * @returns {{messages: Array, metadata: Object}}
  */
-export function scrapeConversation() {
+function scrapeConversation() {
   const messages =
     scrapeViaComponents() ??
     scrapeViaContainer() ??

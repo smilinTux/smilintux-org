@@ -215,7 +215,7 @@ function collectMessages() {
  *
  * @returns {{messages: Array, metadata: Object}}
  */
-export function scrapeConversation() {
+function scrapeConversation() {
   const messages = collectMessages();
 
   // Detect model
