@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Run cross-package integration tests for the sovereign stack.
 #
-# These tests verify the full flow: CapAuth identity -> SKChat crypto ->
-# SKComm file transport -> SKMemory chat history. No mocks, real crypto.
+# These tests verify full cross-package flows:
+#   - CapAuth identity -> SKChat crypto -> SKComm transport -> SKMemory history
+#   - CapAuth identity -> SKSeal document signing -> verification
+#   - SKSecurity scanning -> quarantine -> SKComm transport safety
 #
 # Must run from outside the monorepo root (or /tmp) to avoid local
 # directories shadowing installed packages.

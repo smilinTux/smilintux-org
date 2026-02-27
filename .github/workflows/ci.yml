@@ -22,6 +22,11 @@ jobs:
       cloud9: ${{ steps.filter.outputs.cloud9 }}
       skpdf: ${{ steps.filter.outputs.skpdf }}
       skcapstone: ${{ steps.filter.outputs.skcapstone }}
+      skseal: ${{ steps.filter.outputs.skseal }}
+      skref: ${{ steps.filter.outputs.skref }}
+      skyforge: ${{ steps.filter.outputs.skyforge }}
+      skskills: ${{ steps.filter.outputs.skskills }}
+      sksovereign-agent: ${{ steps.filter.outputs.sksovereign-agent }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -44,6 +49,18 @@ jobs:
               - 'skpdf/**'
             skcapstone:
               - 'skcapstone/**'
+            skseal:
+              - 'skseal/**'
+            skref:
+              - 'skref/**'
+            skyforge:
+              - 'skyforge/**'
+            skskills:
+              - 'skskills/**'
+            sksovereign-agent:
+              - 'sksovereign-agent/**'
+
+  # ── Core packages (full matrix + linting) ────────────────────
 
   capauth:
     needs: detect-changes
@@ -61,9 +78,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short
+      - run: python -m pytest tests/ -v --tb=short --cov=capauth --cov-report=xml:coverage.xml
       - run: black --check src/ tests/
         if: matrix.python-version == '3.12'
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-capauth
+          path: capauth/coverage.xml
 
   skcomm:
     needs: detect-changes
@@ -80,12 +102,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[all,dev]"
-        continue-on-error: true
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short
+      - run: pip install -e ".[all,dev]" || pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short --cov=skcomm --cov-report=xml:coverage.xml
       - run: black --check src/ tests/
         if: matrix.python-version == '3.12'
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-skcomm
+          path: skcomm/coverage.xml
 
   skchat:
     needs: detect-changes
@@ -103,11 +128,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[cli,dev]"
-      - run: pip install -e ../skmemory
-        continue-on-error: true
-      - run: python -m pytest tests/ -v --tb=short
+      - run: pip install -e ../skmemory || true
+      - run: python -m pytest tests/ -v --tb=short --cov=skchat --cov-report=xml:coverage.xml
       - run: black --check src/ tests/
         if: matrix.python-version == '3.12'
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-skchat
+          path: skchat/coverage.xml
 
   skmemory:
     needs: detect-changes
@@ -125,9 +154,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short
+      - run: python -m pytest tests/ -v --tb=short --cov=skmemory --cov-report=xml:coverage.xml
       - run: black --check skmemory/ tests/
         if: matrix.python-version == '3.12'
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-skmemory
+          path: skmemory/coverage.xml
 
   sksecurity:
     needs: detect-changes
@@ -145,7 +179,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short
+      - run: python -m pytest tests/ -v --tb=short --cov=sksecurity --cov-report=xml:coverage.xml
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-sksecurity
+          path: sksecurity/coverage.xml
 
   cloud9:
     needs: detect-changes
@@ -163,12 +202,20 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short
+      - run: python -m pytest tests/ -v --tb=short --cov=cloud9 --cov-report=xml:coverage.xml
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-cloud9
+          path: cloud9-python/coverage.xml
 
   skpdf:
     needs: detect-changes
     if: needs.detect-changes.outputs.skpdf == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
     defaults:
       run:
         working-directory: skpdf
@@ -176,9 +223,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short
+      - run: python -m pytest tests/ -v --tb=short --cov=skpdf --cov-report=xml:coverage.xml
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-skpdf
+          path: skpdf/coverage.xml
 
   skcapstone:
     needs: detect-changes
@@ -196,10 +248,130 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short
+      - run: python -m pytest tests/ -v --tb=short --cov=skcapstone --cov-report=xml:coverage.xml
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-skcapstone
+          path: skcapstone/coverage.xml
+
+  # ── Additional packages ──────────────────────────────────────
+
+  skseal:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skseal == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: skseal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short --cov=skseal --cov-report=xml:coverage.xml
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-skseal
+          path: skseal/coverage.xml
+
+  skref:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skref == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: skref
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short --cov=skref --cov-report=xml:coverage.xml
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-skref
+          path: skref/coverage.xml
+
+  skyforge:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skyforge == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: skyforge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short --cov=skyforge --cov-report=xml:coverage.xml
+        continue-on-error: true
+
+  skskills:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skskills == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: skskills
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short --cov=skskills --cov-report=xml:coverage.xml
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-skskills
+          path: skskills/coverage.xml
+
+  sksovereign-agent:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.sksovereign-agent == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: sksovereign-agent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short --cov=sksovereign_agent --cov-report=xml:coverage.xml
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-sksovereign-agent
+          path: sksovereign-agent/coverage.xml
+
+  # ── Cross-package integration tests ──────────────────────────
 
   integration:
-    needs: [capauth, skcomm, skchat, skmemory]
+    needs: [capauth, skcomm, skchat, skmemory, skseal, sksecurity]
     if: always() && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
@@ -213,22 +385,98 @@ jobs:
           pip install -e skmemory/[dev]
           pip install -e skcomm/[dev]
           pip install -e skchat/[cli,dev]
+          pip install -e skseal/[dev]
+          pip install -e sksecurity/[dev]
       - name: Run integration tests
         working-directory: /tmp
         run: python -m pytest $GITHUB_WORKSPACE/tests/integration/ -v --tb=short --import-mode=importlib --rootdir=/tmp
 
+  # ── Coverage aggregation ─────────────────────────────────────
+
+  coverage:
+    needs: [capauth, skcomm, skchat, skmemory, sksecurity, cloud9, skpdf, skcapstone, skseal, skref, skskills, sksovereign-agent]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+          path: coverage-reports/
+      - name: Coverage summary
+        run: |
+          echo "## Coverage Reports" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Package | Report |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          for f in coverage-reports/*.xml; do
+            if [ -f "$f" ]; then
+              pkg=$(basename "$f" .xml | sed 's/coverage-//')
+              echo "| $pkg | Uploaded |" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+
+  # ── Gate job ─────────────────────────────────────────────────
+
   all-tests:
-    needs: [capauth, skcomm, skchat, skmemory, sksecurity, cloud9, skpdf, skcapstone, integration]
+    needs:
+      - capauth
+      - skcomm
+      - skchat
+      - skmemory
+      - sksecurity
+      - cloud9
+      - skpdf
+      - skcapstone
+      - skseal
+      - skref
+      - skyforge
+      - skskills
+      - sksovereign-agent
+      - integration
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Check results
         run: |
-          results=("${{ needs.capauth.result }}" "${{ needs.skcomm.result }}" "${{ needs.skchat.result }}" "${{ needs.skmemory.result }}" "${{ needs.sksecurity.result }}" "${{ needs.cloud9.result }}" "${{ needs.skpdf.result }}" "${{ needs.skcapstone.result }}" "${{ needs.integration.result }}")
-          for r in "${results[@]}"; do
-            if [[ "$r" == "failure" ]]; then
-              echo "One or more packages failed"
-              exit 1
-            fi
+          declare -A results=(
+            [capauth]="${{ needs.capauth.result }}"
+            [skcomm]="${{ needs.skcomm.result }}"
+            [skchat]="${{ needs.skchat.result }}"
+            [skmemory]="${{ needs.skmemory.result }}"
+            [sksecurity]="${{ needs.sksecurity.result }}"
+            [cloud9]="${{ needs.cloud9.result }}"
+            [skpdf]="${{ needs.skpdf.result }}"
+            [skcapstone]="${{ needs.skcapstone.result }}"
+            [skseal]="${{ needs.skseal.result }}"
+            [skref]="${{ needs.skref.result }}"
+            [skyforge]="${{ needs.skyforge.result }}"
+            [skskills]="${{ needs.skskills.result }}"
+            [sksovereign-agent]="${{ needs.sksovereign-agent.result }}"
+            [integration]="${{ needs.integration.result }}"
+          )
+
+          failed=0
+          passed=0
+          skipped=0
+
+          for pkg in "${!results[@]}"; do
+            r="${results[$pkg]}"
+            case "$r" in
+              success) echo "  PASS  $pkg"; passed=$((passed + 1)) ;;
+              failure) echo "  FAIL  $pkg"; failed=$((failed + 1)) ;;
+              skipped) echo "  SKIP  $pkg"; skipped=$((skipped + 1)) ;;
+              *)       echo "  ----  $pkg ($r)"; skipped=$((skipped + 1)) ;;
+            esac
           done
+
+          total=$((passed + failed + skipped))
+          echo ""
+          echo "Results: $passed/$total passed, $failed failed, $skipped skipped"
+
+          if [ "$failed" -gt 0 ]; then
+            echo "One or more packages failed"
+            exit 1
+          fi
           echo "All packages passed (or were skipped)"

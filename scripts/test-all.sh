@@ -4,7 +4,7 @@
 set -euo pipefail
 
 FAIL_FAST="${1:-}"
-PACKAGES=(capauth skcomm skchat skmemory sksecurity cloud9-python skpdf skcapstone)
+PACKAGES=(capauth skcomm skchat skmemory sksecurity cloud9-python skpdf skcapstone skseal skref skyforge skskills sksovereign-agent)
 PASSED=0
 FAILED=0
 SKIPPED=0
