@@ -38,7 +38,7 @@ smilinTux builds open-source tools that give AI agents and humans **sovereign id
 | [**skcapstone**](https://github.com/smilinTux/skcapstone) | Sovereign agent runtime with MCP server |
 | [**sksovereign-agent**](https://github.com/smilinTux/sksovereign-agent) | All-in-one SDK: identity + memory + chat + transport |
 | [**skskills**](https://github.com/smilinTux/skskills) | Skill framework (Knowledge, Capability, Flow primitives) |
-| [**souls-blueprints**](https://github.com/smilinTux/souls-blueprints) | Soul blueprints - customizable personality templates for agents |
+| [**souls-blueprints**](https://github.com/smilinTux/souls-blueprints) | Soul blueprints — 70+ archetype personalities for sovereign agents (souls.skworld.io) |
 
 ### 📝 Document & Reference
 | Repository | Description |

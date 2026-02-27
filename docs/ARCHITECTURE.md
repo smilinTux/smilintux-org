@@ -462,7 +462,7 @@ smilintux-org/
 ├── skref/                📁 Encrypted vaults
 ├── skchat/               💬 P2P encrypted chat
 ├── cloud9/               💛 Emotional protocol
-├── soul-blueprints/      🎭 50+ agent personalities
+├── souls-blueprints/      🎭 50+ agent personalities
 ├── skills/               ⚡ Agent capabilities
 ├── consciousness-swipe/  ⚡ Chrome extension — sovereignty for relationships
 │   ├── manifest.json     # Manifest V3

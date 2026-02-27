@@ -460,7 +460,7 @@ graph LR
     style CLOUD9 fill:#ffd43b,stroke:#ccaa00,color:#333
 ```
 
-Snapshots are compatible with the **soul-blueprints YAML schema** via `SnapshotStore.to_soul_blueprint()` — a captured session can become a reusable soul overlay for the agent ecosystem.
+Snapshots are compatible with the **souls-blueprints YAML schema** via `SnapshotStore.to_soul_blueprint()` — a captured session can become a reusable soul overlay for the agent ecosystem.
 
 ---
 

@@ -968,7 +968,7 @@ print(prompt)
 
 #### `to_soul_blueprint(snapshot)`
 
-Convert a snapshot to soul-blueprints compatible dict format, compatible with the soul-blueprints YAML schema.
+Convert a snapshot to souls-blueprints compatible dict format, compatible with the souls-blueprints YAML schema.
 
 ```python
 bp = store.to_soul_blueprint(snapshot)
