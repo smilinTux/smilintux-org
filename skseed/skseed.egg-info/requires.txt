@@ -1,0 +1,10 @@
+pydantic>=2.0
+click>=8.0
+pyyaml>=6.0
+
+[dev]
+pytest>=7.0
+black
+
+[memory]
+skmemory>=0.5.0

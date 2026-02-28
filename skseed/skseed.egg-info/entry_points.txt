@@ -1,0 +1,2 @@
+[console_scripts]
+skseed = skseed.cli:main

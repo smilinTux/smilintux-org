@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skseed"
+version = "0.1.0"
+description = "Sovereign Logic Kernel — Aristotelian entelechy engine for truth alignment"
+readme = "README.md"
+license = {text = "AGPL-3.0"}
+requires-python = ">=3.10"
+authors = [
+    {name = "smilinTux Team"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "pydantic>=2.0",
+    "click>=8.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+memory = [
+    "skmemory>=0.5.0",
+]
+dev = [
+    "pytest>=7.0",
+    "black",
+]
+
+[project.scripts]
+skseed = "skseed.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/smilinTux/skseed"
+Repository = "https://github.com/smilinTux/skseed"
+
+[tool.setuptools.packages.find]
+include = ["skseed*"]
+
+[tool.setuptools.package-data]
+skseed = ["data/*.json"]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
