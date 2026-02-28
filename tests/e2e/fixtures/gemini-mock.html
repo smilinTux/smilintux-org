@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gemini - E2E Mock</title>
+</head>
+<body>
+  <!-- Gemini conversation structure (mirrors gemini.google.com DOM) -->
+  <h1 aria-label="Gemini Advanced">Gemini Advanced</h1>
+
+  <chat-window>
+    <!-- User query -->
+    <model-response data-response-index="0">
+      <div class="query-content">
+        <p>What are the planets in our solar system?</p>
+      </div>
+      <div class="response-content">
+        <p>The eight planets in our solar system, in order from the Sun, are:</p>
+        <ol>
+          <li>Mercury</li>
+          <li>Venus</li>
+          <li>Earth</li>
+          <li>Mars</li>
+          <li>Jupiter</li>
+          <li>Saturn</li>
+          <li>Uranus</li>
+          <li>Neptune</li>
+        </ol>
+      </div>
+    </model-response>
+
+    <model-response data-response-index="1">
+      <div class="query-content">
+        <p>Which is the largest?</p>
+      </div>
+      <div class="response-content">
+        <p>Jupiter is the largest planet in our solar system. It is a gas giant with a diameter of about 139,820 km — more than 11 times Earth's diameter.</p>
+      </div>
+    </model-response>
+  </chat-window>
+</body>
+</html>

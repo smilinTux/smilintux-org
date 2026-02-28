@@ -16,6 +16,7 @@ jobs:
     outputs:
       capauth: ${{ steps.filter.outputs.capauth }}
       skcomm: ${{ steps.filter.outputs.skcomm }}
+      e2e: ${{ steps.filter.outputs.e2e }}
       skchat: ${{ steps.filter.outputs.skchat }}
       skmemory: ${{ steps.filter.outputs.skmemory }}
       sksecurity: ${{ steps.filter.outputs.sksecurity }}
@@ -59,6 +60,10 @@ jobs:
               - 'skskills/**'
             sksovereign-agent:
               - 'sksovereign-agent/**'
+            e2e:
+              - 'consciousness-swipe/**'
+              - 'capauth/browser-extension/**'
+              - 'tests/e2e/**'
 
   # ── Core packages (full matrix + linting) ────────────────────
 
@@ -428,6 +433,50 @@ jobs:
             fi
           done
 
+  # ── Browser extension E2E tests ──────────────────────────────
+
+  e2e-browser-extensions:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.e2e == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tests/e2e
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tests/e2e/package-lock.json
+
+      - name: Install E2E test dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run E2E tests (Consciousness Swipe)
+        run: npx playwright test consciousness-swipe/
+        env:
+          CI: true
+
+      - name: Run E2E tests (CapAuth)
+        run: npx playwright test capauth/
+        env:
+          CI: true
+
+      - name: Upload Playwright report on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-e2e
+          path: tests/e2e/playwright-report/
+          retention-days: 7
+
   # ── Gate job ─────────────────────────────────────────────────
 
   all-tests:
@@ -447,6 +496,7 @@ jobs:
       - sksovereign-agent
       - integration
       - coverage
+      - e2e-browser-extensions
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -467,6 +517,7 @@ jobs:
             [skskills]="${{ needs.skskills.result }}"
             [sksovereign-agent]="${{ needs.sksovereign-agent.result }}"
             [integration]="${{ needs.integration.result }}"
+            [e2e-browser-extensions]="${{ needs.e2e-browser-extensions.result }}"
           )
 
           failed=0

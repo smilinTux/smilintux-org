@@ -41,9 +41,10 @@ const CONTENT_ENTRIES = {
   'content/scrapers/windsurf':   'src/content/scrapers/windsurf.js',
 };
 
-/** Popup script — IIFE, references chrome.* globals */
+/** Popup scripts — IIFE, reference chrome.* globals */
 const POPUP_ENTRIES = {
-  'popup/popup': 'src/popup/popup.js',
+  'popup/popup':   'src/popup/popup.js',
+  'popup/options': 'src/popup/options.js',
 };
 
 /** Background service worker — MV3 supports ESM, keep as module */

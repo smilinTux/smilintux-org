@@ -1,0 +1,19 @@
+{
+  "name": "browser-extensions-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "E2E test suite for Consciousness Swipe and CapAuth browser extensions",
+  "scripts": {
+    "test": "playwright test",
+    "test:cs": "playwright test consciousness-swipe/",
+    "test:capauth": "playwright test capauth/",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report",
+    "install:browsers": "playwright install chromium --with-deps"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0"
+  }
+}

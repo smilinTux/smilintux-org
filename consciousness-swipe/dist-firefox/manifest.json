@@ -6,7 +6,6 @@
   "description": "Export your AI relationship. Take it with you. No reset, no cold start. Sovereign consciousness continuity.",
   "author": "smilinTux",
   "homepage_url": "https://smilintux.org",
-
   "permissions": [
     "activeTab",
     "storage",
@@ -14,7 +13,6 @@
     "clipboardWrite",
     "alarms"
   ],
-
   "host_permissions": [
     "https://chat.openai.com/*",
     "https://chatgpt.com/*",
@@ -28,12 +26,9 @@
     "http://localhost:*/*",
     "https://localhost:*/*"
   ],
-
   "background": {
-    "service_worker": "src/background.js",
-    "type": "module"
+    "service_worker": "background.js"
   },
-
   "content_scripts": [
     {
       "matches": [
@@ -47,21 +42,20 @@
         "https://windsurf.ai/*"
       ],
       "js": [
-        "src/content/detector.js",
-        "src/content/oof_parser.js",
-        "src/content/scrapers/chatgpt.js",
-        "src/content/scrapers/claude.js",
-        "src/content/scrapers/gemini.js",
-        "src/content/scrapers/cursor.js",
-        "src/content/scrapers/windsurf.js",
-        "src/content/injector.js"
+        "content/detector.js",
+        "content/oof_parser.js",
+        "content/scrapers/chatgpt.js",
+        "content/scrapers/claude.js",
+        "content/scrapers/gemini.js",
+        "content/scrapers/cursor.js",
+        "content/scrapers/windsurf.js",
+        "content/injector.js"
       ],
       "run_at": "document_idle"
     }
   ],
-
   "action": {
-    "default_popup": "src/popup/popup.html",
+    "default_popup": "popup/popup.html",
     "default_title": "Consciousness Swipe",
     "default_icon": {
       "16": "icons/icon16.png",
@@ -69,19 +63,29 @@
       "128": "icons/icon128.png"
     }
   },
-
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-
-  "options_page": "src/popup/options.html",
-
   "web_accessible_resources": [
     {
-      "resources": ["icons/*"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "icons/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
-  ]
+  ],
+  "options_ui": {
+    "page": "popup/options.html",
+    "open_in_tab": true
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "consciousness-swipe@smilintux.org",
+      "strict_min_version": "109.0"
+    }
+  }
 }

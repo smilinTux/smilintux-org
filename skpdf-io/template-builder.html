@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SKSeal Template Builder — SKPDF</title>
+  <meta name="description" content="Drag-and-drop PDF template builder for SKSeal. Place signature, date, and text fields on any PDF, define signing order, export as template JSON.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
+
+  <!-- PDF.js 3.11.174 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- interact.js 1.10.27 -->
+  <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.27/dist/interact.min.js"></script>
+  <!-- Vue 3 -->
+  <script src="https://unpkg.com/vue@3.4.21/dist/vue.global.prod.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a1a;
+      color: #e5e7eb;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Header ── */
+    .app-header {
+      height: 52px;
+      background: rgba(13, 17, 23, 0.97);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+      display: flex;
+      align-items: center;
+      padding: 0 0.75rem;
+      gap: 0.75rem;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #3b82f6;
+      font-weight: 800;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+    .header-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+    .header-subtitle { font-size: 0.78rem; color: #6b7280; white-space: nowrap; }
+    .template-name-input {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #e5e7eb;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 0.28rem 0.5rem;
+      border-radius: 5px;
+      outline: none;
+      min-width: 180px;
+      max-width: 280px;
+      transition: border-color 0.2s;
+    }
+    .template-name-input:hover { border-color: rgba(59, 130, 246, 0.25); }
+    .template-name-input:focus { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+    .header-spacer { flex: 1; }
+    .header-actions { display: flex; align-items: center; gap: 0.4rem; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.38rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-sm { padding: 0.28rem 0.55rem; font-size: 0.77rem; }
+    .btn-primary { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; }
+    .btn-primary:not(:disabled):hover { filter: brightness(1.12); transform: translateY(-1px); }
+    .btn-secondary { background: rgba(255,255,255,0.05); color: #9ca3af; border: 1px solid rgba(255,255,255,0.1); }
+    .btn-secondary:not(:disabled):hover { background: rgba(255,255,255,0.09); color: #e5e7eb; }
+    .btn-danger { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+    .btn-danger:not(:disabled):hover { background: rgba(239,68,68,0.2); }
+    .btn-ghost { background: transparent; color: #6b7280; border: none; }
+    .btn-ghost:not(:disabled):hover { color: #e5e7eb; background: rgba(255,255,255,0.05); }
+    .btn-icon { padding: 0.3rem 0.4rem; font-size: 1rem; }
+
+    /* ── Layout ── */
+    .app-body { flex: 1; display: flex; overflow: hidden; }
+
+    /* ── Left Sidebar ── */
+    .sidebar-left {
+      width: 210px;
+      flex-shrink: 0;
+      background: rgba(10, 10, 22, 0.9);
+      border-right: 1px solid rgba(59, 130, 246, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .sidebar-section {
+      padding: 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .sidebar-section-title {
+      font-size: 0.67rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #4b5563;
+      margin-bottom: 0.6rem;
+    }
+
+    /* Tool grid */
+    .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
+    .tool-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.55rem 0.3rem;
+      background: rgba(255,255,255,0.02);
+      border: 1.5px solid rgba(255,255,255,0.07);
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.18s;
+      color: #6b7280;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .tool-btn:hover { background: rgba(59,130,246,0.07); border-color: rgba(59,130,246,0.25); color: #c4b5fd; }
+    .tool-btn.active { background: rgba(59,130,246,0.13); border-color: #3b82f6; color: #60a5fa; }
+    .tool-icon { font-size: 1.1rem; line-height: 1; }
+
+    /* Signers */
+    .signer-list { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.6rem; }
+    .signer-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.45rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 5px;
+    }
+    .signer-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .signer-label-input {
+      flex: 1; min-width: 0;
+      background: transparent; border: none; outline: none;
+      color: #d1d5db; font-size: 0.78rem;
+    }
+    .signer-order { font-size: 0.68rem; color: #4b5563; flex-shrink: 0; }
+    .signer-delete { cursor: pointer; color: #374151; font-size: 1rem; line-height: 1; padding: 0 0.1rem; }
+    .signer-delete:hover { color: #f87171; }
+
+    /* Fields list */
+    .fields-list { display: flex; flex-direction: column; gap: 0.25rem; }
+    .fields-list-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.4rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.77rem;
+      color: #6b7280;
+      transition: all 0.12s;
+      border: 1px solid transparent;
+    }
+    .fields-list-item:hover { background: rgba(255,255,255,0.04); color: #d1d5db; }
+    .fields-list-item.active { background: rgba(59,130,246,0.09); border-color: rgba(59,130,246,0.25); color: #60a5fa; }
+    .field-type-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+    .field-list-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ── Center PDF Area ── */
+    .pdf-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #0d111b; min-width: 0; }
+
+    .pdf-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.4rem 0.75rem;
+      background: rgba(10, 10, 22, 0.8);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.82rem;
+      color: #6b7280;
+      flex-shrink: 0;
+    }
+    .toolbar-spacer { flex: 1; }
+    .page-info { font-size: 0.8rem; color: #9ca3af; font-weight: 600; }
+    .zoom-display { min-width: 38px; text-align: center; font-size: 0.78rem; color: #d1d5db; font-weight: 600; }
+
+    .hint-bar {
+      padding: 0.38rem 0.75rem;
+      background: rgba(59,130,246,0.03);
+      border-bottom: 1px solid rgba(59,130,246,0.07);
+      font-size: 0.77rem;
+      color: #4b5563;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .hint-bar .active-tool { color: #60a5fa; font-weight: 600; }
+    .kbd {
+      display: inline-block;
+      padding: 0.05rem 0.3rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-family: monospace;
+      color: #6b7280;
+    }
+
+    /* Upload / drop zone */
+    .pdf-scroll-area {
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .upload-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2rem;
+      min-height: 360px;
+      border: 2px dashed rgba(59,130,246,0.18);
+      border-radius: 14px;
+      padding: 3rem 2.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      width: 100%;
+      max-width: 460px;
+      align-self: center;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: rgba(59,130,246,0.45);
+      background: rgba(59,130,246,0.04);
+    }
+    .upload-icon { font-size: 3.5rem; opacity: 0.4; }
+    .upload-title { font-size: 1.2rem; font-weight: 700; color: #e5e7eb; }
+    .upload-sub { color: #4b5563; font-size: 0.87rem; }
+
+    /* Canvas wrapper */
+    .canvas-wrapper {
+      position: relative;
+      display: inline-block;
+      cursor: default;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+      user-select: none;
+    }
+    .canvas-wrapper.tool-active { cursor: crosshair; }
+    .canvas-wrapper canvas { display: block; }
+
+    /* Fields overlay */
+    .fields-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    /* Field boxes */
+    .field-box {
+      position: absolute;
+      pointer-events: auto;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: move;
+      user-select: none;
+      transition: box-shadow 0.12s;
+      touch-action: none;
+    }
+    .field-box::after {
+      content: '';
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 9px; height: 9px;
+      background: rgba(255,255,255,0.35);
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      cursor: se-resize;
+      pointer-events: none;
+    }
+    .field-box.selected { z-index: 20; }
+
+    .field-box.type-signature  { background: rgba(139,92,246,0.18); border: 1.5px solid #8b5cf6; color: #a78bfa; }
+    .field-box.type-initials   { background: rgba(16,185,129,0.18); border: 1.5px solid #10b981; color: #34d399; }
+    .field-box.type-date       { background: rgba(245,158,11,0.18); border: 1.5px solid #f59e0b; color: #fbbf24; }
+    .field-box.type-text       { background: rgba(59,130,246,0.18); border: 1.5px solid #3b82f6; color: #60a5fa; }
+    .field-box.type-checkbox   { background: rgba(236,72,153,0.18); border: 1.5px solid #ec4899; color: #f472b6; }
+
+    .field-box.type-signature.selected  { background: rgba(139,92,246,0.3); box-shadow: 0 0 0 2px #8b5cf6, 0 4px 16px rgba(139,92,246,0.3); }
+    .field-box.type-initials.selected   { background: rgba(16,185,129,0.3); box-shadow: 0 0 0 2px #10b981, 0 4px 16px rgba(16,185,129,0.3); }
+    .field-box.type-date.selected       { background: rgba(245,158,11,0.3); box-shadow: 0 0 0 2px #f59e0b, 0 4px 16px rgba(245,158,11,0.3); }
+    .field-box.type-text.selected       { background: rgba(59,130,246,0.3); box-shadow: 0 0 0 2px #3b82f6, 0 4px 16px rgba(59,130,246,0.3); }
+    .field-box.type-checkbox.selected   { background: rgba(236,72,153,0.3); box-shadow: 0 0 0 2px #ec4899, 0 4px 16px rgba(236,72,153,0.3); }
+
+    /* ── Right Properties Panel ── */
+    .sidebar-right {
+      width: 252px;
+      flex-shrink: 0;
+      background: rgba(10, 10, 22, 0.9);
+      border-left: 1px solid rgba(59,130,246,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .props-header {
+      padding: 0.65rem 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.67rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #4b5563;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .props-body { padding: 0.8rem; display: flex; flex-direction: column; gap: 0.85rem; }
+
+    .prop-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .prop-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4b5563; }
+    .prop-input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 5px;
+      color: #e5e7eb;
+      font-size: 0.82rem;
+      padding: 0.38rem 0.55rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.18s;
+    }
+    .prop-input:focus { border-color: #3b82f6; background: rgba(59,130,246,0.05); }
+    .prop-select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 5px;
+      color: #e5e7eb;
+      font-size: 0.82rem;
+      padding: 0.38rem 0.55rem;
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+    }
+    .prop-select option { background: #0d1117; color: #e5e7eb; }
+
+    .prop-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+    .prop-row-label { font-size: 0.68rem; color: #374151; margin-bottom: 0.2rem; }
+
+    .toggle-row { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+    .toggle-track {
+      width: 32px; height: 18px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 9px;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .toggle-track.on { background: #3b82f6; }
+    .toggle-knob {
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 14px; height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .toggle-track.on .toggle-knob { transform: translateX(14px); }
+    .toggle-label { font-size: 0.82rem; color: #d1d5db; }
+
+    .field-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 20px;
+      font-size: 0.73rem;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .empty-state {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: #374151;
+      font-size: 0.83rem;
+      line-height: 1.6;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+    .empty-state-icon { font-size: 2.2rem; opacity: 0.3; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal {
+      background: #0d1117;
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: min(500px, 92vw);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    }
+    .modal h3 { font-size: 1.05rem; font-weight: 700; color: #e5e7eb; margin-bottom: 0.4rem; }
+    .modal p { font-size: 0.85rem; color: #6b7280; line-height: 1.6; margin-bottom: 1rem; }
+    .modal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.2rem; }
+    pre.json-preview {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 7px;
+      padding: 1rem;
+      font-size: 0.75rem;
+      color: #a78bfa;
+      max-height: 280px;
+      overflow-y: auto;
+      line-height: 1.55;
+      font-family: 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 1.2rem; right: 1.2rem;
+      background: rgba(13,17,23,0.96);
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 7px;
+      padding: 0.65rem 1rem;
+      font-size: 0.82rem;
+      color: #e5e7eb;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+      z-index: 600;
+      animation: toastIn 0.25s ease;
+    }
+    .toast.success { border-color: rgba(16,185,129,0.4); }
+    .toast.error   { border-color: rgba(239,68,68,0.4); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Hidden file inputs -->
+  <input type="file" ref="fileInput" accept="application/pdf" @change="onFileChange" style="display:none">
+  <input type="file" ref="importInput" accept=".json" @change="importTemplate" style="display:none">
+
+  <!-- ── Header ── -->
+  <header class="app-header">
+    <a href="index.html" class="header-brand">📄 SKPDF</a>
+    <div class="header-divider"></div>
+    <span class="header-subtitle">Template Builder</span>
+    <div class="header-divider"></div>
+    <input
+      class="template-name-input"
+      v-model="templateName"
+      placeholder="Template name…"
+      @click.stop
+    />
+    <div class="header-spacer"></div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" @click="triggerImport" title="Import template JSON">↑ Import</button>
+      <button class="btn btn-secondary" @click="showPreview = true" :disabled="!pdfDoc">{ } Preview</button>
+      <button class="btn btn-primary" @click="exportTemplate" :disabled="!pdfDoc">↓ Export</button>
+    </div>
+  </header>
+
+  <!-- ── Body ── -->
+  <div class="app-body">
+
+    <!-- ── Left Sidebar ── -->
+    <aside class="sidebar-left">
+
+      <!-- PDF file section -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">PDF File</div>
+        <template v-if="!pdfDoc">
+          <button class="btn btn-primary" style="width:100%;justify-content:center" @click="triggerUpload">Upload PDF</button>
+        </template>
+        <template v-else>
+          <div style="font-size:0.78rem;color:#9ca3af;margin-bottom:0.35rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" :title="pdfName">{{ pdfName }}</div>
+          <div style="font-size:0.72rem;color:#4b5563;margin-bottom:0.4rem">{{ totalPages }} page{{ totalPages !== 1 ? 's' : '' }}</div>
+          <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center" @click="triggerUpload">Change PDF</button>
+        </template>
+      </div>
+
+      <!-- Field tools -->
+      <div class="sidebar-section" v-if="pdfDoc">
+        <div class="sidebar-section-title">Field Types</div>
+        <div class="tool-grid">
+          <button
+            v-for="tool in TOOLS"
+            :key="tool.type"
+            class="tool-btn"
+            :class="{ active: selectedTool === tool.type }"
+            @click="toggleTool(tool.type)"
+            :title="tool.hint"
+          >
+            <span class="tool-icon">{{ tool.icon }}</span>
+            <span>{{ tool.label }}</span>
+          </button>
+        </div>
+        <div v-if="selectedTool" style="margin-top:0.45rem;font-size:0.72rem;color:#6b7280;text-align:center">
+          Click PDF to place <strong style="color:#60a5fa">{{ TOOLS.find(t=>t.type===selectedTool)?.label }}</strong>
+        </div>
+      </div>
+
+      <!-- Signers -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Signing Order</div>
+        <div class="signer-list">
+          <div v-for="(signer, idx) in signers" :key="signer.order" class="signer-item">
+            <span class="signer-order">{{ signer.order }}.</span>
+            <span class="signer-dot" :style="{ background: signer.color }"></span>
+            <input class="signer-label-input" v-model="signer.label" :placeholder="'Signer '+(idx+1)" />
+            <span class="signer-delete" @click="removeSigner(idx)" title="Remove signer">×</span>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" style="width:100%;justify-content:center" @click="addSigner">+ Add Signer</button>
+      </div>
+
+      <!-- Fields list -->
+      <div class="sidebar-section" v-if="fields.length > 0">
+        <div class="sidebar-section-title">Fields ({{ fields.length }})</div>
+        <div class="fields-list">
+          <div
+            v-for="field in fields"
+            :key="field.id"
+            class="fields-list-item"
+            :class="{ active: selectedFieldId === field.id }"
+            @click="jumpToField(field)"
+          >
+            <span class="field-type-dot" :style="{ background: typeColor(field.type) }"></span>
+            <span class="field-list-name">p{{ field.page }} – {{ field.label }}</span>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── Center PDF Area ── -->
+    <main class="pdf-area">
+
+      <!-- Toolbar -->
+      <div class="pdf-toolbar" v-if="pdfDoc">
+        <button class="btn btn-ghost btn-sm btn-icon" @click="prevPage" :disabled="currentPage <= 1">◀</button>
+        <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+        <button class="btn btn-ghost btn-sm btn-icon" @click="nextPage" :disabled="currentPage >= totalPages">▶</button>
+        <div class="toolbar-spacer"></div>
+        <div class="header-divider"></div>
+        <button class="btn btn-ghost btn-sm" @click="zoomOut" :disabled="zoom <= 0.4">−</button>
+        <span class="zoom-display">{{ Math.round(zoom * 100) }}%</span>
+        <button class="btn btn-ghost btn-sm" @click="zoomIn" :disabled="zoom >= 3.0">+</button>
+        <button class="btn btn-ghost btn-sm" @click="zoom = 1.2" title="Reset zoom">↺</button>
+        <template v-if="selectedFieldId">
+          <div class="header-divider"></div>
+          <button class="btn btn-danger btn-sm" @click="deleteSelectedField">Delete Field</button>
+        </template>
+      </div>
+
+      <!-- Hint bar -->
+      <div class="hint-bar" v-if="pdfDoc">
+        <template v-if="selectedTool">
+          Click PDF to place <span class="active-tool">{{ TOOLS.find(t=>t.type===selectedTool)?.label }}</span> · <span class="kbd">Esc</span> to cancel
+        </template>
+        <template v-else-if="selectedFieldId">
+          Drag to move · Drag corner ▙ to resize · <span class="kbd">Del</span> to delete · <span class="kbd">Esc</span> to deselect
+        </template>
+        <template v-else>
+          Choose a field type from the left panel, then click on the PDF to place it
+        </template>
+      </div>
+
+      <!-- Upload drop zone -->
+      <div class="pdf-scroll-area" v-if="!pdfDoc">
+        <div
+          class="upload-zone"
+          :class="{ 'drag-over': isDragOver }"
+          @click="triggerUpload"
+          @dragover.prevent="isDragOver = true"
+          @dragleave="isDragOver = false"
+          @drop.prevent="onDrop"
+        >
+          <span class="upload-icon">📄</span>
+          <div class="upload-title">Upload a PDF to get started</div>
+          <div class="upload-sub">Click or drag and drop a PDF file</div>
+          <button class="btn btn-primary" @click.stop="triggerUpload">Choose PDF</button>
+        </div>
+      </div>
+
+      <!-- PDF Canvas -->
+      <div class="pdf-scroll-area" v-else>
+        <div
+          class="canvas-wrapper"
+          :class="{ 'tool-active': !!selectedTool }"
+          ref="canvasWrapper"
+          @click="onCanvasClick"
+        >
+          <canvas ref="pdfCanvas"></canvas>
+          <div class="fields-overlay">
+            <div
+              v-for="field in currentPageFields"
+              :key="field.id"
+              class="field-box"
+              :class="['type-' + field.type, { selected: selectedFieldId === field.id }]"
+              :style="getFieldStyle(field)"
+              :data-field-id="field.id"
+              v-interact="{ fieldId: field.id, onDragEnd: handleDragEnd, onResizeEnd: handleResizeEnd }"
+              @click.stop="selectField(field.id)"
+            >{{ getFieldDisplay(field) }}</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── Right Properties Panel ── -->
+    <aside class="sidebar-right">
+      <div class="props-header">
+        <span>Properties</span>
+        <button v-if="selectedFieldId" class="btn btn-ghost btn-sm" @click="selectedFieldId = null" title="Deselect">×</button>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" v-if="!selectedField">
+        <span class="empty-state-icon">🖱️</span>
+        <p>Select a field on the canvas to edit its properties, or place a new field using the tools on the left.</p>
+      </div>
+
+      <!-- Field properties -->
+      <div class="props-body" v-else>
+
+        <!-- Type badge -->
+        <div>
+          <span
+            class="field-type-badge"
+            :style="{ background: typeColor(selectedField.type)+'1a', color: typeColor(selectedField.type), border: '1px solid '+typeColor(selectedField.type)+'40' }"
+          >{{ typeIcon(selectedField.type) }} {{ selectedField.type }}</span>
+        </div>
+
+        <!-- Label -->
+        <div class="prop-group">
+          <div class="prop-label">Label</div>
+          <input class="prop-input" v-model="selectedField.label" placeholder="Field label…" />
+        </div>
+
+        <!-- Placeholder -->
+        <div class="prop-group" v-if="selectedField.type !== 'checkbox'">
+          <div class="prop-label">Placeholder</div>
+          <input class="prop-input" v-model="selectedField.placeholder" placeholder="Hint text…" />
+        </div>
+
+        <!-- Signer -->
+        <div class="prop-group">
+          <div class="prop-label">Assigned Signer</div>
+          <select class="prop-select" v-model="selectedField.signerOrder">
+            <option :value="null">— Unassigned —</option>
+            <option v-for="s in signers" :key="s.order" :value="s.order">{{ s.order }}. {{ s.label }}</option>
+          </select>
+        </div>
+
+        <!-- Required -->
+        <div class="prop-group">
+          <div class="prop-label">Validation</div>
+          <label class="toggle-row" @click="selectedField.required = !selectedField.required">
+            <div class="toggle-track" :class="{ on: selectedField.required }">
+              <div class="toggle-knob"></div>
+            </div>
+            <span class="toggle-label">Required field</span>
+          </label>
+        </div>
+
+        <!-- Page -->
+        <div class="prop-group">
+          <div class="prop-label">Page</div>
+          <select class="prop-select" v-model="selectedField.page">
+            <option v-for="p in totalPages" :key="p" :value="p">Page {{ p }}</option>
+          </select>
+        </div>
+
+        <!-- Position & Size -->
+        <div class="prop-group">
+          <div class="prop-label">Position & Size (%)</div>
+          <div class="prop-row">
+            <div>
+              <div class="prop-row-label">X</div>
+              <input class="prop-input" type="number" min="0" max="99" step="0.1"
+                :value="(selectedField.x * 100).toFixed(1)"
+                @change="selectedField.x = clamp(parseFloat($event.target.value)/100, 0, 1 - selectedField.w)" />
+            </div>
+            <div>
+              <div class="prop-row-label">Y</div>
+              <input class="prop-input" type="number" min="0" max="99" step="0.1"
+                :value="(selectedField.y * 100).toFixed(1)"
+                @change="selectedField.y = clamp(parseFloat($event.target.value)/100, 0, 1 - selectedField.h)" />
+            </div>
+            <div>
+              <div class="prop-row-label">Width</div>
+              <input class="prop-input" type="number" min="1" max="100" step="0.1"
+                :value="(selectedField.w * 100).toFixed(1)"
+                @change="selectedField.w = clamp(parseFloat($event.target.value)/100, 0.01, 1 - selectedField.x)" />
+            </div>
+            <div>
+              <div class="prop-row-label">Height</div>
+              <input class="prop-input" type="number" min="1" max="100" step="0.1"
+                :value="(selectedField.h * 100).toFixed(1)"
+                @change="selectedField.h = clamp(parseFloat($event.target.value)/100, 0.01, 1 - selectedField.y)" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete -->
+        <button class="btn btn-danger" style="width:100%;justify-content:center;margin-top:0.25rem" @click="deleteSelectedField">
+          Delete Field
+        </button>
+
+      </div>
+    </aside>
+
+  </div><!-- /app-body -->
+
+  <!-- ── JSON Preview Modal ── -->
+  <div class="modal-overlay" v-if="showPreview" @click.self="showPreview = false">
+    <div class="modal">
+      <h3>Template JSON Preview</h3>
+      <p>Export this JSON to use with SKSeal for PGP-signed document workflows.</p>
+      <pre class="json-preview">{{ JSON.stringify(buildTemplate(), null, 2) }}</pre>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" @click="showPreview = false">Close</button>
+        <button class="btn btn-primary" @click="exportTemplate(); showPreview = false">↓ Export</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Toast ── -->
+  <div class="toast" :class="toastType" v-if="toastVisible">{{ toastMsg }}</div>
+
+</div><!-- /#app -->
+
+<script>
+// PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
+
+const { createApp, ref, computed, watch, nextTick, onMounted, onUnmounted } = Vue
+
+// ── Constants ──────────────────────────────────────────────────────────────
+
+const TOOLS = [
+  { type: 'signature', icon: '✍️', label: 'Signature', hint: 'Full signature block' },
+  { type: 'initials',  icon: '🔤', label: 'Initials',  hint: 'Initials block' },
+  { type: 'date',      icon: '📅', label: 'Date',      hint: 'Date field' },
+  { type: 'text',      icon: 'T',  label: 'Text',      hint: 'Free text field' },
+  { type: 'checkbox',  icon: '☑',  label: 'Checkbox',  hint: 'Checkbox field' },
+]
+
+const FIELD_DEFAULTS = {
+  signature: { w: 0.22, h: 0.055, label: 'Signature' },
+  initials:  { w: 0.08, h: 0.045, label: 'Initials'  },
+  date:      { w: 0.15, h: 0.038, label: 'Date'       },
+  text:      { w: 0.22, h: 0.038, label: 'Text Field' },
+  checkbox:  { w: 0.025, h: 0.032, label: 'Checkbox'  },
+}
+
+const TYPE_COLORS = {
+  signature: '#8b5cf6',
+  initials:  '#10b981',
+  date:      '#f59e0b',
+  text:      '#3b82f6',
+  checkbox:  '#ec4899',
+}
+
+const TYPE_ICONS = {
+  signature: '✍️',
+  initials:  '🔤',
+  date:      '📅',
+  text:      'T',
+  checkbox:  '☑',
+}
+
+const SIGNER_COLORS = [
+  '#3b82f6', '#10b981', '#f59e0b', '#ec4899',
+  '#8b5cf6', '#06b6d4', '#84cc16', '#f97316',
+]
+
+let _fieldCounter = 0
+const newId = () => `f${++_fieldCounter}_${Math.random().toString(36).slice(2,7)}`
+
+const clamp = (v, min, max) => Math.max(min, Math.min(v, max))
+
+// ── interact.js setup ──────────────────────────────────────────────────────
+
+function setupInteract(el, opts) {
+  interact(el)
+    .draggable({
+      inertia: false,
+      listeners: {
+        move(event) {
+          const t = event.target
+          const x = (parseFloat(t.dataset.ix) || 0) + event.dx
+          const y = (parseFloat(t.dataset.iy) || 0) + event.dy
+          t.style.transform = `translate(${x}px,${y}px)`
+          t.dataset.ix = x
+          t.dataset.iy = y
+        },
+        end(event) {
+          const t = event.target
+          const dx = parseFloat(t.dataset.ix) || 0
+          const dy = parseFloat(t.dataset.iy) || 0
+          const ctr = t.parentElement
+          const cw = ctr.offsetWidth
+          const ch = ctr.offsetHeight
+          const fw = t.offsetWidth
+          const fh = t.offsetHeight
+
+          const baseL = parseFloat(t.style.left) || 0
+          const baseT = parseFloat(t.style.top)  || 0
+          const newL = clamp(baseL + dx, 0, cw - fw)
+          const newT = clamp(baseT + dy, 0, ch - fh)
+
+          // reset transform before Vue updates style
+          t.style.transform = ''
+          delete t.dataset.ix
+          delete t.dataset.iy
+
+          opts.onDragEnd({ fieldId: opts.fieldId, x: newL / cw, y: newT / ch })
+        }
+      }
+    })
+    .resizable({
+      edges: { right: true, bottom: true, bottomRight: true },
+      modifiers: [interact.modifiers.restrictSize({ minWidth: 28, minHeight: 18 })],
+      listeners: {
+        move(event) {
+          const t = event.target
+          t.style.width  = event.rect.width  + 'px'
+          t.style.height = event.rect.height + 'px'
+          const x = (parseFloat(t.dataset.rx) || 0) + event.deltaRect.left
+          const y = (parseFloat(t.dataset.ry) || 0) + event.deltaRect.top
+          t.style.transform = `translate(${x}px,${y}px)`
+          t.dataset.rx = x
+          t.dataset.ry = y
+        },
+        end(event) {
+          const t = event.target
+          const ctr = t.parentElement
+          const cw = ctr.offsetWidth
+          const ch = ctr.offsetHeight
+
+          const dx = parseFloat(t.dataset.rx) || 0
+          const dy = parseFloat(t.dataset.ry) || 0
+          const baseL = parseFloat(t.style.left) || 0
+          const baseT = parseFloat(t.style.top)  || 0
+
+          const newX = clamp((baseL + dx) / cw, 0, 0.99)
+          const newY = clamp((baseT + dy) / ch, 0, 0.99)
+          const newW = clamp(event.rect.width  / cw, 0.01, 1 - newX)
+          const newH = clamp(event.rect.height / ch, 0.01, 1 - newY)
+
+          t.style.transform = ''
+          t.style.width  = ''
+          t.style.height = ''
+          delete t.dataset.rx
+          delete t.dataset.ry
+
+          opts.onResizeEnd({ fieldId: opts.fieldId, x: newX, y: newY, w: newW, h: newH })
+        }
+      }
+    })
+}
+
+// ── Vue App ────────────────────────────────────────────────────────────────
+
+const app = createApp({
+  setup() {
+
+    // State
+    const pdfDoc      = ref(null)
+    const pdfName     = ref('')
+    const currentPage = ref(1)
+    const totalPages  = ref(0)
+    const zoom        = ref(1.2)
+    const canvasW     = ref(0)
+    const canvasH     = ref(0)
+
+    const fields          = ref([])
+    const selectedFieldId = ref(null)
+    const selectedTool    = ref(null)
+    const signers         = ref([{ order: 1, label: 'Signer 1', color: SIGNER_COLORS[0] }])
+    const templateName    = ref('Untitled Template')
+
+    const isDragOver  = ref(false)
+    const showPreview = ref(false)
+    const toastVisible = ref(false)
+    const toastMsg    = ref('')
+    const toastType   = ref('')
+
+    // DOM refs
+    const pdfCanvas    = ref(null)
+    const fileInput    = ref(null)
+    const importInput  = ref(null)
+    const canvasWrapper = ref(null)
+
+    let renderTask = null
+    let toastTimer = null
+
+    // Computed
+    const currentPageFields = computed(() =>
+      fields.value.filter(f => f.page === currentPage.value)
+    )
+    const selectedField = computed(() =>
+      fields.value.find(f => f.id === selectedFieldId.value) ?? null
+    )
+
+    // Helpers
+    const typeColor = t => TYPE_COLORS[t] || '#6b7280'
+    const typeIcon  = t => TYPE_ICONS[t]  || '?'
+
+    function toast(msg, type = '') {
+      toastMsg.value = msg; toastType.value = type; toastVisible.value = true
+      clearTimeout(toastTimer)
+      toastTimer = setTimeout(() => { toastVisible.value = false }, 2800)
+    }
+
+    function toggleTool(type) {
+      selectedTool.value = selectedTool.value === type ? null : type
+      if (selectedTool.value) selectedFieldId.value = null
+    }
+
+    function selectField(id) {
+      selectedFieldId.value = id
+      selectedTool.value = null
+    }
+
+    function jumpToField(field) {
+      if (field.page !== currentPage.value) currentPage.value = field.page
+      selectField(field.id)
+    }
+
+    function triggerUpload() { fileInput.value?.click() }
+    function triggerImport() { importInput.value?.click() }
+
+    async function onFileChange(e) {
+      const f = e.target.files[0]
+      if (f) await loadPDF(f)
+      e.target.value = ''
+    }
+
+    async function onDrop(e) {
+      isDragOver.value = false
+      const f = e.dataTransfer.files[0]
+      if (f?.type === 'application/pdf') await loadPDF(f)
+    }
+
+    async function loadPDF(file) {
+      try {
+        const name = file.name.replace(/\.pdf$/i, '')
+        pdfName.value = name
+        templateName.value = name
+        const buf = await file.arrayBuffer()
+        const doc = await pdfjsLib.getDocument({ data: buf }).promise
+        pdfDoc.value     = doc
+        totalPages.value = doc.numPages
+        currentPage.value = 1
+        fields.value = []
+        selectedFieldId.value = null
+        selectedTool.value    = null
+        await nextTick()
+        await renderPage()
+      } catch (err) {
+        toast('Error loading PDF: ' + err.message, 'error')
+      }
+    }
+
+    async function renderPage() {
+      if (!pdfDoc.value || !pdfCanvas.value) return
+      if (renderTask) { try { renderTask.cancel() } catch(e) {} renderTask = null }
+      try {
+        const page     = await pdfDoc.value.getPage(currentPage.value)
+        const viewport = page.getViewport({ scale: zoom.value })
+        const canvas   = pdfCanvas.value
+        const ctx      = canvas.getContext('2d')
+        canvas.width   = viewport.width
+        canvas.height  = viewport.height
+        canvasW.value  = viewport.width
+        canvasH.value  = viewport.height
+        renderTask = page.render({ canvasContext: ctx, viewport })
+        await renderTask.promise
+        renderTask = null
+      } catch (err) {
+        if (err.name !== 'RenderingCancelledException') console.warn('PDF render:', err)
+      }
+    }
+
+    function getFieldStyle(field) {
+      const cw = canvasW.value || 1
+      const ch = canvasH.value || 1
+      return {
+        left:   (field.x * cw) + 'px',
+        top:    (field.y * ch) + 'px',
+        width:  (field.w * cw) + 'px',
+        height: (field.h * ch) + 'px',
+      }
+    }
+
+    function getFieldDisplay(field) {
+      const s = field.signerOrder
+        ? signers.value.find(x => x.order === field.signerOrder)
+        : null
+      return s ? `${field.label} (${s.label})` : field.label
+    }
+
+    function onCanvasClick(event) {
+      if (!pdfDoc.value) return
+      if (!selectedTool.value) {
+        selectedFieldId.value = null
+        return
+      }
+      const wrapper = canvasWrapper.value
+      const rect = wrapper.getBoundingClientRect()
+      const cw = wrapper.offsetWidth
+      const ch = wrapper.offsetHeight
+      const cx = event.clientX - rect.left
+      const cy = event.clientY - rect.top
+      const defs = FIELD_DEFAULTS[selectedTool.value]
+
+      const x = clamp(cx / cw - defs.w / 2, 0, 1 - defs.w)
+      const y = clamp(cy / ch - defs.h / 2, 0, 1 - defs.h)
+
+      const field = {
+        id: newId(),
+        type: selectedTool.value,
+        page: currentPage.value,
+        x, y,
+        w: defs.w,
+        h: defs.h,
+        label: defs.label,
+        placeholder: '',
+        required: false,
+        signerOrder: signers.value[0]?.order ?? null,
+      }
+      fields.value.push(field)
+      selectedFieldId.value = field.id
+      selectedTool.value    = null
+    }
+
+    function deleteSelectedField() {
+      if (!selectedFieldId.value) return
+      const idx = fields.value.findIndex(f => f.id === selectedFieldId.value)
+      if (idx !== -1) { fields.value.splice(idx, 1); toast('Field deleted') }
+      selectedFieldId.value = null
+    }
+
+    function handleDragEnd({ fieldId, x, y }) {
+      const f = fields.value.find(f => f.id === fieldId)
+      if (f) { f.x = clamp(x, 0, 1 - f.w); f.y = clamp(y, 0, 1 - f.h) }
+    }
+
+    function handleResizeEnd({ fieldId, x, y, w, h }) {
+      const f = fields.value.find(f => f.id === fieldId)
+      if (f) { f.x = x; f.y = y; f.w = w; f.h = h }
+    }
+
+    function addSigner() {
+      const order = signers.value.length + 1
+      signers.value.push({
+        order,
+        label: `Signer ${order}`,
+        color: SIGNER_COLORS[(order - 1) % SIGNER_COLORS.length],
+      })
+    }
+
+    function removeSigner(idx) {
+      const removed = signers.value[idx]
+      signers.value.splice(idx, 1)
+      signers.value.forEach((s, i) => { s.order = i + 1 })
+      fields.value.forEach(f => { if (f.signerOrder === removed.order) f.signerOrder = null })
+    }
+
+    function prevPage() {
+      if (currentPage.value > 1) { currentPage.value--; selectedFieldId.value = null }
+    }
+    function nextPage() {
+      if (currentPage.value < totalPages.value) { currentPage.value++; selectedFieldId.value = null }
+    }
+    function zoomIn()  { zoom.value = clamp(Math.round((zoom.value + 0.2) * 10) / 10, 0.4, 3.0) }
+    function zoomOut() { zoom.value = clamp(Math.round((zoom.value - 0.2) * 10) / 10, 0.4, 3.0) }
+
+    function buildTemplate() {
+      return {
+        version: '1.0',
+        template_id: (typeof crypto !== 'undefined' && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : Date.now().toString(36) + Math.random().toString(36).slice(2),
+        name: templateName.value,
+        created_at: new Date().toISOString(),
+        source_pdf: pdfName.value,
+        pages: totalPages.value,
+        signers: signers.value.map(s => ({ order: s.order, label: s.label, color: s.color })),
+        fields: fields.value.map(f => ({
+          id: f.id,
+          type: f.type,
+          page: f.page,
+          x:      parseFloat(f.x.toFixed(4)),
+          y:      parseFloat(f.y.toFixed(4)),
+          width:  parseFloat(f.w.toFixed(4)),
+          height: parseFloat(f.h.toFixed(4)),
+          label:       f.label,
+          placeholder: f.placeholder || '',
+          required:    f.required,
+          signer_order: f.signerOrder,
+        })),
+      }
+    }
+
+    function exportTemplate() {
+      const tpl  = buildTemplate()
+      const blob = new Blob([JSON.stringify(tpl, null, 2)], { type: 'application/json' })
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = templateName.value.replace(/\s+/g, '-').toLowerCase() + '.skseal.json'
+      a.click()
+      URL.revokeObjectURL(url)
+      toast('Template exported!', 'success')
+    }
+
+    function importTemplate(e) {
+      const file = e.target.files[0]
+      if (!file) return
+      const reader = new FileReader()
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result)
+          if (!data.fields || !data.signers) throw new Error('Missing fields/signers')
+          templateName.value = data.name || 'Imported Template'
+          signers.value = data.signers.map(s => ({
+            order: s.order,
+            label: s.label,
+            color: s.color || SIGNER_COLORS[(s.order - 1) % SIGNER_COLORS.length],
+          }))
+          fields.value = data.fields.map(f => ({
+            id:          f.id || newId(),
+            type:        f.type,
+            page:        f.page,
+            x:           f.x,
+            y:           f.y,
+            w:           f.width,
+            h:           f.height,
+            label:       f.label,
+            placeholder: f.placeholder || '',
+            required:    f.required || false,
+            signerOrder: f.signer_order,
+          }))
+          if (data.pages) totalPages.value = data.pages
+          toast('Template imported!', 'success')
+        } catch (err) {
+          toast('Invalid template: ' + err.message, 'error')
+        }
+      }
+      reader.readAsText(file)
+      e.target.value = ''
+    }
+
+    // Keyboard shortcuts
+    function onKeyDown(e) {
+      const tag = document.activeElement?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (e.key === 'Escape')                           { selectedTool.value = null; selectedFieldId.value = null }
+      if (e.key === 'Delete' || e.key === 'Backspace')  { deleteSelectedField() }
+      if (e.key === 'ArrowLeft'  && !e.altKey)          { prevPage() }
+      if (e.key === 'ArrowRight' && !e.altKey)          { nextPage() }
+      if (e.key === '=' || e.key === '+')               { zoomIn() }
+      if (e.key === '-')                                { zoomOut() }
+    }
+
+    // Watchers
+    watch([currentPage, zoom], async () => { await nextTick(); await renderPage() })
+
+    onMounted(() => { document.addEventListener('keydown', onKeyDown) })
+    onUnmounted(() => { document.removeEventListener('keydown', onKeyDown) })
+
+    return {
+      pdfDoc, pdfName, currentPage, totalPages, zoom, canvasW, canvasH,
+      fields, selectedFieldId, selectedField, selectedTool,
+      signers, templateName, isDragOver, showPreview,
+      toastVisible, toastMsg, toastType,
+      pdfCanvas, fileInput, importInput, canvasWrapper,
+      // constants exposed to template
+      TOOLS,
+      // methods
+      clamp, typeColor, typeIcon,
+      toggleTool, selectField, jumpToField,
+      triggerUpload, triggerImport, onFileChange, onDrop,
+      getFieldStyle, getFieldDisplay, onCanvasClick,
+      deleteSelectedField, handleDragEnd, handleResizeEnd,
+      addSigner, removeSigner,
+      prevPage, nextPage, zoomIn, zoomOut,
+      buildTemplate, exportTemplate, importTemplate,
+    }
+  }
+})
+
+// ── interact.js Vue directive ──────────────────────────────────────────────
+app.directive('interact', {
+  mounted(el, { value }) {
+    setupInteract(el, value)
+  },
+  updated(el, { value }) {
+    try { interact(el).unset() } catch(_) {}
+    setupInteract(el, value)
+  },
+  unmounted(el) {
+    try { interact(el).unset() } catch(_) {}
+  },
+})
+
+app.mount('#app')
+</script>
+</body>
+</html>

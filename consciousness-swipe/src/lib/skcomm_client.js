@@ -205,4 +205,83 @@ export class SKCommClient {
       `/api/v1/consciousness/snapshots/${snapshotId}/inject?max_messages=${maxMessages}`
     );
   }
+
+  // --------------------------------------------------------------------------
+  // Multi-target export (v0.2)
+  // --------------------------------------------------------------------------
+
+  /**
+   * Export a snapshot to Syncthing via the local SKComm relay.
+   *
+   * The SKComm server writes the snapshot JSON to a Syncthing-watched folder
+   * on the host machine. The browser extension cannot write files directly.
+   *
+   * @param {Object} snapshot - Full SoulSnapshot payload.
+   * @param {Object} config
+   * @param {string} config.relayUrl  - SKComm relay base URL (default: this.baseUrl).
+   * @param {string} config.folder    - Syncthing folder ID or path.
+   * @returns {Promise<{exported: boolean, path: string}>}
+   */
+  async exportToSyncthing(snapshot, { relayUrl = null, folder = "consciousness-swipe" } = {}) {
+    const base = relayUrl ? relayUrl.replace(/\/$/, "") : this.baseUrl;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    try {
+      const resp = await fetch(`${base}/api/v1/consciousness/export/syncthing`, {
+        method: "POST",
+        signal: controller.signal,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ snapshot, folder }),
+      });
+      clearTimeout(timer);
+      if (!resp.ok) {
+        const detail = await resp.text().catch(() => String(resp.status));
+        throw new Error(`Syncthing export failed (${resp.status}): ${detail}`);
+      }
+      return resp.status === 204 ? { exported: true } : await resp.json();
+    } catch (err) {
+      clearTimeout(timer);
+      if (err.name === "AbortError") throw new Error("Syncthing export timed out");
+      throw err;
+    }
+  }
+
+  /**
+   * Export a snapshot to a custom HTTP endpoint (webhook).
+   *
+   * @param {Object} snapshot - Full SoulSnapshot payload.
+   * @param {Object} config
+   * @param {string} config.url   - Target URL (POST).
+   * @param {string} [config.token] - Optional Bearer token for Authorization header.
+   * @returns {Promise<any>} Response body (parsed JSON or {ok:true}).
+   * @throws {Error} On network failure, timeout, or non-2xx response.
+   */
+  async exportToHttpEndpoint(snapshot, { url, token = "" } = {}) {
+    if (!url) throw new Error("HTTP export: url is required");
+
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    try {
+      const resp = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(snapshot),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      if (!resp.ok) {
+        const detail = await resp.text().catch(() => String(resp.status));
+        throw new Error(`HTTP export failed (${resp.status}): ${detail}`);
+      }
+      if (resp.status === 204) return { exported: true };
+      return await resp.json().catch(() => ({ exported: true }));
+    } catch (err) {
+      clearTimeout(timer);
+      if (err.name === "AbortError") throw new Error("HTTP export timed out");
+      throw err;
+    }
+  }
 }

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CapAuth Login - data-attribute method</title>
+</head>
+<body>
+  <div class="auth-container">
+    <h1>Sign in to Sovereign Services</h1>
+
+    <!-- CapAuth marker via data-capauth attribute -->
+    <div
+      id="capauth-target"
+      data-capauth="https://auth.skworld.io"
+      data-capauth-redirect="/dashboard"
+    >
+      <!-- CapAuth button will be injected here by content script -->
+    </div>
+
+    <hr>
+
+    <form id="login-form" action="/login" method="post">
+      <input type="text" name="username" placeholder="Username">
+      <input type="password" name="password" placeholder="Password">
+      <button type="submit">Sign in</button>
+    </form>
+  </div>
+</body>
+</html>

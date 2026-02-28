@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Claude - E2E Mock</title>
+</head>
+<body>
+  <!-- Claude conversation structure (mirrors claude.ai DOM as of Feb 2026) -->
+  <main>
+    <div class="conversation-content">
+
+      <!-- Turn 1: user message -->
+      <div data-testid="user-message">
+        <p>What is the capital of France?</p>
+      </div>
+
+      <!-- Turn 1: assistant response (sibling of user-message) -->
+      <div class="font-claude-message" data-testid="assistant-message">
+        <p>The capital of France is <strong>Paris</strong>.</p>
+        <p>Paris has been the capital since 987 AD and is known for landmarks like the Eiffel Tower.</p>
+      </div>
+
+      <!-- Turn 2: user message -->
+      <div data-testid="user-message">
+        <p>Tell me more about the Eiffel Tower.</p>
+      </div>
+
+      <!-- Turn 2: assistant response -->
+      <div class="font-claude-message" data-testid="assistant-message">
+        <p>The Eiffel Tower was built by Gustave Eiffel for the 1889 World's Fair. It stands 330 meters tall and receives about 7 million visitors annually.</p>
+        <pre><code class="language-text">Height: 330m
+Built: 1889
+Designer: Gustave Eiffel</code></pre>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Model selector (for version detection) -->
+  <button data-testid="model-selector-trigger">Claude Sonnet 4</button>
+</body>
+</html>
