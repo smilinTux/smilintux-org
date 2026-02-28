@@ -24,7 +24,49 @@ It gives Claude Code persistent context about the sovereign agent.
 
 ## Coordination Board
 
-**289** tasks total: 0 open, 0 active, 289 done.
+**328** tasks total: 39 open, 0 active, 289 done.
+
+### Active Tasks
+
+- **[084f814b]** Deprecate flutter_app/ and consolidate to flutter/ as single mobile app — low
+- **[11266473]** Flutter app: replace PGP keygen stub, add Android permissions, create crypto/ bridge layer — medium
+- **[1148be54]** Implement mem0 and zep memory backends or remove from schema — medium
+- **[151d214b]** Add skseed documentation to docs/ — low
+- **[1a968b1f]** Add unit tests for skcomm WebRTC, Tailscale, signaling, and capauth_validator — medium
+- **[1d445075]** Add GitHub Pages deploy workflows for .io static sites — low
+- **[1e1e1700]** Add unit tests for ChatGPT, Claude, Gemini scrapers (only Cursor/Windsurf tested) — medium
+- **[2354ea7e]** Wire SKComm presence endpoint and conversations API (currently stubs returning empty) — medium
+- **[275a508f]** Create marketing content for skseed, varus, consciousness-swipe, editor extensions — low
+- **[2dbe2c34]** CapAuth validator: implement PGP signature verification in _validate_local() — critical
+- **[38bed8e3]** Add Cloudflare Worker deploy workflow and package.json for weblink-signaling — medium
+- **[3d169cf9]** WebRTC transport: implement ICE candidate trickle and fix _schedule_offer race condition — high
+- **[43d126d5]** Add missing skseed tests: test_llm.py, test_philosopher.py, test_framework.py — medium
+- **[48fed07b]** Scaffold skcapstone connectors/ package (empty stub — no connector classes exist) — medium
+- **[566f45f9]** Add tests for skseal API and CLI (test_api.py, test_cli.py missing) — medium
+- **[642f6606]** Add unit tests for skcapstone pillar modules (identity, memory, security, trust, sync) — medium
+- **[7226f798]** Add Dockerfile for coturn and production TLS config in skstacks/ — low
+- **[76c9fb4d]** Build VSCode extension .vsix and add publish pipeline — medium
+- **[8498b81d]** Implement GDrive sync backend (enum exists, factory crashes with ValueError) — medium
+- **[8b428db7]** Fix pyproject.toml missing deps: skcomm needs websocket extra, skcapstone needs docker, requests — high
+- **[8cf86740]** SKChat group_send: deliver messages to members via SKComm (not just local store) — high
+- **[9618a3ce]** Add unit tests for skcapstone providers (local, docker, proxmox, cloud) — zero coverage — medium
+- **[9bc2d94c]** Fix skchat pyproject.toml: add missing mcp, skcomm, skmemory dependencies — critical
+- **[9f01dece]** Add MCP tools: add_reaction, list_groups, daemon_status to SKChat — medium
+- **[a0c19311]** Add unit tests for skcapstone sync subsystem (backends, engine, vault) — medium
+- **[a9cb8ade]** Expand CI: add ruff linting to all packages, remove skyforge continue-on-error — medium
+- **[bb4ba97a]** Add top-level Makefile for common dev commands (test, lint, build, docker) — medium
+- **[bf082e29]** Expand release.yml to publish all packages (currently only 4 of 13) — medium
+- **[ca19154d]** Add skills-registry auth tests and admin endpoint tests — medium
+- **[d4e4cd94]** Add conflict resolution UI to Consciousness Swipe popup — medium
+- **[d8755511]** Create Codeium scraper for Consciousness Swipe — high
+- **[d9fbe691]** Fix CloudProvider.provider_type bug — always returns HETZNER regardless of cloud — critical
+- **[e00e66f6]** Add @abstractmethod to ProviderBackend and fix bare except:pass in kms.py, whoami.py, fuse_mount.py — high
+- **[e13f6c51]** Consciousness Swipe: production build, store screenshots, publish privacy policy for store submission — high
+- **[e435ee90]** Fix synthing_apiUrl typo across background.js, options.js (missing 'c' in syncthing) — medium
+- **[ebd06d1f]** Add skseed and varus to CI pipeline — high
+- **[ece92640]** Fix incomplete sentence in docs/SKCOMM_SETUP.md line 305 — low
+- **[ed2f12e5]** Add E2E fixtures and specs for Cursor and Windsurf scrapers — medium
+- **[fe777065]** Fix E2E mock SKComm API endpoint mismatch — client POSTs to /consciousness/capture, mock expects /snapshots — high
 
 ### Agents
 

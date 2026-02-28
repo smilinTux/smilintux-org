@@ -1,0 +1,50 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'skpdf-io/**'
+      - 'skhelp-io/**'
+      - 'skmemory-io/**'
+
+jobs:
+  deploy-skpdf-io:
+    name: Deploy skpdf.io
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./skpdf-io
+          publish_branch: gh-pages-skpdf-io
+          cname: skpdf.io
+
+  deploy-skhelp-io:
+    name: Deploy skhelp.io
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./skhelp-io
+          publish_branch: gh-pages-skhelp-io
+          cname: skhelp.io
+
+  deploy-skmemory-io:
+    name: Deploy skmemory.io
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./skmemory-io
+          publish_branch: gh-pages-skmemory-io
+          cname: skmemory.io

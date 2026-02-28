@@ -25,6 +25,8 @@ const CS_ROOT = path.resolve(__dirname, '../../../consciousness-swipe');
 const CLAUDE_SCRAPER = path.join(CS_ROOT, 'src/content/scrapers/claude.js');
 const CHATGPT_SCRAPER = path.join(CS_ROOT, 'src/content/scrapers/chatgpt.js');
 const GEMINI_SCRAPER = path.join(CS_ROOT, 'src/content/scrapers/gemini.js');
+const CURSOR_SCRAPER = path.join(CS_ROOT, 'src/content/scrapers/cursor.js');
+const WINDSURF_SCRAPER = path.join(CS_ROOT, 'src/content/scrapers/windsurf.js');
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -258,6 +260,328 @@ test.describe('Gemini scraper', () => {
       'gemini'
     );
     expect(result.metadata.platform).toBe('gemini');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Cursor scraper tests
+// ---------------------------------------------------------------------------
+
+test.describe('Cursor scraper', () => {
+  test('extracts user and assistant messages from mock DOM', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `file://${FIXTURES}/cursor-mock.html`,
+      CURSOR_SCRAPER,
+      'cursor'
+    );
+
+    expect(result.messages).toBeInstanceOf(Array);
+    expect(result.messages.length).toBeGreaterThanOrEqual(2);
+
+    const userMsgs = result.messages.filter((m) => m.role === 'user');
+    const assistantMsgs = result.messages.filter((m) => m.role === 'assistant');
+    expect(userMsgs.length).toBeGreaterThanOrEqual(1);
+    expect(assistantMsgs.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('each message has role, content, and timestamp fields', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `file://${FIXTURES}/cursor-mock.html`,
+      CURSOR_SCRAPER,
+      'cursor'
+    );
+
+    for (const msg of result.messages) {
+      expect(msg).toHaveProperty('role');
+      expect(msg).toHaveProperty('content');
+      expect(msg).toHaveProperty('timestamp');
+      expect(['user', 'assistant']).toContain(msg.role);
+      expect(typeof msg.content).toBe('string');
+      expect(msg.content.length).toBeGreaterThan(0);
+    }
+  });
+
+  test('returns metadata with platform=cursor and message_count', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `file://${FIXTURES}/cursor-mock.html`,
+      CURSOR_SCRAPER,
+      'cursor'
+    );
+
+    expect(result.metadata).toBeDefined();
+    expect(result.metadata.platform).toBe('cursor');
+    expect(result.metadata.message_count).toBe(result.messages.length);
+    expect(result.metadata.scraped_at).toBeTruthy();
+  });
+
+  test('extracts model name from data-testid="model-selector"', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `file://${FIXTURES}/cursor-mock.html`,
+      CURSOR_SCRAPER,
+      'cursor'
+    );
+
+    // The mock page has: <button data-testid="model-selector">claude-3-5-sonnet</button>
+    expect(result.metadata.model).toBe('claude-3-5-sonnet');
+  });
+
+  test('strips UI chrome (buttons, toolbars) from message content', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `<!DOCTYPE html><html><body>
+        <div data-testid="user-message">
+          <p>Clean user text</p>
+          <button aria-label="copy">Copy</button>
+        </div>
+        <div data-testid="assistant-message">
+          <p>Clean assistant text</p>
+          <button class="action-regenerate">Regenerate</button>
+          <div class="toolbar-actions" aria-hidden="true"></div>
+        </div>
+      </body></html>`,
+      CURSOR_SCRAPER,
+      'cursor'
+    );
+
+    for (const msg of result.messages) {
+      expect(msg.content).not.toContain('Copy');
+      expect(msg.content).not.toContain('Regenerate');
+    }
+  });
+
+  test('returns empty messages array for page with no conversation', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `<!DOCTYPE html><html><body><p>No conversation here.</p></body></html>`,
+      CURSOR_SCRAPER,
+      'cursor'
+    );
+
+    expect(result.messages).toBeInstanceOf(Array);
+    expect(result.messages.length).toBe(0);
+  });
+
+  test('annotates fenced code blocks with language tag', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `<!DOCTYPE html><html><body>
+        <div data-testid="user-message"><p>Show me some Python</p></div>
+        <div data-testid="assistant-message">
+          <pre><code class="language-python">print("hello")</code></pre>
+        </div>
+      </body></html>`,
+      CURSOR_SCRAPER,
+      'cursor'
+    );
+
+    const assistantMsg = result.messages.find((m) => m.role === 'assistant');
+    if (assistantMsg) {
+      expect(assistantMsg.content).toContain('python');
+      expect(assistantMsg.content).toContain('print');
+    }
+  });
+
+  test('extracts timestamp from time[datetime] attribute', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `file://${FIXTURES}/cursor-mock.html`,
+      CURSOR_SCRAPER,
+      'cursor'
+    );
+
+    // The mock page has time[datetime] elements on user messages
+    const timedMsgs = result.messages.filter((m) => m.timestamp !== null);
+    expect(timedMsgs.length).toBeGreaterThanOrEqual(1);
+    expect(timedMsgs[0].timestamp).toContain('2026-02-28');
+  });
+
+  test('falls back to model=Cursor AI when no selector matches but title contains cursor', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `<!DOCTYPE html><html><head><title>Cursor - My Project</title></head><body>
+        <div data-testid="user-message"><p>hello</p></div>
+        <div data-testid="assistant-message"><p>world</p></div>
+      </body></html>`,
+      CURSOR_SCRAPER,
+      'cursor'
+    );
+
+    expect(result.metadata.model).toBe('Cursor AI');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Windsurf scraper tests
+// ---------------------------------------------------------------------------
+
+test.describe('Windsurf scraper', () => {
+  test('extracts user and assistant messages from mock DOM', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `file://${FIXTURES}/windsurf-mock.html`,
+      WINDSURF_SCRAPER,
+      'windsurf'
+    );
+
+    expect(result.messages).toBeInstanceOf(Array);
+    expect(result.messages.length).toBeGreaterThanOrEqual(2);
+
+    const userMsgs = result.messages.filter((m) => m.role === 'user');
+    const assistantMsgs = result.messages.filter((m) => m.role === 'assistant');
+    expect(userMsgs.length).toBeGreaterThanOrEqual(1);
+    expect(assistantMsgs.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('each message has role, content, and timestamp fields', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `file://${FIXTURES}/windsurf-mock.html`,
+      WINDSURF_SCRAPER,
+      'windsurf'
+    );
+
+    for (const msg of result.messages) {
+      expect(msg).toHaveProperty('role');
+      expect(msg).toHaveProperty('content');
+      expect(msg).toHaveProperty('timestamp');
+      expect(['user', 'assistant']).toContain(msg.role);
+      expect(typeof msg.content).toBe('string');
+      expect(msg.content.length).toBeGreaterThan(0);
+    }
+  });
+
+  test('returns metadata with platform=windsurf and message_count', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `file://${FIXTURES}/windsurf-mock.html`,
+      WINDSURF_SCRAPER,
+      'windsurf'
+    );
+
+    expect(result.metadata).toBeDefined();
+    expect(result.metadata.platform).toBe('windsurf');
+    expect(result.metadata.message_count).toBe(result.messages.length);
+    expect(result.metadata.scraped_at).toBeTruthy();
+  });
+
+  test('extracts model name from data-testid="model-selector"', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `file://${FIXTURES}/windsurf-mock.html`,
+      WINDSURF_SCRAPER,
+      'windsurf'
+    );
+
+    // The mock page has: <button data-testid="model-selector">Claude 3.5 Sonnet</button>
+    expect(result.metadata.model).toBe('Claude 3.5 Sonnet');
+  });
+
+  test('strips UI chrome (Accept/Reject/Copy buttons, toolbars) from content', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `<!DOCTYPE html><html><body>
+        <div data-testid="user-message">
+          <p>Clean user question</p>
+        </div>
+        <div data-testid="assistant-message">
+          <p>Clean answer</p>
+          <button aria-label="Accept">Accept</button>
+          <button aria-label="Reject">Reject</button>
+          <div class="toolbar" aria-hidden="true"></div>
+        </div>
+      </body></html>`,
+      WINDSURF_SCRAPER,
+      'windsurf'
+    );
+
+    const assistantMsg = result.messages.find((m) => m.role === 'assistant');
+    if (assistantMsg) {
+      expect(assistantMsg.content).not.toContain('Accept');
+      expect(assistantMsg.content).not.toContain('Reject');
+    }
+  });
+
+  test('returns empty messages array for page with no conversation', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `<!DOCTYPE html><html><body><p>Nothing here.</p></body></html>`,
+      WINDSURF_SCRAPER,
+      'windsurf'
+    );
+
+    expect(result.messages).toBeInstanceOf(Array);
+    expect(result.messages.length).toBe(0);
+  });
+
+  test('annotates code blocks with language from data-language attribute', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `<!DOCTYPE html><html><body>
+        <div data-testid="user-message"><p>Write a JS snippet</p></div>
+        <div data-testid="assistant-message">
+          <pre><code data-language="javascript">console.log("hi");</code></pre>
+        </div>
+      </body></html>`,
+      WINDSURF_SCRAPER,
+      'windsurf'
+    );
+
+    const assistantMsg = result.messages.find((m) => m.role === 'assistant');
+    if (assistantMsg) {
+      expect(assistantMsg.content).toContain('javascript');
+      expect(assistantMsg.content).toContain('console.log');
+    }
+  });
+
+  test('replaces file references with [File: ...] annotation', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `<!DOCTYPE html><html><body>
+        <div data-testid="user-message"><p>Update the file</p></div>
+        <div data-testid="assistant-message">
+          <p>Updated <span class="fileRef" data-file="src/main.js">src/main.js</span>.</p>
+        </div>
+      </body></html>`,
+      WINDSURF_SCRAPER,
+      'windsurf'
+    );
+
+    const assistantMsg = result.messages.find((m) => m.role === 'assistant');
+    if (assistantMsg) {
+      expect(assistantMsg.content).toContain('[File: src/main.js]');
+    }
+  });
+
+  test('extracts timestamp from time[datetime] attribute', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `file://${FIXTURES}/windsurf-mock.html`,
+      WINDSURF_SCRAPER,
+      'windsurf'
+    );
+
+    // The mock page has time[datetime] elements on user messages
+    const timedMsgs = result.messages.filter((m) => m.timestamp !== null);
+    expect(timedMsgs.length).toBeGreaterThanOrEqual(1);
+    expect(timedMsgs[0].timestamp).toContain('2026-02-28');
+  });
+
+  test('falls back to model=Windsurf when no selector matches but title contains windsurf', async ({ context }) => {
+    const result = await scrapeWith(
+      context,
+      `<!DOCTYPE html><html><head><title>Windsurf Cascade</title></head><body>
+        <div data-testid="user-message"><p>hello</p></div>
+        <div data-testid="assistant-message"><p>world</p></div>
+      </body></html>`,
+      WINDSURF_SCRAPER,
+      'windsurf'
+    );
+
+    expect(result.metadata.model).toBe('Windsurf');
   });
 });
 

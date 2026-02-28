@@ -3,8 +3,8 @@ main = "cloudflare/worker.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-# Worker account settings (fill in from Cloudflare dashboard)
-# account_id = "your-account-id"
+# Worker account settings — set CF_ACCOUNT_ID in GitHub Actions secrets / local env
+account_id = "${CF_ACCOUNT_ID}"
 
 [vars]
 # Default: allow all origins. Override per-environment below.
@@ -20,10 +20,9 @@ tag = "v1"
 new_classes = ["SignalingRoom"]
 
 # ── Routes ────────────────────────────────────────────────────────────────────
-# Uncomment and set your zone ID + route pattern after deploying:
-# [[routes]]
-# pattern = "ws.weblink.skworld.io/*"
-# zone_name = "skworld.io"
+[[routes]]
+pattern = "ws.weblink.skworld.io/*"
+zone_name = "skworld.io"
 
 # ── Production environment ────────────────────────────────────────────────────
 [env.production]

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cursor AI - E2E Mock</title>
+</head>
+<body>
+  <!-- Cursor IDE chat structure (mirrors cursor.com DOM as of Feb 2026) -->
+  <!-- Strategy 1: data-testid selectors (most reliable path in cursor.js) -->
+
+  <main>
+    <div data-testid="chat-history">
+
+      <!-- Turn 1 -->
+      <div data-testid="user-message">
+        <p>How do I reverse a string in Python?</p>
+        <time datetime="2026-02-28T10:00:00Z"></time>
+      </div>
+
+      <div data-testid="assistant-message">
+        <p>You can reverse a string in Python using slicing:</p>
+        <pre><code class="language-python">s = "hello"
+reversed_s = s[::-1]
+print(reversed_s)  # "olleh"</code></pre>
+        <p>Or using the <code>reversed()</code> built-in with <code>join()</code>:</p>
+        <pre><code class="language-python">reversed_s = "".join(reversed(s))</code></pre>
+        <button aria-label="copy">Copy</button>
+        <button class="action-regenerate">Regenerate</button>
+      </div>
+
+      <!-- Turn 2 -->
+      <div data-testid="user-message">
+        <p>Which approach is faster?</p>
+        <time datetime="2026-02-28T10:01:00Z"></time>
+      </div>
+
+      <div data-testid="assistant-message">
+        <p>The slicing approach <code>s[::-1]</code> is generally faster because it is implemented in C under the hood and avoids the overhead of a Python iterator.</p>
+        <p>A quick benchmark:</p>
+        <pre><code class="language-python">import timeit
+t1 = timeit.timeit('s[::-1]', setup='s="hello world"', number=1_000_000)
+t2 = timeit.timeit('"".join(reversed(s))', setup='s="hello world"', number=1_000_000)
+print(f"slice: {t1:.3f}s   reversed: {t2:.3f}s")</code></pre>
+        <button aria-label="Copy code">Copy code</button>
+        <span class="sr-only">Assistant message</span>
+        <div aria-hidden="true" class="toolbar-actions"></div>
+      </div>
+
+      <!-- Turn 3: user message with longer text -->
+      <div data-testid="user-message">
+        <p>Got it. What about reversing words in a sentence instead of characters?</p>
+      </div>
+
+      <div data-testid="assistant-message">
+        <p>To reverse the order of words in a sentence:</p>
+        <pre><code class="language-python">sentence = "the quick brown fox"
+reversed_words = " ".join(sentence.split()[::-1])
+print(reversed_words)  # "fox brown quick the"</code></pre>
+        <div class="feedback-buttons" aria-hidden="true">
+          <button aria-label="thumbs up">👍</button>
+          <button aria-label="thumbs down">👎</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Model selector (for version / model detection in cursor.js) -->
+  <button data-testid="model-selector">claude-3-5-sonnet</button>
+</body>
+</html>

@@ -131,7 +131,7 @@ test.describe('Capture and export snapshot', () => {
     expect(response.snapshot_id).toBeTruthy();
 
     // Verify SKComm received the POST
-    const postCalls = mock.callsTo('POST', '/api/v1/snapshots');
+    const postCalls = mock.callsTo('POST', '/api/v1/consciousness/capture');
     expect(postCalls).toHaveLength(1);
     expect(postCalls[0].body.source_platform).toBe('claude');
     expect(postCalls[0].body.messages).toHaveLength(2);
@@ -146,7 +146,7 @@ test.describe('Capture and export snapshot', () => {
       personality: { name: 'Claude', aliases: ['Assistant'] },
     }));
 
-    const postCalls = mock.callsTo('POST', '/api/v1/snapshots');
+    const postCalls = mock.callsTo('POST', '/api/v1/consciousness/capture');
     const body = postCalls[0]?.body;
     expect(body?.oof_state?.cloud9).toBe(true);
     expect(body?.oof_state?.intensity).toBeCloseTo(0.75);

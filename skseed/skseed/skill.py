@@ -7,9 +7,12 @@ entrypoints that skill.yaml references.
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from .alignment import AlignmentStore
+
+logger = logging.getLogger(__name__)
 from .audit import Auditor
 from .collider import Collider
 from .llm import auto_callback
@@ -212,6 +215,9 @@ def _load_memories(domain: str = "") -> list[dict[str, Any]]:
             }
             for m in memories
         ]
-    except Exception:
-        # skmemory not available — return empty
+    except ImportError:
+        logger.warning("skmemory not installed — audit will run without memories. Install with: pip install skmemory")
+        return []
+    except Exception as exc:
+        logger.warning("Failed to load memories from skmemory: %s", exc)
         return []

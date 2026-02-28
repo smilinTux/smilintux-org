@@ -2,12 +2,13 @@
  * Mock SKComm API server for E2E tests.
  *
  * Implements a subset of the SKComm REST API:
- *   GET  /api/v1/status
- *   POST /api/v1/snapshots
- *   GET  /api/v1/snapshots
- *   GET  /api/v1/snapshots/:id
- *   POST /api/v1/syncthing/relay
- *   POST /api/v1/http-export
+ *   GET    /api/v1/status
+ *   POST   /api/v1/consciousness/capture
+ *   GET    /api/v1/consciousness/snapshots
+ *   GET    /api/v1/consciousness/snapshots/:id
+ *   GET    /api/v1/consciousness/snapshots/:id/inject
+ *   DELETE /api/v1/consciousness/snapshots/:id
+ *   POST   /api/v1/consciousness/export/syncthing
  *
  * All calls are recorded in `server.calls` for assertion in tests.
  */
@@ -73,13 +74,17 @@ export function createMockSKCommServer() {
           agent: 'sonnet',
         }));
 
-      } else if (req.method === 'POST' && url === '/api/v1/snapshots') {
+      } else if (req.method === 'POST' && url === '/api/v1/consciousness/capture') {
         const id = `snap_${String(++counter).padStart(4, '0')}`;
         snapshots.set(id, body);
         res.writeHead(201);
-        res.end(JSON.stringify({ snapshot_id: id, stored: true }));
+        res.end(JSON.stringify({
+          snapshot_id: id,
+          source_platform: body?.source_platform ?? 'unknown',
+          captured_at: new Date().toISOString(),
+        }));
 
-      } else if (req.method === 'GET' && url === '/api/v1/snapshots') {
+      } else if (req.method === 'GET' && url === '/api/v1/consciousness/snapshots') {
         const list = [...snapshots.entries()].map(([id, snap]) => ({
           snapshot_id: id,
           source_platform: snap?.source_platform ?? 'unknown',
@@ -89,10 +94,26 @@ export function createMockSKCommServer() {
         res.writeHead(200);
         res.end(JSON.stringify(list));
 
-      } else if (req.method === 'GET' && url.startsWith('/api/v1/snapshots/')) {
-        const id = url.split('/').pop();
+      } else if (req.method === 'GET' && url.startsWith('/api/v1/consciousness/snapshots/')) {
+        const parts = url.split('/');
+        // /api/v1/consciousness/snapshots/:id/inject  OR  /api/v1/consciousness/snapshots/:id
+        const injectIndex = parts.indexOf('inject');
+        const id = injectIndex !== -1 ? parts[injectIndex - 1] : parts.pop();
         const snap = snapshots.get(id);
-        if (snap) {
+
+        if (injectIndex !== -1) {
+          // Injection prompt endpoint
+          res.writeHead(snap ? 200 : 404);
+          res.end(snap
+            ? JSON.stringify({
+                snapshot_id: id,
+                prompt: `[Injected context from ${snap?.source_platform ?? 'unknown'}]`,
+                ai_name: snap?.ai_name ?? 'unknown',
+                platform: snap?.source_platform ?? 'unknown',
+              })
+            : JSON.stringify({ error: 'Snapshot not found' })
+          );
+        } else if (snap) {
           res.writeHead(200);
           res.end(JSON.stringify(snap));
         } else {
@@ -100,19 +121,15 @@ export function createMockSKCommServer() {
           res.end(JSON.stringify({ error: 'Snapshot not found' }));
         }
 
-      } else if (req.method === 'DELETE' && url.startsWith('/api/v1/snapshots/')) {
+      } else if (req.method === 'DELETE' && url.startsWith('/api/v1/consciousness/snapshots/')) {
         const id = url.split('/').pop();
         const existed = snapshots.delete(id);
         res.writeHead(existed ? 204 : 404);
         res.end(existed ? '' : JSON.stringify({ error: 'Not found' }));
 
-      } else if (req.method === 'POST' && url === '/api/v1/syncthing/relay') {
+      } else if (req.method === 'POST' && url === '/api/v1/consciousness/export/syncthing') {
         res.writeHead(200);
-        res.end(JSON.stringify({ relayed: true }));
-
-      } else if (req.method === 'POST' && url === '/api/v1/http-export') {
-        res.writeHead(200);
-        res.end(JSON.stringify({ exported: true }));
+        res.end(JSON.stringify({ exported: true, path: `/syncthing/${body?.folder ?? 'consciousness-swipe'}` }));
 
       } else {
         res.writeHead(404);

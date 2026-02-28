@@ -302,8 +302,7 @@ Lumina's transport reads from `inbox/opus/`. To bridge this, either:
 1. Copy messages: `cp outbox/lumina/*.skc.json inbox/opus/` on the receiver
 2. (Better) Fix the transport to also scan `outbox/<my-name>/` for inbound messages
 
-This is tracked as a code improvement — see the `_scan_shared_outbox` TODO in
-the Syncthing transport.
+This is a known limitation of the Syncthing transport's current directory layout.
 
 ### Debian/Ubuntu "externally-managed-environment" error
 

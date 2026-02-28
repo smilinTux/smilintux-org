@@ -6,9 +6,10 @@
 #
 # Quick start:
 #   docker compose up -d              # start everything
-#   docker compose --profile sync up -d  # include Syncthing
+#   docker compose --profile sync up -d      # include Syncthing
 #   docker compose --profile registry up -d  # include skills registry
-#   docker compose --profile full up -d  # everything
+#   docker compose --profile turn up -d      # include coturn TURN server
+#   docker compose --profile full up -d      # everything
 #   docker compose ps                 # check status
 #   docker compose down               # stop all
 #   docker compose down -v            # stop + delete data
@@ -158,6 +159,54 @@ services:
         limits:
           memory: 128M
 
+  # ─────────────────────────────────────────────────────────
+  # TURN/STUN server — WebRTC relay for skcomm webrtc transport
+  #
+  # Activate with: docker compose --profile turn up -d
+  # Also included in: docker compose --profile full up -d
+  #
+  # Required env vars:
+  #   COTURN_EXTERNAL_IP   — public IP of this host
+  #   COTURN_AUTH_SECRET   — openssl rand -hex 32  (same value as SKCOMM_TURN_SECRET)
+  # Optional:
+  #   COTURN_TLS_CERT, COTURN_TLS_PKEY — cert paths inside container
+  #   COTURN_CERTS_DIR     — host cert directory to mount (default: /etc/letsencrypt/live/turn.skworld.io)
+  # ─────────────────────────────────────────────────────────
+  coturn:
+    build:
+      context: ./skstacks/coturn
+      dockerfile: Dockerfile
+    image: skworld-coturn:latest
+    container_name: skworld-coturn
+    profiles:
+      - turn
+      - full
+    environment:
+      COTURN_EXTERNAL_IP: "${COTURN_EXTERNAL_IP:?set COTURN_EXTERNAL_IP to your public IP}"
+      COTURN_AUTH_SECRET: "${COTURN_AUTH_SECRET:?set COTURN_AUTH_SECRET (same as SKCOMM_TURN_SECRET)}"
+      COTURN_TLS_CERT: "${COTURN_TLS_CERT:-/etc/coturn/certs/fullchain.pem}"
+      COTURN_TLS_PKEY: "${COTURN_TLS_PKEY:-/etc/coturn/certs/privkey.pem}"
+    ports:
+      - "${COTURN_PORT:-3478}:3478/udp"
+      - "${COTURN_PORT:-3478}:3478/tcp"
+      - "${COTURN_TLS_PORT:-5349}:5349/tcp"
+      - "${COTURN_TLS_PORT:-5349}:5349/udp"
+      - "49152-65535:49152-65535/udp"
+    volumes:
+      - "${COTURN_CERTS_DIR:-/etc/letsencrypt/live/turn.skworld.io}:/etc/coturn/certs:ro"
+      - coturn_logs:/var/log/coturn
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "turnutils_stunclient 127.0.0.1 2>/dev/null || exit 0"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
 volumes:
   qdrant_data:
     driver: local
@@ -166,4 +215,6 @@ volumes:
   syncthing_config:
     driver: local
   skills_registry_data:
+    driver: local
+  coturn_logs:
     driver: local

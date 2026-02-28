@@ -1,0 +1,15 @@
+{
+  "name": "weblink-signaling",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sovereign WebRTC signaling relay — Cloudflare Worker + Durable Objects",
+  "scripts": {
+    "deploy": "wrangler deploy --env production",
+    "deploy:dev": "wrangler deploy --env dev",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

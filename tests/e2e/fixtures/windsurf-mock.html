@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Windsurf - E2E Mock</title>
+</head>
+<body>
+  <!-- Windsurf Cascade IDE chat structure (mirrors windsurf.ai DOM as of Feb 2026) -->
+  <!-- Strategy 1: data-testid selectors (most reliable path in windsurf.js) -->
+
+  <main>
+    <div data-testid="cascade-panel">
+
+      <!-- Turn 1 -->
+      <div data-testid="user-message">
+        <p>Can you add error handling to my fetch function?</p>
+        <time datetime="2026-02-28T09:00:00Z"></time>
+      </div>
+
+      <div data-testid="assistant-message">
+        <p>Sure! Here's your function with proper error handling:</p>
+        <pre><code class="language-javascript">async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+    return await response.json();
+  } catch (err) {
+    console.error('Fetch failed:', err);
+    throw err;
+  }
+}</code></pre>
+        <button aria-label="Accept">Accept</button>
+        <button aria-label="Reject">Reject</button>
+        <button aria-label="Copy">Copy</button>
+      </div>
+
+      <!-- Turn 2 -->
+      <div data-testid="user-message">
+        <p>What if I want to retry on failure?</p>
+        <time datetime="2026-02-28T09:02:00Z"></time>
+      </div>
+
+      <div data-testid="assistant-message">
+        <p>I can add a retry mechanism with exponential backoff:</p>
+        <div class="diff-block" data-language="javascript">async function fetchWithRetry(url, retries = 3, delay = 300) {
+  for (let attempt = 0; attempt &lt; retries; attempt++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (err) {
+      if (attempt === retries - 1) throw err;
+      await new Promise(r => setTimeout(r, delay * 2 ** attempt));
+    }
+  }
+}</div>
+        <span class="badge-model">Cascade</span>
+        <span class="sr-only">Assistant response</span>
+        <div aria-hidden="true" class="toolbar">
+          <button aria-label="Copy code">Copy code</button>
+        </div>
+      </div>
+
+      <!-- Turn 3 -->
+      <div data-testid="user-message">
+        <p>Perfect. Can you also update the file <span data-file="src/api/client.js">src/api/client.js</span>?</p>
+      </div>
+
+      <div data-testid="assistant-message">
+        <p>I've updated <span class="fileRef" data-file="src/api/client.js">src/api/client.js</span> with the retry function. The changes are ready to review.</p>
+        <div class="feedback" aria-hidden="true">
+          <button aria-label="regenerate">Regenerate</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Model selector (for version / model detection in windsurf.js) -->
+  <button data-testid="model-selector">Claude 3.5 Sonnet</button>
+</body>
+</html>

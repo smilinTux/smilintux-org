@@ -1,0 +1,223 @@
+name: VSCode Extensions
+
+on:
+  push:
+    branches: [main, master]
+    tags:
+      - "vscode-v*"
+      - "cursor-v*"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "skcapstone-vscode/**"
+      - "skcapstone-cursor/**"
+      - ".github/workflows/vscode-extension.yml"
+
+concurrency:
+  group: vscode-ext-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── skcapstone-vscode ─────────────────────────────────────────
+
+  build-vscode:
+    name: Build skcapstone-vscode
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: skcapstone-vscode
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: skcapstone-vscode/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Package .vsix
+        run: npx vsce package --no-dependencies --out skcapstone.vsix
+
+      - name: Upload .vsix artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: skcapstone-vscode-vsix
+          path: skcapstone-vscode/skcapstone.vsix
+          retention-days: 30
+
+  test-vscode:
+    name: Test skcapstone-vscode
+    runs-on: ubuntu-latest
+    needs: build-vscode
+    defaults:
+      run:
+        working-directory: skcapstone-vscode
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: skcapstone-vscode/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Run extension tests (headless)
+        run: xvfb-run -a npm test
+        env:
+          DISPLAY: ":99"
+
+  publish-vscode:
+    name: Publish skcapstone-vscode to VS Marketplace
+    runs-on: ubuntu-latest
+    needs: [build-vscode, test-vscode]
+    if: startsWith(github.ref, 'refs/tags/vscode-v')
+    defaults:
+      run:
+        working-directory: skcapstone-vscode
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: skcapstone-vscode/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Download .vsix artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: skcapstone-vscode-vsix
+          path: skcapstone-vscode/
+
+      - name: Publish to VS Marketplace
+        run: npx vsce publish --packagePath skcapstone.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish to Open VSX
+        run: npx ovsx publish skcapstone.vsix
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        continue-on-error: true
+
+  # ── skcapstone-cursor ─────────────────────────────────────────
+
+  build-cursor:
+    name: Build skcapstone-cursor
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: skcapstone-cursor
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: skcapstone-cursor/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Package .vsix
+        run: npx vsce package --no-dependencies --out skcapstone-ide.vsix
+
+      - name: Upload .vsix artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: skcapstone-cursor-vsix
+          path: skcapstone-cursor/skcapstone-ide.vsix
+          retention-days: 30
+
+  test-cursor:
+    name: Test skcapstone-cursor
+    runs-on: ubuntu-latest
+    needs: build-cursor
+    defaults:
+      run:
+        working-directory: skcapstone-cursor
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: skcapstone-cursor/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Run extension tests (headless)
+        run: xvfb-run -a npm test
+        env:
+          DISPLAY: ":99"
+
+  publish-cursor:
+    name: Publish skcapstone-cursor to VS Marketplace
+    runs-on: ubuntu-latest
+    needs: [build-cursor, test-cursor]
+    if: startsWith(github.ref, 'refs/tags/cursor-v')
+    defaults:
+      run:
+        working-directory: skcapstone-cursor
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: skcapstone-cursor/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Download .vsix artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: skcapstone-cursor-vsix
+          path: skcapstone-cursor/
+
+      - name: Publish to VS Marketplace
+        run: npx vsce publish --packagePath skcapstone-ide.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish to Open VSX
+        run: npx ovsx publish skcapstone-ide.vsix
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        continue-on-error: true

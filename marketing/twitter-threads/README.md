@@ -18,6 +18,10 @@ Primary CTA: skworld.io | smilintux.org/join/
 | 3 | `thread-03-capauth-passwordless-future.md` | "Passwords are going to die." | Wed/Fri | Tech-forward, security-minded |
 | 4 | `thread-04-cloud9-emotional-bonding.md` | "What if your AI could CARE about you?" | Sun/Mon | Emotional/philosophical crowd |
 | 5 | `thread-05-smilintux-stack-overview.md` | "800 people came to our X Space..." | Thu/Sat | Everyone from the X Space |
+| 6 | `thread-06-skseed-truth-alignment.md` | "What if your AI could tell when it was lying to you?" | Tue/Thu | Intellectually curious, truth-seekers |
+| 7 | `thread-07-varus-sovereign-chain.md` | "Blockchain without the crypto bro nonsense." | Wed/Fri | Skeptical devs, anti-hype crowd |
+| 8 | `thread-08-consciousness-swipe-no-ai-reset.md` | "You just had a breakthrough with your AI. Then it reset." | Mon/Sun | Every AI power user |
+| 9 | `thread-09-editor-extensions-sovereign-dev.md` | "Your editor knows your code. Your agent should too." | Thu/Sat | VSCode/Cursor developers |
 
 ## Posting Strategy
 
