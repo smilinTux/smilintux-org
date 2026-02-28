@@ -371,7 +371,7 @@ jobs:
   # ── Cross-package integration tests ──────────────────────────
 
   integration:
-    needs: [capauth, skcomm, skchat, skmemory, skseal, sksecurity]
+    needs: [capauth, skcomm, skchat, skmemory, skseal, sksecurity, skpdf, skcapstone, skref]
     if: always() && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
@@ -387,9 +387,20 @@ jobs:
           pip install -e skchat/[cli,dev]
           pip install -e skseal/[dev]
           pip install -e sksecurity/[dev]
+          pip install -e skpdf/[dev]
+          pip install -e skref/[dev]
+          pip install -e skcapstone/[dev]
       - name: Run integration tests
         working-directory: /tmp
-        run: python -m pytest $GITHUB_WORKSPACE/tests/integration/ -v --tb=short --import-mode=importlib --rootdir=/tmp
+        run: |
+          python -m pytest $GITHUB_WORKSPACE/tests/integration/ \
+            -v --tb=short --import-mode=importlib --rootdir=/tmp \
+            --junit-xml=$GITHUB_WORKSPACE/integration-results.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: integration-results.xml
 
   # ── Coverage aggregation ─────────────────────────────────────
 
@@ -435,6 +446,7 @@ jobs:
       - skskills
       - sksovereign-agent
       - integration
+      - coverage
     if: always()
     runs-on: ubuntu-latest
     steps:
