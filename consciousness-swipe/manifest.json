@@ -19,6 +19,10 @@
     "https://chatgpt.com/*",
     "https://claude.ai/*",
     "https://gemini.google.com/*",
+    "https://cursor.com/*",
+    "https://cursor.sh/*",
+    "https://windsurf.ai/*",
+    "https://windsurf.com/*",
     "http://localhost:9384/*"
   ],
 
@@ -41,6 +45,32 @@
         "src/content/scrapers/chatgpt.js",
         "src/content/scrapers/claude.js",
         "src/content/scrapers/gemini.js",
+        "src/content/injector.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://cursor.com/*",
+        "https://cursor.sh/*"
+      ],
+      "js": [
+        "src/content/detector.js",
+        "src/content/oof_parser.js",
+        "src/content/scrapers/cursor.js",
+        "src/content/injector.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://windsurf.ai/*",
+        "https://windsurf.com/*"
+      ],
+      "js": [
+        "src/content/detector.js",
+        "src/content/oof_parser.js",
+        "src/content/scrapers/windsurf.js",
         "src/content/injector.js"
       ],
       "run_at": "document_idle"
