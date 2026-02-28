@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKPDF - AI-Powered PDF Form Filler</title>
+    <meta name="description" content="Send a 40-page form. Get it back filled out. Filed where it belongs. Move on with your life. AI-powered PDF automation with sovereign data control.">
+    <!-- Open Graph -->
+    <meta property="og:title" content="SKPDF - AI-Powered PDF Form Filler">
+    <meta property="og:description" content="Send a 40-page form. Get it back filled out. Filed where it belongs. Move on with your life.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://skpdf.io">
+    <meta property="og:site_name" content="SKWorld">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="SKPDF - AI-Powered PDF Form Filler">
+    <meta name="twitter:description" content="Send a 40-page form. Get it back filled out. Filed where it belongs. Move on with your life.">
+    <!-- Favicon & Canonical -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
+    <link rel="canonical" href="https://skpdf.io">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #0d1117 50%, #161b22 100%);
+            color: white;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        /* ── Background Animation ── */
+        .bg-animation {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.04) 0%, transparent 40%);
+            animation: pulse 12s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: scale(1); }
+            100% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* ── Navigation ── */
+        .site-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 26, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.12);
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.8rem 2rem;
+        }
+
+        .nav-brand {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #3b82f6;
+        }
+
+        .nav-links { display: flex; gap: 1.5rem; }
+
+        .nav-links a {
+            color: #888;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover { color: #3b82f6; }
+
+        /* ── Hero ── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero-icon {
+            font-size: 6rem;
+            margin-bottom: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.4));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 40%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+            font-weight: 700;
+            color: #60a5fa;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: #9ca3af;
+            max-width: 700px;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.45);
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #444;
+        }
+
+        .btn-secondary:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.15);
+        }
+
+        /* ── Problem Section ── */
+        .problem-section {
+            padding: 6rem 2rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.015);
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.15rem;
+            color: #9ca3af;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .problem-card {
+            background: rgba(239, 68, 68, 0.04);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 15px 30px rgba(239, 68, 68, 0.1);
+        }
+
+        .problem-card .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .problem-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #fca5a5;
+        }
+
+        .problem-card p {
+            color: #9ca3af;
+            font-size: 0.95rem;
+        }
+
+        /* ── Solution / How It Works ── */
+        .solution-section {
+            padding: 8rem 2rem;
+        }
+
+        .workflow {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .workflow-step {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .step-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #e5e7eb;
+        }
+
+        .step-content p {
+            color: #9ca3af;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .step-content code {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Fira Code', Monaco, monospace;
+            font-size: 0.9rem;
+        }
+
+        /* ── Features Grid ── */
+        .features-section {
+            padding: 8rem 2rem;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.04) 0%, rgba(139, 92, 246, 0.04) 100%);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.12);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.35s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: #3b82f6;
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+        }
+
+        .feature-card .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.6rem;
+            color: #e5e7eb;
+        }
+
+        .feature-card p {
+            color: #9ca3af;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* ── Demo Section ── */
+        .demo-section {
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            margin: 2rem auto;
+            max-width: 700px;
+            text-align: left;
+            font-family: 'Fira Code', Monaco, 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .code-block .comment { color: #6b7280; }
+        .code-block .cmd { color: #60a5fa; }
+        .code-block .arg { color: #a78bfa; }
+        .code-block .flag { color: #34d399; }
+        .code-block .output { color: #9ca3af; }
+
+        /* ── Stats Section ── */
+        .stats-section {
+            padding: 5rem 2rem;
+            background: rgba(255, 255, 255, 0.015);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-item p {
+            color: #9ca3af;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* ── GTD Filing Section ── */
+        .filing-section {
+            padding: 8rem 2rem;
+        }
+
+        .filing-demo {
+            max-width: 700px;
+            margin: 2rem auto;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            border-radius: 16px;
+            padding: 2rem;
+            font-family: 'Fira Code', Monaco, monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .filing-demo .folder { color: #60a5fa; }
+        .filing-demo .file { color: #9ca3af; }
+        .filing-demo .new-file { color: #34d399; }
+        .filing-demo .arrow { color: #8b5cf6; }
+
+        /* ── Ecosystem Section ── */
+        .ecosystem-section {
+            padding: 8rem 2rem;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%);
+            text-align: center;
+        }
+
+        .ecosystem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .eco-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .eco-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .eco-card .eco-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .eco-card h4 { font-size: 1rem; color: #e5e7eb; margin-bottom: 0.3rem; }
+        .eco-card p { font-size: 0.85rem; color: #6b7280; }
+
+        /* ── Get Started ── */
+        .get-started {
+            padding: 8rem 2rem;
+            text-align: center;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            padding: 4rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(59, 130, 246, 0.08);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #6b7280;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover { color: #3b82f6; }
+
+        .footer-copy {
+            color: #4b5563;
+            font-size: 0.85rem;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .hero { padding: 1.5rem; }
+            .cta-buttons { flex-direction: column; width: 100%; max-width: 320px; }
+            .btn { width: 100%; justify-content: center; }
+            .nav-links { display: none; }
+            .workflow-step { flex-direction: column; align-items: center; text-align: center; }
+            .problem-grid, .features-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <!-- Navigation -->
+    <nav class="site-nav">
+        <div class="nav-inner">
+            <a href="#" class="nav-brand">📄 SKPDF</a>
+            <div class="nav-links">
+                <a href="#problem">The Problem</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#features">Features</a>
+                <a href="#filing">GTD Filing</a>
+                <a href="#get-started">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-icon">📄</div>
+        <h1>SKPDF</h1>
+        <p class="tagline">40 Pages of Paperwork. 30 Seconds. Done.</p>
+        <p class="subtitle">
+            Send a form. Get it back filled out. Filed where it belongs.
+            AI-powered PDF automation with sovereign data control.
+        </p>
+        <div class="cta-buttons">
+            <a href="https://github.com/smilintux-org/skpdf" class="btn btn-primary">
+                Get Started
+            </a>
+            <a href="https://skworld.io" class="btn btn-secondary">
+                SKWorld Ecosystem
+            </a>
+        </div>
+    </section>
+
+    <!-- Problem -->
+    <section id="problem" class="problem-section">
+        <h2 class="section-title">PDFs Are the Enemy</h2>
+        <p class="section-subtitle">
+            Every form asks the same questions. Every time you retype the same answers.
+            Your AI should handle them.
+        </p>
+        <div class="problem-grid">
+            <div class="problem-card">
+                <div class="card-icon">🔁</div>
+                <h3>Re-Typing Everything</h3>
+                <p>Name, DOB, SSN, address, phone, email — the same PII on every single form. Page after page.</p>
+            </div>
+            <div class="problem-card">
+                <div class="card-icon">🔍</div>
+                <h3>Hunting for Data</h3>
+                <p>Policy numbers, account numbers, claim IDs — scattered across emails, documents, and memory.</p>
+            </div>
+            <div class="problem-card">
+                <div class="card-icon">😤</div>
+                <h3>Missing Fields</h3>
+                <p>That tiny checkbox on page 37 that needs initials. The date format that's wrong. The signature you forgot.</p>
+            </div>
+            <div class="problem-card">
+                <div class="card-icon">📂</div>
+                <h3>Lost Forms</h3>
+                <p>Filled forms vanish into Downloads, Desktop folders, old email threads. Good luck finding them later.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="solution-section">
+        <h2 class="section-title" style="text-align: center; margin-bottom: 3rem;">How It Works</h2>
+        <div class="workflow">
+            <div class="workflow-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Send Your Form</h3>
+                    <p>
+                        Drop a PDF into SKChat, the CLI, or the API.
+                        SKPDF detects every field — text boxes, checkboxes, radio buttons, date fields, signature blocks.
+                        Works with AcroForms, XFA, and even scanned PDFs via OCR.
+                    </p>
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Auto-Fill from Your Profile</h3>
+                    <p>
+                        Your CapAuth sovereign profile is the single source of truth.
+                        SKPDF maps fields intelligently — <code>"Patient Name"</code> gets your name,
+                        <code>"Mailing Address"</code> gets your address. 87 of 93 fields filled automatically.
+                    </p>
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Answer What's Left</h3>
+                    <p>
+                        Only asks about what it can't find — the claim number, the incident date,
+                        the specific reason for your visit. Natural language answers, not one-field-at-a-time clicking.
+                    </p>
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Filed and Done</h3>
+                    <p>
+                        Completed PDF is automatically categorized and filed to the right GTD folder
+                        with searchable metadata. Local filesystem, Nextcloud, or both. Move on with your life.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="features-section">
+        <h2 class="section-title" style="text-align: center; margin-bottom: 1rem;">Features</h2>
+        <p class="section-subtitle" style="text-align: center; margin: 0 auto 3rem;">
+            Everything you need to never fill a form by hand again.
+        </p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="card-icon">🧠</div>
+                <h3>Intelligent Field Mapping</h3>
+                <p>Context-aware mapping understands that "Patient Name" means your name, not random text. Exact, fuzzy, and LLM-assisted matching.</p>
+            </div>
+            <div class="feature-card">
+                <div class="card-icon">🔐</div>
+                <h3>Sovereign Data Control</h3>
+                <p>Your data lives in your CapAuth profile. Sensitive fields (SSN, account numbers) require explicit PGP approval. Every disclosure is logged.</p>
+            </div>
+            <div class="feature-card">
+                <div class="card-icon">💬</div>
+                <h3>Conversational Filling</h3>
+                <p>Send a PDF in SKChat. Your AI advocate fills it, asks the missing questions in natural language, and files the result. No form UI needed.</p>
+            </div>
+            <div class="feature-card">
+                <div class="card-icon">📑</div>
+                <h3>Universal PDF Support</h3>
+                <p>AcroForms, XFA, and scanned flat PDFs. OCR handles non-interactive documents. Pre-mapped templates for IRS, SSA, DMV, and medical forms.</p>
+            </div>
+            <div class="feature-card">
+                <div class="card-icon">📁</div>
+                <h3>GTD Auto-Filing</h3>
+                <p>Every form is categorized, date-prefixed, and filed to the right folder with a searchable metadata sidecar. @Inbox, @Action, @Reference — automatic.</p>
+            </div>
+            <div class="feature-card">
+                <div class="card-icon">⚡</div>
+                <h3>Under 5 Seconds</h3>
+                <p>Extract fields, auto-fill, write the PDF, and file it — the entire workflow in under 5 seconds. Profile auto-fill alone takes less than 500ms.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3>&lt;5s</h3>
+                <p>Total workflow time</p>
+            </div>
+            <div class="stat-item">
+                <h3>93%</h3>
+                <p>Fields auto-filled</p>
+            </div>
+            <div class="stat-item">
+                <h3>36</h3>
+                <p>Features in the engine</p>
+            </div>
+            <div class="stat-item">
+                <h3>100%</h3>
+                <p>Your data, your control</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo -->
+    <section class="demo-section">
+        <h2 class="section-title">Try It</h2>
+        <p class="section-subtitle" style="margin: 0 auto 1rem;">Three commands. That's all you need.</p>
+        <div class="code-block" onclick="copyToClipboard(this)" title="Click to copy">
+            <span class="comment"># Extract fields from any PDF</span><br>
+            <span class="cmd">skpdf</span> <span class="arg">extract</span> <span class="flag">form.pdf</span><br>
+            <br>
+            <span class="comment"># Fill it from your profile and auto-file</span><br>
+            <span class="cmd">skpdf</span> <span class="arg">fill</span> <span class="flag">form.pdf</span> <span class="flag">--profile</span> profile.json<br>
+            <br>
+            <span class="comment"># Organize a messy Downloads folder into GTD</span><br>
+            <span class="cmd">skpdf</span> <span class="arg">organize</span> <span class="flag">~/Downloads/*.pdf</span>
+        </div>
+    </section>
+
+    <!-- GTD Filing -->
+    <section id="filing" class="filing-section">
+        <h2 class="section-title" style="text-align: center; margin-bottom: 1rem;">GTD-Native Filing</h2>
+        <p class="section-subtitle" style="text-align: center; margin: 0 auto 2rem;">
+            Every completed form automatically lands in the right folder with searchable metadata.
+        </p>
+        <div class="filing-demo">
+            <span class="folder">Documents/</span><br>
+            <span class="folder">&nbsp;&nbsp;@Reference/</span><br>
+            <span class="folder">&nbsp;&nbsp;&nbsp;&nbsp;Medical/</span><br>
+            <span class="folder">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2026/</span><br>
+            <span class="new-file">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2026-02-21_insurance-claim_blue-cross.pdf</span> <span class="arrow">&larr; auto-filed</span><br>
+            <span class="new-file">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2026-02-21_insurance-claim_blue-cross.meta.yml</span><br>
+            <span class="folder">&nbsp;&nbsp;&nbsp;&nbsp;Financial/</span><br>
+            <span class="folder">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tax/</span><br>
+            <span class="new-file">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2026-03-15_1040-return_irs.pdf</span> <span class="arrow">&larr; auto-filed</span><br>
+            <span class="folder">&nbsp;&nbsp;@Action/</span><br>
+            <span class="folder">&nbsp;&nbsp;&nbsp;&nbsp;Waiting-For/</span><br>
+            <span class="new-file">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2026-02-21_insurance-claim_blue-cross.pdf</span> <span class="arrow">&larr; follow-up in 14d</span>
+        </div>
+    </section>
+
+    <!-- Ecosystem -->
+    <section class="ecosystem-section">
+        <h2 class="section-title" style="margin-bottom: 1rem;">Part of SKWorld</h2>
+        <p class="section-subtitle" style="margin: 0 auto 3rem;">
+            SKPDF works best with the sovereign AI ecosystem.
+        </p>
+        <div class="ecosystem-grid">
+            <a href="https://capauth.io" class="eco-card">
+                <div class="eco-icon">🔑</div>
+                <h4>CapAuth</h4>
+                <p>Sovereign identity &amp; profile data</p>
+            </a>
+            <a href="https://skcapstone.io" class="eco-card">
+                <div class="eco-icon">🏛️</div>
+                <h4>SKCapstone</h4>
+                <p>Agent orchestration runtime</p>
+            </a>
+            <a href="https://sksecurity.io" class="eco-card">
+                <div class="eco-icon">🛡️</div>
+                <h4>SKSecurity</h4>
+                <p>Zero-trust security layer</p>
+            </a>
+            <a href="https://skworld.io" class="eco-card">
+                <div class="eco-icon">🌍</div>
+                <h4>SKWorld</h4>
+                <p>The sovereign ecosystem</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- Get Started -->
+    <section id="get-started" class="get-started">
+        <h2 class="section-title" style="margin-bottom: 1rem;">Stop Filling Forms</h2>
+        <p class="section-subtitle" style="margin: 0 auto 2.5rem;">
+            Your AI handles the paperwork. You handle your life.
+        </p>
+        <div class="cta-buttons">
+            <a href="https://github.com/smilintux-org/skpdf" class="btn btn-primary">
+                View on GitHub
+            </a>
+            <a href="https://docs.skworld.io/skpdf" class="btn btn-secondary">
+                Read the Docs
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="https://skworld.io">SKWorld</a>
+            <a href="https://capauth.io">CapAuth</a>
+            <a href="https://skcapstone.io">SKCapstone</a>
+            <a href="https://sksecurity.io">SKSecurity</a>
+            <a href="https://github.com/smilintux-org">GitHub</a>
+        </div>
+        <p class="footer-copy">
+            SKPDF is part of the smilinTux sovereign AI ecosystem. GPL-3.0-or-later.
+        </p>
+    </footer>
+
+    <script>
+        function copyToClipboard(el) {
+            const lines = el.innerText.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'));
+            const text = lines.join('\n').trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const orig = el.innerHTML;
+                el.style.borderColor = '#34d399';
+                const note = document.createElement('div');
+                note.textContent = 'Copied!';
+                note.style.cssText = 'position:absolute;top:12px;right:16px;color:#34d399;font-size:0.85rem;font-weight:700;';
+                el.appendChild(note);
+                setTimeout(() => {
+                    el.style.borderColor = '';
+                    note.remove();
+                }, 1500);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -11,7 +11,8 @@
     "activeTab",
     "storage",
     "scripting",
-    "clipboardWrite"
+    "clipboardWrite",
+    "alarms"
   ],
 
   "host_permissions": [
@@ -20,10 +21,12 @@
     "https://claude.ai/*",
     "https://gemini.google.com/*",
     "https://cursor.com/*",
-    "https://cursor.sh/*",
+    "https://www.cursor.com/*",
+    "https://codeium.com/*",
     "https://windsurf.ai/*",
-    "https://windsurf.com/*",
-    "http://localhost:9384/*"
+    "http://localhost:9384/*",
+    "http://localhost:*/*",
+    "https://localhost:*/*"
   ],
 
   "background": {
@@ -37,7 +40,11 @@
         "https://chat.openai.com/*",
         "https://chatgpt.com/*",
         "https://claude.ai/*",
-        "https://gemini.google.com/*"
+        "https://gemini.google.com/*",
+        "https://cursor.com/*",
+        "https://www.cursor.com/*",
+        "https://codeium.com/*",
+        "https://windsurf.ai/*"
       ],
       "js": [
         "src/content/detector.js",
@@ -45,31 +52,7 @@
         "src/content/scrapers/chatgpt.js",
         "src/content/scrapers/claude.js",
         "src/content/scrapers/gemini.js",
-        "src/content/injector.js"
-      ],
-      "run_at": "document_idle"
-    },
-    {
-      "matches": [
-        "https://cursor.com/*",
-        "https://cursor.sh/*"
-      ],
-      "js": [
-        "src/content/detector.js",
-        "src/content/oof_parser.js",
         "src/content/scrapers/cursor.js",
-        "src/content/injector.js"
-      ],
-      "run_at": "document_idle"
-    },
-    {
-      "matches": [
-        "https://windsurf.ai/*",
-        "https://windsurf.com/*"
-      ],
-      "js": [
-        "src/content/detector.js",
-        "src/content/oof_parser.js",
         "src/content/scrapers/windsurf.js",
         "src/content/injector.js"
       ],

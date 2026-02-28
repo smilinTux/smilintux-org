@@ -15,12 +15,34 @@
 import { SKCommClient } from "./lib/skcomm_client.js";
 import { makeSoulSnapshot, makeIndexEntry } from "./lib/snapshot_schema.js";
 
-const SKCOMM_BASE_URL = "http://localhost:9384";
+const DEFAULT_SKCOMM_URL = "http://localhost:9384";
 const SYNC_INTERVAL_MS = 60_000; // Retry pending snapshots every 60s
 const STORAGE_KEY_INDEX = "cs_snapshot_index";
 const STORAGE_KEY_PENDING = "cs_pending_sync";
 
-const client = new SKCommClient(SKCOMM_BASE_URL);
+/**
+ * Get the configured SKComm URL from options (falls back to default).
+ *
+ * @returns {Promise<string>}
+ */
+async function getSkcommUrl() {
+  try {
+    const { cs_options } = await chrome.storage.local.get("cs_options");
+    return cs_options?.apiUrl || DEFAULT_SKCOMM_URL;
+  } catch {
+    return DEFAULT_SKCOMM_URL;
+  }
+}
+
+/**
+ * Create a SKCommClient using the currently configured URL.
+ *
+ * @returns {Promise<SKCommClient>}
+ */
+async function getClient() {
+  const url = await getSkcommUrl();
+  return new SKCommClient(url);
+}
 
 // ---------------------------------------------------------------------------
 // Message handlers
@@ -91,6 +113,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 // ---------------------------------------------------------------------------
 
 async function handleCheckConnection() {
+  const client = await getClient();
   const reachable = await client.isReachable();
   if (reachable) {
     try {
@@ -142,6 +165,7 @@ async function handleCaptureSnapshot(payload) {
   });
 
   // Try to sync to SKComm API
+  const client = await getClient();
   const reachable = await client.isReachable();
   let snapshotId = null;
   let synced = false;
@@ -173,6 +197,7 @@ async function handleCaptureSnapshot(payload) {
 
 async function handleListSnapshots() {
   // Try API first for authoritative list
+  const client = await getClient();
   const reachable = await client.isReachable();
   if (reachable) {
     try {
@@ -188,6 +213,7 @@ async function handleListSnapshots() {
 }
 
 async function handleGetSnapshot(snapshotId) {
+  const client = await getClient();
   const reachable = await client.isReachable();
   if (reachable) {
     try {
@@ -202,6 +228,7 @@ async function handleGetSnapshot(snapshotId) {
 }
 
 async function handleDeleteSnapshot(snapshotId) {
+  const client = await getClient();
   const reachable = await client.isReachable();
   if (reachable) {
     try {
@@ -219,6 +246,7 @@ async function handleDeleteSnapshot(snapshotId) {
 }
 
 async function handleGetInjectionPrompt(snapshotId) {
+  const client = await getClient();
   const reachable = await client.isReachable();
   if (reachable) {
     try {
@@ -289,6 +317,7 @@ async function handleInjectIntoTab(payload) {
 async function handleSendMessage(payload) {
   const { recipient, message, opts = {} } = payload;
   try {
+    const client = await getClient();
     const result = await client.send(recipient, message, opts);
     return { success: true, result };
   } catch (err) {
@@ -298,6 +327,7 @@ async function handleSendMessage(payload) {
 
 async function handleGetInbox() {
   try {
+    const client = await getClient();
     const messages = await client.receive();
     return { success: true, messages };
   } catch (err) {
@@ -307,6 +337,7 @@ async function handleGetInbox() {
 
 async function handleGetPeers() {
   try {
+    const client = await getClient();
     const peers = await client.peers();
     return { success: true, peers };
   } catch (err) {
@@ -345,6 +376,7 @@ async function syncPending() {
   const { [STORAGE_KEY_PENDING]: pending = [] } = await chrome.storage.local.get(STORAGE_KEY_PENDING);
   if (pending.length === 0) return;
 
+  const client = await getClient();
   const reachable = await client.isReachable();
   if (!reachable) return;
 

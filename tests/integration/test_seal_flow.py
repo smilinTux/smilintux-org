@@ -17,6 +17,9 @@ import pytest
 
 PASSPHRASE = "sovereign-test-key-2026"
 
+# Minimal valid PDF for signing tests.
+SAMPLE_PDF = b"%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n%%EOF"
+
 
 class TestCapAuthToSKSeal:
     """Verify CapAuth-generated keys work with SKSeal signing engine."""
@@ -29,39 +32,40 @@ class TestCapAuthToSKSeal:
         """Document signed with CapAuth key produces valid signature."""
         from capauth.crypto import get_backend as capauth_backend
         from skseal.engine import SealEngine
-        from skseal.models import Document, Signer, SignerStatus
+        from skseal.models import Document, Signer, SignerRole, SignerStatus
 
         backend = capauth_backend()
         alice_priv, alice_pub = alice_keys
         fp = backend.fingerprint_from_armor(alice_pub)
 
+        signer = Signer(
+            name="Alice",
+            email="alice@skworld.io",
+            fingerprint=fp,
+            role=SignerRole.SIGNER,
+            status=SignerStatus.PENDING,
+        )
         doc = Document(
             title="Sovereign Partnership Agreement",
             description="Test document for integration",
-            signers=[
-                Signer(
-                    name="Alice",
-                    email="alice@skworld.io",
-                    fingerprint=fp,
-                    role="author",
-                    status=SignerStatus.PENDING,
-                ),
-            ],
+            signers=[signer],
         )
 
         engine = SealEngine()
 
-        record = engine.sign_document(
+        signed_doc = engine.sign_document(
             document=doc,
-            signer_id=fp,
+            signer_id=signer.signer_id,
             private_key_armor=alice_priv,
             passphrase=PASSPHRASE,
+            pdf_data=SAMPLE_PDF,
         )
 
-        assert record is not None
+        assert len(signed_doc.signatures) >= 1
+        record = signed_doc.signatures[-1]
         assert record.fingerprint == fp
         assert record.signature_armor is not None
-        assert "BEGIN PGP SIGNATURE" in record.signature_armor
+        assert "BEGIN PGP" in record.signature_armor
 
     def test_verify_signature_roundtrip(
         self,
@@ -71,35 +75,36 @@ class TestCapAuthToSKSeal:
         """Signature created by CapAuth key verifies against public key."""
         from capauth.crypto import get_backend as capauth_backend
         from skseal.engine import SealEngine
-        from skseal.models import Document, Signer, SignerStatus
+        from skseal.models import Document, Signer, SignerRole, SignerStatus
 
         backend = capauth_backend()
         alice_priv, alice_pub = alice_keys
         fp = backend.fingerprint_from_armor(alice_pub)
 
+        signer = Signer(
+            name="Alice",
+            email="alice@skworld.io",
+            fingerprint=fp,
+            role=SignerRole.SIGNER,
+            status=SignerStatus.PENDING,
+        )
         doc = Document(
             title="Verification Test Document",
             description="Round-trip signing verification",
-            signers=[
-                Signer(
-                    name="Alice",
-                    email="alice@skworld.io",
-                    fingerprint=fp,
-                    role="author",
-                    status=SignerStatus.PENDING,
-                ),
-            ],
+            signers=[signer],
         )
 
         engine = SealEngine()
 
-        record = engine.sign_document(
+        signed_doc = engine.sign_document(
             document=doc,
-            signer_id=fp,
+            signer_id=signer.signer_id,
             private_key_armor=alice_priv,
             passphrase=PASSPHRASE,
+            pdf_data=SAMPLE_PDF,
         )
 
+        record = signed_doc.signatures[-1]
         verified = engine.verify_signature(record, alice_pub)
         assert verified is True
 
@@ -112,7 +117,7 @@ class TestCapAuthToSKSeal:
         """Two CapAuth identities can both sign the same document."""
         from capauth.crypto import get_backend as capauth_backend
         from skseal.engine import SealEngine
-        from skseal.models import Document, Signer, SignerStatus
+        from skseal.models import Document, Signer, SignerRole, SignerStatus
 
         backend = capauth_backend()
         alice_priv, alice_pub = alice_keys
@@ -120,42 +125,45 @@ class TestCapAuthToSKSeal:
         alice_fp = backend.fingerprint_from_armor(alice_pub)
         bob_fp = backend.fingerprint_from_armor(bob_pub)
 
+        alice_signer = Signer(
+            name="Alice",
+            email="alice@skworld.io",
+            fingerprint=alice_fp,
+            role=SignerRole.SIGNER,
+            status=SignerStatus.PENDING,
+        )
+        bob_signer = Signer(
+            name="Bob",
+            email="bob@skworld.io",
+            fingerprint=bob_fp,
+            role=SignerRole.COSIGNER,
+            status=SignerStatus.PENDING,
+        )
         doc = Document(
             title="Multi-Party Agreement",
             description="Requires both signatures",
-            signers=[
-                Signer(
-                    name="Alice",
-                    email="alice@skworld.io",
-                    fingerprint=alice_fp,
-                    role="author",
-                    status=SignerStatus.PENDING,
-                ),
-                Signer(
-                    name="Bob",
-                    email="bob@skworld.io",
-                    fingerprint=bob_fp,
-                    role="reviewer",
-                    status=SignerStatus.PENDING,
-                ),
-            ],
+            signers=[alice_signer, bob_signer],
         )
 
         engine = SealEngine()
 
-        alice_record = engine.sign_document(
+        doc = engine.sign_document(
             document=doc,
-            signer_id=alice_fp,
+            signer_id=alice_signer.signer_id,
             private_key_armor=alice_priv,
             passphrase=PASSPHRASE,
+            pdf_data=SAMPLE_PDF,
         )
+        alice_record = doc.signatures[-1]
 
-        bob_record = engine.sign_document(
+        doc = engine.sign_document(
             document=doc,
-            signer_id=bob_fp,
+            signer_id=bob_signer.signer_id,
             private_key_armor=bob_priv,
             passphrase=PASSPHRASE,
+            pdf_data=SAMPLE_PDF,
         )
+        bob_record = doc.signatures[-1]
 
         assert engine.verify_signature(alice_record, alice_pub) is True
         assert engine.verify_signature(bob_record, bob_pub) is True
@@ -169,10 +177,10 @@ class TestSKSealDocumentStore:
 
     def test_store_and_retrieve_document(self, tmp_path: Path) -> None:
         """Documents stored via DocumentStore are retrievable."""
-        from skseal.models import Document, Signer, SignerStatus
+        from skseal.models import Document, Signer, SignerRole, SignerStatus
         from skseal.store import DocumentStore
 
-        store = DocumentStore(base_path=tmp_path / ".skseal")
+        store = DocumentStore(base_dir=tmp_path / ".skseal")
 
         doc = Document(
             title="Stored Test Document",
@@ -182,7 +190,7 @@ class TestSKSealDocumentStore:
                     name="Test Signer",
                     email="test@skworld.io",
                     fingerprint="A" * 40,
-                    role="author",
+                    role=SignerRole.SIGNER,
                     status=SignerStatus.PENDING,
                 ),
             ],
@@ -191,7 +199,7 @@ class TestSKSealDocumentStore:
         saved_path = store.save_document(doc)
         assert saved_path.exists()
 
-        loaded = store.load_document(doc.id)
+        loaded = store.load_document(doc.document_id)
         assert loaded is not None
         assert loaded.title == "Stored Test Document"
         assert len(loaded.signers) == 1
@@ -201,19 +209,19 @@ class TestSKSealDocumentStore:
         from skseal.models import AuditAction, AuditEntry, Document
         from skseal.store import DocumentStore
 
-        store = DocumentStore(base_path=tmp_path / ".skseal")
+        store = DocumentStore(base_dir=tmp_path / ".skseal")
 
         doc = Document(title="Audit Test", description="Testing audit trail")
         store.save_document(doc)
 
         entry = AuditEntry(
-            document_id=doc.id,
+            document_id=doc.document_id,
             action=AuditAction.CREATED,
-            actor="test-agent",
-            detail="Document created for integration test",
+            actor_name="test-agent",
+            details="Document created for integration test",
         )
         store.append_audit(entry)
 
-        trail = store.get_audit_trail(doc.id)
+        trail = store.get_audit_trail(doc.document_id)
         assert len(trail) >= 1
         assert trail[0].action == AuditAction.CREATED

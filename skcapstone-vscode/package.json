@@ -10,7 +10,7 @@
   },
   "categories": ["Other"],
   "keywords": ["sovereign", "agent", "pgp", "skcapstone", "ai"],
-  "icon": "media/icon.png",
+  "icon": "media/shield.svg",
   "repository": {
     "type": "git",
     "url": "https://github.com/smilinTux/smilintux-org"

@@ -81,7 +81,15 @@ function relativeTime(isoString) {
  * @returns {string}
  */
 function platformIcon(platform) {
-  return { chatgpt: "🤖", claude: "🌸", gemini: "♊", unknown: "🌌" }[platform] ?? "🌌";
+  return {
+    chatgpt: "🤖",
+    claude: "🌸",
+    gemini: "♊",
+    cursor: "🖱️",
+    windsurf: "🏄",
+    codeium: "🏄",
+    unknown: "🌌",
+  }[platform] ?? "🌌";
 }
 
 // ---------------------------------------------------------------------------
@@ -122,6 +130,10 @@ async function updatePlatformBadge() {
       "chatgpt.com": "chatgpt",
       "claude.ai": "claude",
       "gemini.google.com": "gemini",
+      "cursor.com": "cursor",
+      "www.cursor.com": "cursor",
+      "codeium.com": "codeium",
+      "windsurf.ai": "windsurf",
     };
     currentPlatform = hostMap[url.hostname] ?? "unknown";
     $("platform-badge").textContent = currentPlatform === "unknown"
@@ -170,7 +182,7 @@ async function loadSnapshots() {
         <div class="empty-state">
           <span class="empty-icon">🌌</span>
           No snapshots yet.<br>
-          Visit a ChatGPT, Claude, or Gemini session<br>and press ⚡ Capture.
+          Visit a ChatGPT, Claude, Gemini, Cursor, or Windsurf session<br>and press ⚡ Capture.
         </div>`;
       return;
     }

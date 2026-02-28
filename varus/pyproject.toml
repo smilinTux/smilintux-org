@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "varus"
+version = "0.1.0"
+description = "Varus — sovereign append-only blockchain"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+varus = "varus.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

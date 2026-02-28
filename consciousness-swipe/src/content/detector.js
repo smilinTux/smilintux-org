@@ -10,7 +10,7 @@
  * @module detector
  */
 
-/** @typedef {'chatgpt'|'claude'|'gemini'|'cursor'|'windsurf'|'unknown'} PlatformName */
+/** @typedef {'chatgpt'|'claude'|'gemini'|'unknown'} PlatformName */
 
 /**
  * @typedef {Object} PlatformInfo
@@ -28,9 +28,9 @@ const HOSTNAME_MAP = {
   "claude.ai": "claude",
   "gemini.google.com": "gemini",
   "cursor.com": "cursor",
-  "cursor.sh": "cursor",
+  "www.cursor.com": "cursor",
+  "codeium.com": "codeium",
   "windsurf.ai": "windsurf",
-  "windsurf.com": "windsurf",
 };
 
 /**
@@ -54,14 +54,14 @@ const DOM_FINGERPRINTS = {
     'chat-window',
   ],
   cursor: [
-    '[data-testid="chat-history"]',
-    '[class*="chatHistory"]',
-    '[class*="aiMessage"]',
+    '[data-testid*="cursor-chat"]',
+    '[class*="CursorChat"]',
+    '[class*="cursor-chat"]',
   ],
   windsurf: [
-    '[data-testid="cascade-panel"]',
-    '.cascade-panel',
-    'windsurf-ai-turn',
+    '[data-testid*="codeium"]',
+    '[class*="CodeiumChat"]',
+    '[class*="WindsurfChat"]',
   ],
 };
 
@@ -108,6 +108,14 @@ function detectVersion(platform) {
       const headerText = document.querySelector('h1, [aria-label*="Gemini"]');
       if (headerText) return headerText.textContent?.trim()?.split("\n")[0] ?? "unknown";
     }
+    if (platform === "cursor") {
+      const modelEl = document.querySelector('[class*="ModelSelector"], [data-testid*="model"]');
+      if (modelEl) return modelEl.textContent?.trim() ?? "unknown";
+    }
+    if (platform === "windsurf" || platform === "codeium") {
+      const modelEl = document.querySelector('[class*="ModelName"], [class*="model-name"]');
+      if (modelEl) return modelEl.textContent?.trim() ?? "unknown";
+    }
   } catch {
     // Silently ignore — version detection is best-effort
   }
@@ -119,7 +127,7 @@ function detectVersion(platform) {
  *
  * @returns {PlatformInfo}
  */
-export function getActivePlatform() {
+function getActivePlatform() {
   const hostname = location.hostname;
   let platform = HOSTNAME_MAP[hostname] ?? null;
 

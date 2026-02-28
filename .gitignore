@@ -1,3 +1,17 @@
+# Python cache / build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.ruff_cache/
+
+# Spurious files from shell typos
+~
+=*
+
 # Logs
 logs
 *.log
@@ -11,6 +25,9 @@ node_modules/
 
 # Environment variables
 .env
+
+# Claude Code local config
+.claude/
 
 # Editor directories and files
 .idea

@@ -35,6 +35,25 @@ const INPUT_SELECTORS = {
     'div[contenteditable="true"]',
     'textarea',
   ],
+  cursor: [
+    '[data-testid="chat-input"]',
+    '[class*="ChatInput"] [contenteditable="true"]',
+    '[class*="chat-input"] textarea',
+    'div[contenteditable="true"]',
+    'textarea',
+  ],
+  windsurf: [
+    '[data-testid="chat-input"]',
+    '[class*="ChatInput"] [contenteditable="true"]',
+    '[class*="chat-input"] textarea',
+    'div[contenteditable="true"]',
+    'textarea',
+  ],
+  codeium: [
+    '[class*="ChatInput"] [contenteditable="true"]',
+    'div[contenteditable="true"]',
+    'textarea',
+  ],
   unknown: [
     'div[contenteditable="true"]',
     'textarea',
@@ -134,7 +153,7 @@ function setTextarea(el, text) {
  * @param {string} prompt - The text to copy
  * @returns {Promise<boolean>} True on success
  */
-export async function copyToClipboard(prompt) {
+async function copyToClipboard(prompt) {
   try {
     await navigator.clipboard.writeText(prompt);
     return true;
@@ -162,7 +181,7 @@ export async function copyToClipboard(prompt) {
  * @param {string} prompt - The context prompt to inject
  * @returns {{success: boolean, method: string, error?: string}}
  */
-export function injectIntoInput(prompt) {
+function injectIntoInput(prompt) {
   const inputEl = findInputElement();
 
   if (!inputEl) {
@@ -200,7 +219,7 @@ export function injectIntoInput(prompt) {
  * @param {number} [maxMessages=8] - Max recent messages to include
  * @returns {string}
  */
-export function buildInjectionPrompt(snapshot, maxMessages = 8) {
+function buildInjectionPrompt(snapshot, maxMessages = 8) {
   const ts = new Date(snapshot.captured_at ?? Date.now()).toISOString();
   const aiName = snapshot.ai_name ?? "the AI";
   const userName = snapshot.user_name ?? "the user";
