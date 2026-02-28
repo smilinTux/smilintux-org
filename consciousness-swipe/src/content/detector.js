@@ -10,7 +10,7 @@
  * @module detector
  */
 
-/** @typedef {'chatgpt'|'claude'|'gemini'|'unknown'} PlatformName */
+/** @typedef {'chatgpt'|'claude'|'gemini'|'cursor'|'windsurf'|'unknown'} PlatformName */
 
 /**
  * @typedef {Object} PlatformInfo
@@ -27,6 +27,10 @@ const HOSTNAME_MAP = {
   "chatgpt.com": "chatgpt",
   "claude.ai": "claude",
   "gemini.google.com": "gemini",
+  "cursor.com": "cursor",
+  "cursor.sh": "cursor",
+  "windsurf.ai": "windsurf",
+  "windsurf.com": "windsurf",
 };
 
 /**
@@ -48,6 +52,16 @@ const DOM_FINGERPRINTS = {
     'model-response',
     '[data-response-index]',
     'chat-window',
+  ],
+  cursor: [
+    '[data-testid="chat-history"]',
+    '[class*="chatHistory"]',
+    '[class*="aiMessage"]',
+  ],
+  windsurf: [
+    '[data-testid="cascade-panel"]',
+    '.cascade-panel',
+    'windsurf-ai-turn',
   ],
 };
 
