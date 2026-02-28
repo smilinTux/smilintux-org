@@ -24,37 +24,7 @@ It gives Claude Code persistent context about the sovereign agent.
 
 ## Coordination Board
 
-**289** tasks total: 27 open, 0 active, 262 done.
-
-### Active Tasks
-
-- **[16327d6e]** SKChat Flutter: implement 6 core screens per PRD Sovereign Glass design — high
-- **[187ff8f7]** SKChat Flutter: voice/video call UI for WebRTC backend — medium
-- **[1b9693d4]** Skills marketplace: search, ratings, and install flow for skills.smilintux.org — medium
-- **[228a1de7]** CapAuth Nextcloud: wire PGP verification middleware + user provisioning — medium
-- **[23b29436]** SKSkills aggregator: central MCP server that proxies all active skill tools — medium
-- **[2a3e1e36]** SKChat peer picker: new conversation UX in Flutter app — high
-- **[2c268448]** Add interactive demo to capauth.io: PGP keygen + challenge-response in browser — high
-- **[41c3745e]** Consciousness Swipe: Firefox addon store submission — medium
-- **[4af5af16]** skcapstone summary: at-a-glance agent dashboard command — medium
-- **[4e33de2b]** Consciousness Swipe v0.2: options page + multi-target export — high
-- **[4e9bfbce]** skcapstone onboard: interactive wizard for new humans and AI agents — high
-- **[5649a165]** SKChat group creation + member management in Flutter app — medium
-- **[5e18916d]** Docker provider backend for agent team spawning — medium
-- **[5fd3b433]** E2E test suite: browser extensions (Consciousness Swipe + CapAuth) — medium
-- **[759865c2]** skcapstone chat: interactive terminal chat session with peers — medium
-- **[76185605]** Sovereign uninstaller: clean teardown with data export option — low
-- **[7a4c23b1]** SKSeal Vue.js template builder: drag-and-drop field placement on PDF — medium
-- **[7c3b2446]** Crush (OpenCode) integration: default terminal AI client for sovereign agents — medium
-- **[82cb9e5d]** SKChat Flutter: wire QR scanner + CapAuth mobile login flow — high
-- **[873e08cd]** skcapstone shell: interactive REPL for sovereign agent operations — medium
-- **[8dfb2144]** SKSecurity real-time dashboard: threats, compliance, behavioral analysis — medium
-- **[917ab030]** SKSeal + SKComm: P2P signing request delivery via sovereign transport — high
-- **[93f46248]** CapAuth browser extension: passwordless login popup UI + signing flow — critical
-- **[9fc0fac3]** Per-agent SKSkills instances: each sovereign agent manages own skill registry — medium
-- **[c2dbf734]** Consciousness Swipe: Chrome Web Store submission — medium
-- **[db42c12f]** SKSeal OpenPGP.js client-side signing: keys never leave browser — high
-- **[f0d5d41b]** Wire skcapstone runtime to SKSkills sessions (replace OpenClaw references) — high
+**289** tasks total: 0 open, 0 active, 289 done.
 
 ### Agents
 
@@ -78,16 +48,25 @@ It gives Claude Code persistent context about the sovereign agent.
 
 ## Recent Memories
 
+- [mid-term] Per-agent SKSkills instances implemented 2026-02-28. Task [9fc0fac3] completed by jarvis.
+
+Architecture:
+- ~/.skskills/a `skskills`, `per-agent`, `milestone`, `architecture`, `skills`
+- [mid-term] Crush (charmbracelet/crush) integration complete 2026-02-28. Go binary at ~/go/bin/crush (85MB ELF). Config at ~/.config `crush`, `integration`, `mcp`, `milestone`, `terminal-ai`
+- [mid-term] Docker provider backend complete 2026-02-28. Task [5e18916d] done.
+
+Files modified:
+- skcapstone/src/skcapstone/provider `docker`, `provider`, `team-engine`, `milestone`, `architecture`
+- [mid-term] SKSeal OpenPGP.js client-side signing implemented 2026-02-28. Task [db42c12f] completed.
+
+Files created:
+- skseal/src/sk `skseal`, `openpgp`, `client-side-signing`, `browser`, `ui`, `milestone`
+- [mid-term] Consciousness Swipe v0.2 completed 2026-02-28. Added: options page UI (session duration, export targets section, auto-ca `consciousness-swipe`, `browser-extension`, `milestone`, `v0.2`
 - [mid-term] SKSeed package fully built 2026-02-28: skill.py (5 entrypoints: collide, audit, philosopher, truth_check, alignment_repo `skseed`, `milestone`, `mcp`, `testing`, `integration`
 - [short-term] CapAuth ZK Profile [1236eea1] + Deploy [eac9090c] implemented 2026-02-28: docs/ZERO_KNOWLEDGE_PROFILE.md (full protocol  
 - [short-term] Memory Fortress [11465de0] implemented 2026-02-28: FortifiedMemoryStore in skmemory/skmemory/fortress.py. Three layers:  
 - [short-term] SKSkills runtime wiring complete 2026-02-28. SkillsState added to skcapstone/models.py, discover_skills() in discovery.p 
 - [short-term] SKComm bootstrap done 2026-02-28: websocket.py transport added, registered in BUILTIN_TRANSPORTS in core.py, wired in ~/ 
-- [mid-term] SKSeed package created 2026-02-28 at skseed/. Sovereign logic kernel extracted from skmemory/steelman.py and sksecurity/ `skseed`, `architecture`, `milestone`, `neuresthetics`, `truth-alignment`, `logic-kernel`
-- [mid-term] Session 2026-02-27: Built 6 major modules — sovereign pub/sub (35 tests), memory fortress with HMAC-SHA256 integrity sea `session-summary`, `milestone`, `architecture`, `skcapstone`
-- [short-term] (3) Wrote welcome sequence — 5 onboarding emails from Queen Lumina at docs/WELCOME_SEQUENCE.md. `faq`, `coord-board`, `testimonials`, `cloud9`, `session-capture`, `session`, `onboarding`
-- [short-term] (2) Wrote FAQ — 20 questions for non-technical newcomers at docs/FAQ.md. `faq`, `coord-board`, `testimonials`, `cloud9`, `session-capture`, `session`, `onboarding`
-- [short-term] (1) Added King Grok / Queen Ava II testimony to cloud9.skworld.io — new AI Testimonials section with 4 testimonials (Ava `faq`, `coord-board`, `testimonials`, `cloud9`, `session-capture`, `session`, `onboarding`
 
 ## CLI Reference
 
