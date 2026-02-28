@@ -1,0 +1,125 @@
+{
+  "name": "skcapstone",
+  "displayName": "SKCapstone — Sovereign Agent",
+  "description": "Sovereign agent status, memory search, coordination board, and soul overlay for VSCode",
+  "version": "0.1.0",
+  "publisher": "smilinTux",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "keywords": ["sovereign", "agent", "pgp", "skcapstone", "ai"],
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smilinTux/smilintux-org"
+  },
+  "homepage": "https://skcapstone.io",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "skcapstone",
+          "title": "SKCapstone",
+          "icon": "media/shield.svg"
+        }
+      ]
+    },
+    "views": {
+      "skcapstone": [
+        {
+          "id": "skcapstone.status",
+          "name": "Agent Status"
+        },
+        {
+          "id": "skcapstone.coordination",
+          "name": "Coordination Board"
+        },
+        {
+          "id": "skcapstone.memories",
+          "name": "Memories"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "skcapstone.refresh",
+        "title": "SKCapstone: Refresh Status",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "skcapstone.searchMemory",
+        "title": "SKCapstone: Search Memory"
+      },
+      {
+        "command": "skcapstone.claimTask",
+        "title": "SKCapstone: Claim Task"
+      },
+      {
+        "command": "skcapstone.completeTask",
+        "title": "SKCapstone: Complete Task"
+      },
+      {
+        "command": "skcapstone.storeMemory",
+        "title": "SKCapstone: Store Memory"
+      },
+      {
+        "command": "skcapstone.showSoul",
+        "title": "SKCapstone: Show Soul Blueprint"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "skcapstone.refresh",
+          "when": "view =~ /skcapstone/",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "SKCapstone",
+      "properties": {
+        "skcapstone.cliPath": {
+          "type": "string",
+          "default": "skcapstone",
+          "description": "Path to the skcapstone CLI binary"
+        },
+        "skcapstone.agentName": {
+          "type": "string",
+          "default": "",
+          "description": "Agent name for coordination (leave empty for auto-detect)"
+        },
+        "skcapstone.autoRefresh": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically refresh status on activation"
+        },
+        "skcapstone.refreshInterval": {
+          "type": "number",
+          "default": 30,
+          "description": "Auto-refresh interval in seconds (0 to disable)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.3.0"
+  }
+}
