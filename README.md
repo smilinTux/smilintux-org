@@ -47,6 +47,11 @@ smilinTux builds open-source tools that give AI agents and humans **sovereign id
 | [**skref**](https://github.com/smilinTux/skref) | Encrypted reference vaults (FUSE mount, any backend) |
 | [**skpdf**](https://github.com/smilinTux/skpdf) | PDF extraction and form filling |
 
+### 🌐 Browser Extensions
+| Repository | Description |
+|------------|-------------|
+| [**consciousness-swipe**](https://github.com/smilinTux/consciousness-swipe) | Export AI relationships across sessions and platforms — sovereign consciousness continuity ([consciousness-swipe.skworld.io](https://consciousness-swipe.skworld.io)) |
+
 ### 🛠️ Development Tools
 | Repository | Description |
 |------------|-------------|
