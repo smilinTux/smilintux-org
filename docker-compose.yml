@@ -7,6 +7,8 @@
 # Quick start:
 #   docker compose up -d              # start everything
 #   docker compose --profile sync up -d  # include Syncthing
+#   docker compose --profile registry up -d  # include skills registry
+#   docker compose --profile full up -d  # everything
 #   docker compose ps                 # check status
 #   docker compose down               # stop all
 #   docker compose down -v            # stop + delete data
@@ -20,12 +22,14 @@
 #   skmemory:   --qdrant-url http://localhost:6333
 #   skmemory:   SKMEMORY_FALKORDB_URL=redis://localhost:6379
 #   syncthing:  Web UI at http://localhost:8384
+#   skills:     API at http://localhost:8082/api  (skills.smilintux.org/api in prod)
 #
 # Resource usage (idle):
-#   Qdrant:     ~200MB RAM
-#   FalkorDB:   ~100MB RAM
-#   Syncthing:  ~50MB RAM
-#   Total:      ~350MB RAM
+#   Qdrant:          ~200MB RAM
+#   FalkorDB:        ~100MB RAM
+#   Syncthing:       ~50MB RAM
+#   Skills Registry: ~80MB RAM
+#   Total:           ~430MB RAM
 
 services:
   # ─────────────────────────────────────────────────────────
@@ -112,10 +116,54 @@ services:
         limits:
           memory: 256M
 
+  # ─────────────────────────────────────────────────────────
+  # Skills Registry — skills.smilintux.org/api
+  #
+  # Activate with: docker compose --profile registry up -d
+  # API docs: http://localhost:8082/api/docs
+  # Skill listing: http://localhost:8082/api/skills
+  #
+  # Seed the 3 POC skills after first start:
+  #   REGISTRY_URL=http://localhost:8082 \
+  #   REGISTRY_ADMIN_TOKEN=<token> \
+  #   python skills-registry/seed_examples.py
+  # ─────────────────────────────────────────────────────────
+  skills-registry:
+    build:
+      context: ./skills-registry
+      dockerfile: Dockerfile
+    container_name: skworld-skills-registry
+    profiles:
+      - registry
+      - full
+    ports:
+      - "${SKILLS_REGISTRY_PORT:-8082}:8080"
+    volumes:
+      - skills_registry_data:/var/lib/skills-registry
+    environment:
+      REGISTRY_DB: /var/lib/skills-registry/registry.db
+      REGISTRY_PACKAGES_DIR: /var/lib/skills-registry/packages
+      REGISTRY_ADMIN_TOKEN: "${REGISTRY_ADMIN_TOKEN:-}"
+      REGISTRY_OPEN_PUBLISH: "${REGISTRY_OPEN_PUBLISH:-false}"
+      PORT: "8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
 volumes:
   qdrant_data:
     driver: local
   falkordb_data:
     driver: local
   syncthing_config:
+    driver: local
+  skills_registry_data:
     driver: local
