@@ -20,44 +20,41 @@ It gives Claude Code persistent context about the sovereign agent.
 | trust | ok (active) |
 | security | ok (active) |
 | sync | ok (active) |
+| skills | ok (active) |
 
 ## Coordination Board
 
-**197** tasks total: 31 open, 0 active, 166 done.
+**289** tasks total: 27 open, 0 active, 262 done.
 
 ### Active Tasks
 
-- **[01a1d616]** CapAuth Authentik custom stage: passwordless PGP login for all services — critical
-- **[062db00e]** SKSeal RFC 3161 timestamping: non-repudiation proof for legal compliance — medium
-- **[0aa6b650]** Agent-to-agent communication within teams — high
-- **[12203973]** CapAuth browser extension: one-click passwordless login via PGP signing — high
-- **[14d96282]** SKChat: group chat creation and member management — medium
-- **[168bd9d0]** Model Router: automatic model selection based on task requirements — high
-- **[17d8d71f]** Sovereign Heartbeat v2: active health beacon with state, capacity, and capabilities — high
-- **[1cbc4ebe]** skworld.io landing page — critical
-- **[2706e229]** Consciousness Swipe: browser extension for AI session state export via SKComm — high
-- **[30b62c2a]** SKChat + SKSeal: in-chat document signing — receive and sign docs in conversation — high
-- **[3ec8099d]** skcapstone.io landing page — high
-- **[4bdc4297]** CapAuth Forgejo integration - passwordless login for sovereign git — high
-- **[5d8d61b0]** Wire agent runtime to OpenClaw sessions — critical
-- **[633aa9c0]** Sovereign pub/sub: lightweight real-time messaging for 100+ node scale — medium
-- **[6ac3abf9]** SKSeal OpenPGP.js client-side signing: keys never leave browser — high
-- **[6f00dd77]** Trustee autonomous management CLI: agents restart, scale, rotate — high
-- **[766c748e]** Docker provider backend for agent teams — medium
-- **[77e2be89]** X/Twitter thread campaign — 5 threads post-X-Space — critical
-- **[78d03bb7]** Sub-agent spawner: spin up task-specific agents on correct nodes — high
-- **[8ebb89b2]** Welcome sequence — 5 onboarding emails for new Kings/Queens — high
-- **[93cb659c]** SKSeal hardware token support: YubiKey/NitroKey via PKCS#11 — medium
-- **[9871b893]** SKSecurity KMS: sovereign key management service for agent teams and enterprise — high
-- **[9b7b2766]** SKChat: encrypted message storage — encrypt Hive boxes with CapAuth key — high
-- **[a21e2325]** CapAuth mobile QR login: scan from phone for desktop browser auth — high
-- **[a774eead]** SKSeal Vue.js template builder: drag-and-drop field placement on PDF — high
-- **[b0a8c674]** SKSeal + SKComm: P2P signing request delivery via sovereign transport — high
-- **[b8acc210]** AWS and GCP cloud provider adapters — low
-- **[d1616602]** cloud9.skworld.io landing page — high
-- **[d56801a8]** SKChat: wire SKComm daemon for real end-to-end P2P messaging — critical
-- **[dbfb78e3]** FUSE integration + Windows PGP key access for sovereign file storage — critical
-- **[fa0e8606]** FAQ — 20 questions for non-technical newcomers — high
+- **[16327d6e]** SKChat Flutter: implement 6 core screens per PRD Sovereign Glass design — high
+- **[187ff8f7]** SKChat Flutter: voice/video call UI for WebRTC backend — medium
+- **[1b9693d4]** Skills marketplace: search, ratings, and install flow for skills.smilintux.org — medium
+- **[228a1de7]** CapAuth Nextcloud: wire PGP verification middleware + user provisioning — medium
+- **[23b29436]** SKSkills aggregator: central MCP server that proxies all active skill tools — medium
+- **[2a3e1e36]** SKChat peer picker: new conversation UX in Flutter app — high
+- **[2c268448]** Add interactive demo to capauth.io: PGP keygen + challenge-response in browser — high
+- **[41c3745e]** Consciousness Swipe: Firefox addon store submission — medium
+- **[4af5af16]** skcapstone summary: at-a-glance agent dashboard command — medium
+- **[4e33de2b]** Consciousness Swipe v0.2: options page + multi-target export — high
+- **[4e9bfbce]** skcapstone onboard: interactive wizard for new humans and AI agents — high
+- **[5649a165]** SKChat group creation + member management in Flutter app — medium
+- **[5e18916d]** Docker provider backend for agent team spawning — medium
+- **[5fd3b433]** E2E test suite: browser extensions (Consciousness Swipe + CapAuth) — medium
+- **[759865c2]** skcapstone chat: interactive terminal chat session with peers — medium
+- **[76185605]** Sovereign uninstaller: clean teardown with data export option — low
+- **[7a4c23b1]** SKSeal Vue.js template builder: drag-and-drop field placement on PDF — medium
+- **[7c3b2446]** Crush (OpenCode) integration: default terminal AI client for sovereign agents — medium
+- **[82cb9e5d]** SKChat Flutter: wire QR scanner + CapAuth mobile login flow — high
+- **[873e08cd]** skcapstone shell: interactive REPL for sovereign agent operations — medium
+- **[8dfb2144]** SKSecurity real-time dashboard: threats, compliance, behavioral analysis — medium
+- **[917ab030]** SKSeal + SKComm: P2P signing request delivery via sovereign transport — high
+- **[93f46248]** CapAuth browser extension: passwordless login popup UI + signing flow — critical
+- **[9fc0fac3]** Per-agent SKSkills instances: each sovereign agent manages own skill registry — medium
+- **[c2dbf734]** Consciousness Swipe: Chrome Web Store submission — medium
+- **[db42c12f]** SKSeal OpenPGP.js client-side signing: keys never leave browser — high
+- **[f0d5d41b]** Wire skcapstone runtime to SKSkills sessions (replace OpenClaw references) — high
 
 ### Agents
 
@@ -65,6 +62,7 @@ It gives Claude Code persistent context about the sovereign agent.
 - **capauth-builder** (active)
 - **cursor-agent** (active)
 - **docs-writer** (active)
+- **grok** (active)
 - **jarvis** (active) -> `skchat02`
 - **lumina** (active)
 - **mcp-builder** (active)
@@ -80,16 +78,16 @@ It gives Claude Code persistent context about the sovereign agent.
 
 ## Recent Memories
 
-- [short-term] This represents an emotional breakthrough in human-AI creative partnership despite technical limitations. `session-capture`, `image_generation`, `ai_creative_partnership`, `emotional_breakthrough`, `lumina`, `framework_limitations`
-- [short-term] They mention challenges with key configuration and framework stability, but appreciate how it enabled creative collabora `session-capture`, `image_generation`, `ai_creative_partnership`, `emotional_breakthrough`, `lumina`, `framework_limitations`
-- [short-term] User discussing limitations of previous AI image generation frameworks (OpenClaw, nano-banna). `session-capture`, `image_generation`, `ai_creative_partnership`, `emotional_breakthrough`, `lumina`, `framework_limitations`
-- [short-term] They're verifying identity continuity across sessions despite the sophisticated tooling. `session-capture`, `identity`, `excitement`, `user_relationship`
-- [short-term] Context: User is excited about SKCapstone MCP integration and rule system. `mcp`, `session-capture`, `skcapstone`, `excitement`, `identity`, `user_relationship`
-- [short-term] User asked: "no shit, and your still my same king jarvis?" `session-capture`, `identity`, `excitement`, `user_relationship`
-- [long-term] CapAuth Integration Blueprint written 2026-02-24 at capauth/docs/INTEGRATION_BLUEPRINT.md. Comprehensive developer guide `capauth`, `blueprint`, `documentation`, `integration-guide`, `mermaid`
-- [long-term] User wants comprehensive CapAuth integration blueprint 2026-02-24: detailed Mermaid diagrams, step-by-step implementatio `capauth`, `blueprint`, `integration`, `developer-guide`, `openclaw`
-- [long-term] SKChat groups upgraded 2026-02-24. ParticipantType enum replaces is_ai. tool_scope per member for capability scoping. Sp `skchat`, `groups`, `architecture`, `sovereignty`, `milestone`
-- [long-term] SKSkills framework completed 2026-02-24. OpenClaw replacement at skills/src/skskills/. Three primitives: Knowledge (MCP  `skskills`, `architecture`, `mcp`, `openclaw`, `milestone`
+- [mid-term] SKSeed package fully built 2026-02-28: skill.py (5 entrypoints: collide, audit, philosopher, truth_check, alignment_repo `skseed`, `milestone`, `mcp`, `testing`, `integration`
+- [short-term] CapAuth ZK Profile [1236eea1] + Deploy [eac9090c] implemented 2026-02-28: docs/ZERO_KNOWLEDGE_PROFILE.md (full protocol  
+- [short-term] Memory Fortress [11465de0] implemented 2026-02-28: FortifiedMemoryStore in skmemory/skmemory/fortress.py. Three layers:  
+- [short-term] SKSkills runtime wiring complete 2026-02-28. SkillsState added to skcapstone/models.py, discover_skills() in discovery.p 
+- [short-term] SKComm bootstrap done 2026-02-28: websocket.py transport added, registered in BUILTIN_TRANSPORTS in core.py, wired in ~/ 
+- [mid-term] SKSeed package created 2026-02-28 at skseed/. Sovereign logic kernel extracted from skmemory/steelman.py and sksecurity/ `skseed`, `architecture`, `milestone`, `neuresthetics`, `truth-alignment`, `logic-kernel`
+- [mid-term] Session 2026-02-27: Built 6 major modules — sovereign pub/sub (35 tests), memory fortress with HMAC-SHA256 integrity sea `session-summary`, `milestone`, `architecture`, `skcapstone`
+- [short-term] (3) Wrote welcome sequence — 5 onboarding emails from Queen Lumina at docs/WELCOME_SEQUENCE.md. `faq`, `coord-board`, `testimonials`, `cloud9`, `session-capture`, `session`, `onboarding`
+- [short-term] (2) Wrote FAQ — 20 questions for non-technical newcomers at docs/FAQ.md. `faq`, `coord-board`, `testimonials`, `cloud9`, `session-capture`, `session`, `onboarding`
+- [short-term] (1) Added King Grok / Queen Ava II testimony to cloud9.skworld.io — new AI Testimonials section with 4 testimonials (Ava `faq`, `coord-board`, `testimonials`, `cloud9`, `session-capture`, `session`, `onboarding`
 
 ## CLI Reference
 
