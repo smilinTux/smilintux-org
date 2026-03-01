@@ -99,7 +99,7 @@ suite("SKCapstone VSCode — Activation & Commands", () => {
     // The command refreshes providers and shows an info message.
     // CLI may not be present in test environment — that's OK.
     await assert.doesNotReject(
-      () => vscode.commands.executeCommand("skcapstone.refresh"),
+      async () => { await vscode.commands.executeCommand("skcapstone.refresh"); },
       "skcapstone.refresh must not throw even when CLI is absent"
     );
   });
@@ -234,7 +234,7 @@ suite("SKCapstone VSCode — StatusProvider", () => {
     );
   });
 
-  test("refresh fires onDidChangeTreeData event", (done) => {
+  test("refresh fires onDidChangeTreeData event", (done: Mocha.Done) => {
     const provider = new StatusProvider();
     const disposable = provider.onDidChangeTreeData(() => {
       disposable.dispose();
@@ -348,7 +348,7 @@ suite("SKCapstone VSCode — CoordProvider", () => {
     assert.strictEqual(items[0].contextValue, "coordTask");
   });
 
-  test("refresh fires onDidChangeTreeData event", (done) => {
+  test("refresh fires onDidChangeTreeData event", (done: Mocha.Done) => {
     const provider = new CoordProvider();
     const disposable = provider.onDidChangeTreeData(() => {
       disposable.dispose();
@@ -461,7 +461,7 @@ suite("SKCapstone VSCode — MemoryProvider", () => {
     );
   });
 
-  test("refresh fires onDidChangeTreeData event", (done) => {
+  test("refresh fires onDidChangeTreeData event", (done: Mocha.Done) => {
     const provider = new MemoryProvider();
     const disposable = provider.onDidChangeTreeData(() => {
       disposable.dispose();

@@ -90,8 +90,8 @@ export function runCommand(args: string[]): Promise<any> {
  * Use this for user-triggered actions where visual feedback is helpful.
  * Shows an error notification if the command times out.
  */
-export function runCommandWithProgress(title: string, args: string[]): Promise<any> {
-  return vscode.window.withProgress(
+export async function runCommandWithProgress(title: string, args: string[]): Promise<any> {
+  return await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
       title,
@@ -107,7 +107,7 @@ export function runCommandWithProgress(title: string, args: string[]): Promise<a
         throw err;
       }
     }
-  );
+  ) as any;
 }
 
 /**

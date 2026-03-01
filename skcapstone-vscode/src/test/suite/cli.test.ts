@@ -42,8 +42,8 @@ function fakeSuccess(data: unknown) {
 }
 
 /** Fake a failed execFile call. */
-function fakeError(msg: string, code = 1) {
-  const err = Object.assign(new Error(msg), { code });
+function fakeError(msg: string, code = "ENOENT") {
+  const err: NodeJS.ErrnoException = Object.assign(new Error(msg), { code });
   return (
     _cmd: string,
     _args: string[],
