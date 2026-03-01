@@ -350,4 +350,34 @@ describe("skcapstone", function()
     end
     assert.is_true(found, "'No open tasks' placeholder missing when board is empty")
   end)
+
+  -- =========================================================================
+  -- 16. run() — vim.system() throwing is caught by pcall
+  -- =========================================================================
+  it("run() returns nil + error when vim.system() throws", function()
+    vim.system = function()
+      error("spawn failed: ENOENT")
+    end
+
+    local data, err = sk.run({ "status" })
+
+    assert.is_nil(data)
+    assert.is_truthy(err)
+    assert.is_truthy(err:find("ENOENT"))
+  end)
+
+  -- =========================================================================
+  -- 17. status() — vim.system() crash shows user-friendly notification
+  -- =========================================================================
+  it("status() notifies ERROR when vim.system() throws", function()
+    vim.system = function()
+      error("No such file or directory")
+    end
+
+    sk.status()
+
+    assert.equals(1, #notify_calls)
+    assert.equals(vim.log.levels.ERROR, notify_calls[1].level)
+    assert.equals(0, #float_calls)
+  end)
 end)

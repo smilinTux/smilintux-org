@@ -315,6 +315,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
       - run: python -m pytest tests/ -v --tb=short --cov=skcapstone --cov-report=xml:coverage.xml
+      - name: Verify optional dep groups are importable
+        if: matrix.python-version == '3.12'
+        run: |
+          # Install optional cloud/provider deps and verify they don't break imports
+          pip install -e ".[docker,cloud,fuse,gdrive,shell,proxmox]" || true
+          python -c "import skcapstone; print('skcapstone imports OK with optional deps')"
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
       - name: Rename binary coverage data

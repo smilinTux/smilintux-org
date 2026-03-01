@@ -1,4 +1,4 @@
-name: VSCode Extensions
+name: Editor Extensions
 
 on:
   push:
@@ -11,10 +11,11 @@ on:
     paths:
       - "skcapstone-vscode/**"
       - "skcapstone-cursor/**"
-      - ".github/workflows/vscode-extension.yml"
+      - "skcapstone-nvim/**"
+      - ".github/workflows/extensions.yml"
 
 concurrency:
-  group: vscode-ext-${{ github.ref }}
+  group: extensions-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -226,3 +227,23 @@ jobs:
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         continue-on-error: true
+
+  # ── skcapstone-nvim ──────────────────────────────────────────
+
+  test-nvim:
+    name: Test skcapstone-nvim
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: skcapstone-nvim
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: stable
+
+      - name: Run plenary.nvim tests
+        run: make test
