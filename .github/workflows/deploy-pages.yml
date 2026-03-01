@@ -9,10 +9,35 @@ on:
       - 'skhelp-io/**'
       - 'skmemory-io/**'
 
+permissions:
+  contents: write
+
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      skpdf-io: ${{ steps.filter.outputs.skpdf-io }}
+      skhelp-io: ${{ steps.filter.outputs.skhelp-io }}
+      skmemory-io: ${{ steps.filter.outputs.skmemory-io }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            skpdf-io:
+              - 'skpdf-io/**'
+            skhelp-io:
+              - 'skhelp-io/**'
+            skmemory-io:
+              - 'skmemory-io/**'
+
   deploy-skpdf-io:
     name: Deploy skpdf.io
     runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.skpdf-io == 'true'
     steps:
       - uses: actions/checkout@v4
 
@@ -26,6 +51,8 @@ jobs:
   deploy-skhelp-io:
     name: Deploy skhelp.io
     runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.skhelp-io == 'true'
     steps:
       - uses: actions/checkout@v4
 
@@ -39,6 +66,8 @@ jobs:
   deploy-skmemory-io:
     name: Deploy skmemory.io
     runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.skmemory-io == 'true'
     steps:
       - uses: actions/checkout@v4
 

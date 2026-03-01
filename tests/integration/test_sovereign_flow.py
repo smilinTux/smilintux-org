@@ -17,6 +17,11 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("capauth", reason="capauth is not installed")
+pytest.importorskip("skchat", reason="skchat is not installed")
+pytest.importorskip("skcomm", reason="skcomm is not installed")
+pytest.importorskip("skmemory", reason="skmemory is not installed")
+
 PASSPHRASE = "sovereign-test-key-2026"
 
 

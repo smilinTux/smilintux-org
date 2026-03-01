@@ -18,6 +18,9 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("skcomm", reason="skcomm is not installed")
+pytest.importorskip("skchat", reason="skchat is not installed")
+
 PASSPHRASE = "sovereign-test-key-2026"
 
 

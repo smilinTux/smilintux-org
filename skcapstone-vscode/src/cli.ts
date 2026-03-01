@@ -117,7 +117,7 @@ export async function getCoordTasks(): Promise<CoordTask[]> {
  */
 export async function searchMemories(query: string): Promise<Memory[]> {
   try {
-    const data = await runCommand(["memory", "search", query, "--format", "json"]);
+    const data = await runCommand(["memory", "search", query, "--json-out"]);
     const results = data.results || data || [];
     return Array.isArray(results)
       ? results.map((m: any) => ({

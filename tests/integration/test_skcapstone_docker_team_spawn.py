@@ -20,6 +20,7 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("yaml", reason="pyyaml is not installed")
 
 # ---------------------------------------------------------------------------
 # Blueprint fixture helpers

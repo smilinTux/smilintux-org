@@ -10,9 +10,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pgpy
 import pytest
-from pgpy.constants import (
+
+pgpy = pytest.importorskip("pgpy", reason="pgpy is not installed")
+from pgpy.constants import (  # noqa: E402
     HashAlgorithm,
     KeyFlags,
     PubKeyAlgorithm,

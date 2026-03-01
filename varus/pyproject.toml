@@ -9,6 +9,10 @@ description = "Varus — sovereign append-only blockchain"
 requires-python = ">=3.11"
 dependencies = []
 
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "ruff>=0.1", "black>=23.0"]
+sync = ["skcomm>=0.1.0"]
+
 [project.scripts]
 varus = "varus.cli:main"
 

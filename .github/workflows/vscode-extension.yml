@@ -77,6 +77,9 @@ jobs:
       - name: Compile TypeScript
         run: npm run compile
 
+      - name: Install Xvfb
+        run: sudo apt-get install -y xvfb
+
       - name: Run extension tests (headless)
         run: xvfb-run -a npm test
         env:
@@ -176,6 +179,9 @@ jobs:
 
       - name: Compile TypeScript
         run: npm run compile
+
+      - name: Install Xvfb
+        run: sudo apt-get install -y xvfb
 
       - name: Run extension tests (headless)
         run: xvfb-run -a npm test

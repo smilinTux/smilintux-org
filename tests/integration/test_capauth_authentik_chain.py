@@ -19,6 +19,9 @@ import json
 
 import pytest
 
+pytest.importorskip("capauth", reason="capauth is not installed")
+pytest.importorskip("pgpy", reason="pgpy is not installed")
+
 PASSPHRASE = "sovereign-test-key-2026"
 SERVICE_ID = "authentik.test.skworld.io"
 

@@ -18,6 +18,9 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("skmemory", reason="skmemory is not installed")
+pytest.importorskip("skref", reason="skref is not installed")
+
 VAULT_PASSPHRASE = "sovereign-vault-key-2026"
 
 

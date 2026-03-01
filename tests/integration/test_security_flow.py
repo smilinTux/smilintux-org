@@ -14,6 +14,9 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("sksecurity", reason="sksecurity is not installed")
+pytest.importorskip("skcomm", reason="skcomm is not installed")
+
 
 class TestSecurityScanning:
     """Verify SKSecurity scanner detects known threat patterns."""

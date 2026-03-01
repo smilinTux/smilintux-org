@@ -26,6 +26,8 @@ jobs:
       skseal: ${{ steps.filter.outputs.skseal }}
       skref: ${{ steps.filter.outputs.skref }}
       skyforge: ${{ steps.filter.outputs.skyforge }}
+      skforge: ${{ steps.filter.outputs.skforge }}
+      skills-registry: ${{ steps.filter.outputs.skills-registry }}
       skskills: ${{ steps.filter.outputs.skskills }}
       sksovereign-agent: ${{ steps.filter.outputs.sksovereign-agent }}
       skseed: ${{ steps.filter.outputs.skseed }}
@@ -58,6 +60,10 @@ jobs:
               - 'skref/**'
             skyforge:
               - 'skyforge/**'
+            skforge:
+              - 'skforge/**'
+            skills-registry:
+              - 'skills-registry/**'
             skskills:
               - 'skskills/**'
             sksovereign-agent:
@@ -174,7 +180,7 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=skmemory --cov-report=xml:coverage.xml
       - run: black --check skmemory/ tests/
         if: matrix.python-version == '3.12'
-      - run: pip install ruff && ruff check src/
+      - run: pip install ruff && ruff check skmemory/
         if: matrix.python-version == '3.12'
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
@@ -199,7 +205,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
       - run: python -m pytest tests/ -v --tb=short --cov=sksecurity --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check src/
+      - run: pip install ruff && ruff check sksecurity/
         if: matrix.python-version == '3.12'
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
@@ -224,7 +230,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
       - run: python -m pytest tests/ -v --tb=short --cov=cloud9 --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check src/
+      - run: pip install ruff && ruff check cloud9_protocol/
         if: matrix.python-version == '3.12'
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
@@ -353,6 +359,62 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=skyforge --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-skyforge
+          path: skyforge/coverage.xml
+
+  skforge:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skforge == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: skforge
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -e ".[dev]"
+      - run: python -m pytest tests/ -v --tb=short --cov=skforge --cov-report=xml:coverage.xml
+      - run: pip install ruff && ruff check src/
+        if: matrix.python-version == '3.12'
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-skforge
+          path: skforge/coverage.xml
+
+  skills-registry:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skills-registry == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: skills-registry
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: pip install ruff && ruff check skills_registry/
+      - run: |
+          if [ -d tests ] && ls tests/test_*.py 2>/dev/null | grep -q .; then
+            python -m pytest tests/ -v --tb=short --cov=skills_registry --cov-report=xml:coverage.xml
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-skills-registry
+          path: skills-registry/coverage.xml
+          if-no-files-found: ignore
 
   skskills:
     needs: detect-changes
@@ -421,7 +483,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
       - run: python -m pytest tests/ -v --tb=short --cov=skseed --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check src/
+      - run: pip install ruff && ruff check skseed/
         if: matrix.python-version == '3.12'
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
@@ -446,7 +508,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e .
       - run: python -m pytest tests/ -v --tb=short --cov=varus --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check src/
+      - run: pip install ruff && ruff check varus/
         if: matrix.python-version == '3.12'
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
@@ -457,7 +519,7 @@ jobs:
   # ── Cross-package integration tests ──────────────────────────
 
   integration:
-    needs: [capauth, skcomm, skchat, skmemory, skseal, sksecurity, skpdf, skcapstone, skref, skseed, varus]
+    needs: [capauth, skcomm, skchat, skmemory, skseal, sksecurity, cloud9, skpdf, skcapstone, skref, skyforge, skforge, skills-registry, skskills, sksovereign-agent, skseed, varus]
     if: always() && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
@@ -473,9 +535,14 @@ jobs:
           pip install -e skchat/[cli,dev]
           pip install -e skseal/[dev]
           pip install -e sksecurity/[dev]
+          pip install -e cloud9-python/[dev]
           pip install -e skpdf/[dev]
           pip install -e skref/[dev]
           pip install -e skcapstone/[dev]
+          pip install -e skyforge/[dev]
+          pip install -e skforge/[dev]
+          pip install -e skskills/[dev]
+          pip install -e sksovereign-agent/[dev]
           pip install -e skseed/[dev]
           pip install -e varus/
       - name: Run integration tests
@@ -493,7 +560,7 @@ jobs:
   # ── Coverage aggregation ─────────────────────────────────────
 
   coverage:
-    needs: [capauth, skcomm, skchat, skmemory, sksecurity, cloud9, skpdf, skcapstone, skseal, skref, skskills, sksovereign-agent, skseed, varus]
+    needs: [capauth, skcomm, skchat, skmemory, sksecurity, cloud9, skpdf, skcapstone, skseal, skref, skyforge, skforge, skills-registry, skskills, sksovereign-agent, skseed, varus]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -575,6 +642,8 @@ jobs:
       - skseal
       - skref
       - skyforge
+      - skforge
+      - skills-registry
       - skskills
       - sksovereign-agent
       - skseed
@@ -599,6 +668,8 @@ jobs:
             [skseal]="${{ needs.skseal.result }}"
             [skref]="${{ needs.skref.result }}"
             [skyforge]="${{ needs.skyforge.result }}"
+            [skforge]="${{ needs.skforge.result }}"
+            [skills-registry]="${{ needs.skills-registry.result }}"
             [skskills]="${{ needs.skskills.result }}"
             [sksovereign-agent]="${{ needs.sksovereign-agent.result }}"
             [skseed]="${{ needs.skseed.result }}"

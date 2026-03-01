@@ -18,6 +18,9 @@ from unittest.mock import patch
 
 import pytest
 
+pytest.importorskip("yaml", reason="pyyaml is not installed")
+pytest.importorskip("skmemory", reason="skmemory is not installed")
+pytest.importorskip("skchat", reason="skchat is not installed")
 
 PASSPHRASE = "sovereign-test-key-2026"
 

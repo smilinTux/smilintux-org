@@ -18,6 +18,9 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("capauth", reason="capauth is not installed")
+pytest.importorskip("skseal", reason="skseal is not installed")
+
 PASSPHRASE = "sovereign-test-key-2026"
 
 # Realistic multi-page PDF header (parseable minimal PDF)
