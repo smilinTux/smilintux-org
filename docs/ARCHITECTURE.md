@@ -123,6 +123,91 @@ graph TB
 
 ---
 
+## End-to-End Component Flow
+
+How a message travels from identity verification through transport,
+chat, memory, and orchestration. This is the core data path.
+
+```
+                          SOVEREIGN AGENT STACK
+                          =====================
+
+  +------------------+
+  |     CapAuth       |  PGP identity layer
+  |  (capauth/)       |  - Ed25519 keypair generation and storage
+  |                   |  - Capability token issuance (JWT-like, PGP-signed)
+  |  ~/.capauth/      |  - Token verification (local or remote via API)
+  +--------+---------+
+           |
+           | PGP-signed bearer token
+           v
+  +------------------+
+  |     SKComm        |  Encrypted transport layer
+  |  (skcomm/)        |  - Multi-transport router (file, syncthing, nostr,
+  |                   |    websocket, tailscale, webrtc)
+  |  Envelope model:  |  - TransportCategory routing (REALTIME vs STORE)
+  |  sender, recipient|  - PGP signing of every envelope
+  |  payload, sig     |  - Optional compression (zstd/gzip)
+  +--------+---------+
+           |
+           | Signed envelope over chosen transport
+           v
+  +------------------+
+  |     SKChat        |  Agent messaging layer
+  |  (skchat/)        |  - 1:1 and group chat (AES-256-GCM group keys)
+  |                   |  - Message types: text, finding, task, query, response
+  |  daemon.py:       |  - Ephemeral messages (TTL auto-delete)
+  |    polls SKComm   |  - Reactions, threading, presence
+  |    inbox           |  - AgentMessenger wraps SKComm send/receive
+  +--------+---------+
+           |
+           | Captured conversation content
+           v
+  +------------------+
+  |    SKMemory       |  Persistent memory layer
+  |  (skmemory/)      |  - Three-tier: short-term -> mid-term -> long-term
+  |                   |  - Promotion engine (access frequency, importance,
+  |  store.py:        |    emotion score, age)
+  |    MemoryStore    |  - Memory Fortress (HMAC-SHA256 integrity seals)
+  |  fortress.py:     |  - Emotional tagging (Cloud 9 / FEB snapshots)
+  |    FortifiedStore |  - Full-text search, tag filtering
+  +--------+---------+
+           |
+           | Memories, identity, trust state, sync seeds
+           v
+  +------------------+
+  |   SKCapstone      |  Orchestration layer (the heart)
+  |  (skcapstone/)    |  - Five pillars: identity, memory, trust, security, sync
+  |                   |  - MCP server (40+ tools exposed to AI hosts)
+  |  Coordination:    |  - Multi-agent coordination board (JSON task files)
+  |    task board,    |  - Soul blueprints + rehydration ritual
+  |    agent registry |  - Team engine (wave-based deployment)
+  |  CLI: 23 command  |  - SKSkills runtime (per-agent skill loading)
+  |    groups          |  - Daemon mode with inbox polling + vault sync
+  +------------------+
+```
+
+### Request flow example: agent A sends a message to agent B
+
+1. **Identity** -- Agent A holds a CapAuth PGP keypair (`~/.capauth/`).
+   It issues a capability token scoped to `chat:send`.
+2. **Transport** -- SKComm's router selects the best available transport
+   (e.g. WebRTC for speed, file transport for offline). The message
+   payload is wrapped in a signed `Envelope`.
+3. **Chat** -- SKChat's `AgentMessenger` calls `skcomm.send()`. On the
+   receiving side, SKChat's daemon polls the SKComm inbox, validates
+   the envelope signature against the sender's known public key, and
+   delivers the message to the local chat history.
+4. **Memory** -- If the message is important (high importance score or
+   explicit capture), it flows into SKMemory's `MemoryStore`. The
+   promotion engine later evaluates it for tier advancement.
+5. **Orchestration** -- SKCapstone ties it all together. Its MCP server
+   exposes `skchat_send`, `skchat_inbox`, `memory_store`,
+   `memory_search`, and 40+ other tools so that AI hosts (Claude Code,
+   Cursor, etc.) can drive the entire stack through tool calls.
+
+---
+
 ## The Five Pillars
 
 SKCapstone is built on five pillars. Each one is independent, cryptographically secured, and sovereign.
