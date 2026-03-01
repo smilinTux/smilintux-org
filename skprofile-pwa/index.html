@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d1117">
+  <title>SKProfile</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav id="nav">
+    <div class="nav-brand">SKProfile</div>
+    <div class="nav-links">
+      <a href="#/" class="nav-link active" data-route="/">Profile</a>
+      <a href="#/memories" class="nav-link" data-route="/memories">Memories</a>
+      <a href="#/trust" class="nav-link" data-route="/trust">Trust</a>
+      <a href="#/journal" class="nav-link" data-route="/journal">Journal</a>
+      <a href="#/storage" class="nav-link" data-route="/storage">Storage</a>
+    </div>
+    <button id="logout-btn" class="btn btn-sm" style="display:none">Logout</button>
+  </nav>
+
+  <main id="app">
+    <!-- Login screen (shown when no token) -->
+    <div id="login-screen" class="view">
+      <div class="card" style="max-width:400px;margin:2rem auto">
+        <h2>Authenticate</h2>
+        <p class="text-muted">Paste your CapAuth bearer token.</p>
+        <p class="text-muted"><code>skcapstone token generate --ttl 86400</code></p>
+        <textarea id="token-input" rows="4" placeholder="FINGERPRINT.TIMESTAMP.SIGNATURE"></textarea>
+        <div style="margin-top:0.5rem">
+          <label class="text-muted" style="font-size:0.85rem">
+            API Base URL (leave blank for same origin)
+          </label>
+          <input id="api-url-input" type="text" placeholder="https://myhost.tail12345.ts.net">
+        </div>
+        <button id="login-btn" class="btn btn-primary" style="margin-top:1rem;width:100%">Connect</button>
+        <p id="login-error" class="text-error" style="display:none"></p>
+      </div>
+    </div>
+
+    <!-- Content area (shown after auth) -->
+    <div id="content" class="view" style="display:none"></div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/views/profile.js"></script>
+  <script src="js/views/memories.js"></script>
+  <script src="js/views/trust.js"></script>
+  <script src="js/views/journal.js"></script>
+  <script src="js/views/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
