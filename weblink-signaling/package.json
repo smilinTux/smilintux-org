@@ -7,9 +7,13 @@
     "deploy": "wrangler deploy --env production",
     "deploy:dev": "wrangler deploy --env dev",
     "dev": "wrangler dev",
-    "tail": "wrangler tail"
+    "tail": "wrangler tail",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
-    "wrangler": "^3.0.0"
+    "@cloudflare/vitest-pool-workers": "^0.8.0",
+    "vitest": "^2.1.0",
+    "wrangler": "^3.78.0"
   }
 }

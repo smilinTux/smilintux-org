@@ -1,44 +1,157 @@
-# Sovereign Agent Development Stack
+# Sovereign Agent Stack
 #
-# One command to spin up the full infrastructure for developing
-# against the SKWorld ecosystem. Python packages run locally;
-# this provides the backing services they connect to.
+# Brings up the full skworld.io sovereign stack:
+#   skcapstone  — MCP server (identity, memory, trust, coordination)
+#   skchat      — P2P chat daemon (SKComm transport polling)
+#   qdrant      — vector search backend for skmemory
+#   falkordb    — graph database backend for skmemory
+#   syncthing   — P2P sync mesh (--profile sync|full)
+#   skills-registry — HTTP skills registry (--profile registry|full)
+#   coturn      — STUN/TURN relay for WebRTC (--profile turn|full)
 #
 # Quick start:
-#   docker compose up -d              # start everything
-#   docker compose --profile sync up -d      # include Syncthing
-#   docker compose --profile registry up -d  # include skills registry
-#   docker compose --profile turn up -d      # include coturn TURN server
-#   docker compose --profile full up -d      # everything
-#   docker compose ps                 # check status
-#   docker compose down               # stop all
-#   docker compose down -v            # stop + delete data
+#   cp .env.example .env && $EDITOR .env   # set ANTHROPIC_API_KEY at minimum
+#   docker compose up -d                   # core stack (skcapstone + skchat + qdrant + falkordb)
+#   docker compose --profile sync up -d    # + Syncthing
+#   docker compose --profile registry up -d  # + skills registry
+#   docker compose --profile turn up -d    # + coturn (requires COTURN_EXTERNAL_IP + COTURN_AUTH_SECRET)
+#   docker compose --profile full up -d    # everything
+#   docker compose ps                      # check status
+#   docker compose down                    # stop all
+#   docker compose down -v                 # stop + delete data
 #
-# Or use the helper script:
-#   bash scripts/dev-stack.sh up      # start everything
-#   bash scripts/dev-stack.sh status  # health summary
-#   bash scripts/dev-stack.sh down    # stop
+# Required env vars (for core stack):
+#   ANTHROPIC_API_KEY  — Anthropic API key (sk-ant-api03-...)
+#
+# Required env vars (for --profile turn):
+#   COTURN_EXTERNAL_IP   — Public IP of your host
+#   COTURN_AUTH_SECRET   — HMAC secret (openssl rand -hex 32)
 #
 # Connect from Python packages:
 #   skmemory:   --qdrant-url http://localhost:6333
 #   skmemory:   SKMEMORY_FALKORDB_URL=redis://localhost:6379
 #   syncthing:  Web UI at http://localhost:8384
-#   skills:     API at http://localhost:8082/api  (skills.smilintux.org/api in prod)
+#   skills:     API at http://localhost:8082/api
 #
 # Resource usage (idle):
+#   skcapstone:      ~128MB RAM
+#   skchat:          ~64MB RAM
 #   Qdrant:          ~200MB RAM
 #   FalkorDB:        ~100MB RAM
 #   Syncthing:       ~50MB RAM
 #   Skills Registry: ~80MB RAM
-#   Total:           ~430MB RAM
+#   Total:           ~622MB RAM
+
+networks:
+  # Shared bridge for all sovereign services; external services (qdrant,
+  # falkordb) attach to their default network AND sk-net so agents can reach them.
+  sk-net:
+    driver: bridge
+    labels:
+      io.skworld.network: "sovereign"
 
 services:
+
+  # ─────────────────────────────────────────────────────────
+  # skcapstone MCP server — sovereign identity, memory, trust
+  #
+  # Always-on core service. Runs skcapstone-mcp in stdio mode.
+  # Override SKCAPSTONE_MCP_SOCKET to expose via a Unix socket volume
+  # for claude CLI agents running in sidecar containers.
+  # ─────────────────────────────────────────────────────────
+  skcapstone:
+    build:
+      context: .
+      dockerfile: skcapstone/docker/Dockerfile
+    image: skworld-skcapstone:latest
+    container_name: skworld-skcapstone
+    # Override agent-session entrypoint to run the persistent MCP server
+    entrypoint: ["skcapstone-mcp"]
+    stdin_open: true
+    networks:
+      - sk-net
+    volumes:
+      - skcapstone_agent:/agent
+      - sk_skcomm:/skcomm
+    environment:
+      AGENT_NAME: "${AGENT_NAME:-opus}"
+      TEAM_NAME: "${TEAM_NAME:-skworld}"
+      AGENT_ROLE: "${AGENT_ROLE:-coordinator}"
+      AGENT_MODEL: "${AGENT_MODEL:-claude-sonnet-4-6}"
+      SKCOMM_HOME: /skcomm
+      SKCAPSTONE_HOME: /agent
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY must be set in .env}"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -x skcapstone-mcp > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ─────────────────────────────────────────────────────────
+  # skchat daemon — P2P encrypted chat over SKComm
+  #
+  # Always-on core service. Polls SKComm transports for incoming
+  # messages, reaps ephemeral messages, drains outbox queue, and
+  # broadcasts presence. Shares sk_skcomm volume with skcapstone.
+  # ─────────────────────────────────────────────────────────
+  skchat:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM python:3.12-slim
+        RUN apt-get update && apt-get install -y --no-install-recommends \
+                gnupg2 ca-certificates git \
+            && rm -rf /var/lib/apt/lists/*
+        COPY skchat /src/skchat
+        COPY skcomm /src/skcomm
+        RUN pip install --no-cache-dir pydantic pyyaml httpx PGPy mcp \
+            && pip install --no-cache-dir -e '/src/skchat[all]' \
+            && pip install --no-cache-dir -e /src/skcomm
+        RUN mkdir -p /root/.skchat /skcomm
+        ENV SKCOMM_HOME=/skcomm
+        CMD ["python", "-m", "skchat._daemon_entry", "--quiet"]
+    image: skworld-skchat:latest
+    container_name: skworld-skchat
+    networks:
+      - sk-net
+    volumes:
+      - skchat_data:/root/.skchat
+      - sk_skcomm:/skcomm
+    environment:
+      SKCHAT_DAEMON_INTERVAL: "${SKCHAT_DAEMON_INTERVAL:-5.0}"
+      SKCHAT_DAEMON_QUIET: "1"
+      SKCOMM_HOME: /skcomm
+      SKCOMM_TURN_SECRET: "${COTURN_AUTH_SECRET:-}"
+      CAPAUTH_API_URL: "${CAPAUTH_API_URL:-}"
+    depends_on:
+      skcapstone:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'skchat._daemon_entry' > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
   # ─────────────────────────────────────────────────────────
   # Vector search — skmemory Level 2 backend
   # ─────────────────────────────────────────────────────────
   qdrant:
     image: qdrant/qdrant:latest
     container_name: skworld-qdrant
+    networks:
+      - sk-net
     ports:
       - "${QDRANT_REST_PORT:-6333}:6333"
       - "${QDRANT_GRPC_PORT:-6334}:6334"
@@ -64,6 +177,8 @@ services:
   falkordb:
     image: falkordb/falkordb:latest
     container_name: skworld-falkordb
+    networks:
+      - sk-net
     ports:
       - "${FALKORDB_PORT:-6379}:6379"
     volumes:
@@ -133,10 +248,13 @@ services:
     build:
       context: ./skills-registry
       dockerfile: Dockerfile
+    image: skworld-skills-registry:latest
     container_name: skworld-skills-registry
     profiles:
       - registry
       - full
+    networks:
+      - sk-net
     ports:
       - "${SKILLS_REGISTRY_PORT:-8082}:8080"
     volumes:
@@ -147,6 +265,9 @@ services:
       REGISTRY_ADMIN_TOKEN: "${REGISTRY_ADMIN_TOKEN:-}"
       REGISTRY_OPEN_PUBLISH: "${REGISTRY_OPEN_PUBLISH:-false}"
       PORT: "8080"
+    depends_on:
+      skcapstone:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
@@ -181,6 +302,8 @@ services:
     profiles:
       - turn
       - full
+    networks:
+      - sk-net
     environment:
       COTURN_EXTERNAL_IP: "${COTURN_EXTERNAL_IP:?set COTURN_EXTERNAL_IP to your public IP}"
       COTURN_AUTH_SECRET: "${COTURN_AUTH_SECRET:?set COTURN_AUTH_SECRET (same as SKCOMM_TURN_SECRET)}"
@@ -208,6 +331,20 @@ services:
           memory: 256M
 
 volumes:
+  # Sovereign agent core
+  skcapstone_agent:
+    driver: local
+    labels:
+      io.skworld.volume: "skcapstone agent state (memory, config, session)"
+  sk_skcomm:
+    driver: local
+    labels:
+      io.skworld.volume: "shared SKComm transport directory (inbox/outbox)"
+  skchat_data:
+    driver: local
+    labels:
+      io.skworld.volume: "skchat daemon state and message history"
+  # Backing services
   qdrant_data:
     driver: local
   falkordb_data:

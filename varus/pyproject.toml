@@ -1,20 +1,35 @@
 [build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.backends.legacy:build"
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "varus"
 version = "0.1.0"
 description = "Varus — sovereign append-only blockchain"
-requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "GPL-3.0-or-later"}
+requires-python = ">=3.10"
+authors = [
+    {name = "smilinTux.org", email = "hello@smilintux.org"},
+]
 dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0", "ruff>=0.1", "black>=23.0"]
 sync = ["skcomm>=0.1.0"]
 
+[project.urls]
+Homepage = "https://skworld.io"
+Repository = "https://github.com/smilintux-org/varus"
+Documentation = "https://skworld.io/docs/varus"
+Issues = "https://github.com/smilintux-org/varus/issues"
+
 [project.scripts]
 varus = "varus.cli:main"
+
+[tool.black]
+line-length = 99
+target-version = ["py310"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

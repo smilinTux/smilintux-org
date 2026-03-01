@@ -54,7 +54,8 @@ jobs:
           pip install -e skcomm/[dev]
           pip install -e skcapstone/[dev]
           pip install -e skseed/[dev]
-          pip install -e varus/
+          pip install -e varus/[dev]
+          pip install -e skforge/[dev]
           pip install -e skseal/[dev]
           pip install -e skref/[dev]
           pip install -e skyforge/[dev]
@@ -109,6 +110,9 @@ jobs:
 
       - name: Test skpdf
         run: python -m pytest skpdf/tests/ -v --tb=short
+
+      - name: Test skforge
+        run: python -m pytest skforge/tests/ -v --tb=short
 
   # ── Step 2: Determine which packages to publish ──────────────
   resolve:

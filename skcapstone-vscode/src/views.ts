@@ -17,6 +17,8 @@ import {
   searchMemories,
 } from "./cli";
 
+const TIMEOUT_HINT = "Is skcapstone installed? Run: pip install skcapstone";
+
 // ---------------------------------------------------------------------------
 // Agent Status
 // ---------------------------------------------------------------------------
@@ -25,36 +27,74 @@ export class StatusProvider implements vscode.TreeDataProvider<StatusItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<StatusItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-  private status: AgentStatus | null = null;
+  private _loading = false;
+  private _status: AgentStatus | null = null;
+  private _error: string | null = null;
 
   refresh(): void {
-    this.status = null;
+    this._loading = true;
+    this._status = null;
+    this._error = null;
     this._onDidChangeTreeData.fire(undefined);
+    void this._fetch();
+  }
+
+  private async _fetch(): Promise<void> {
+    try {
+      this._status = await getStatus();
+    } catch (err: any) {
+      this._error = err.message || "Failed to get status";
+      if (err.message && err.message.includes("timed out")) {
+        vscode.window.showErrorMessage(`SKCapstone: ${TIMEOUT_HINT}`);
+      }
+    } finally {
+      this._loading = false;
+      this._onDidChangeTreeData.fire(undefined);
+    }
   }
 
   getTreeItem(element: StatusItem): vscode.TreeItem {
     return element;
   }
 
-  async getChildren(element?: StatusItem): Promise<StatusItem[]> {
+  getChildren(element?: StatusItem): StatusItem[] {
     if (element) {
       return [];
     }
 
-    try {
-      this.status = await getStatus();
-    } catch (err: any) {
+    // Trigger initial fetch on first render
+    if (!this._loading && this._status === null && this._error === null) {
+      this._loading = true;
+      void this._fetch();
+    }
+
+    if (this._loading) {
+      return [
+        new StatusItem(
+          "Loading...",
+          "fetching agent status",
+          vscode.TreeItemCollapsibleState.None,
+          "loading~spin"
+        ),
+      ];
+    }
+
+    if (this._error) {
       return [
         new StatusItem(
           "Error",
-          err.message || "Failed to get status",
+          this._error,
           vscode.TreeItemCollapsibleState.None,
           "error"
         ),
       ];
     }
 
-    const s = this.status;
+    if (!this._status) {
+      return [];
+    }
+
+    const s = this._status;
     const items: StatusItem[] = [];
 
     // Identity
@@ -142,54 +182,65 @@ export class CoordProvider implements vscode.TreeDataProvider<CoordItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<CoordItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
+  private _loading = false;
+  private _tasks: CoordTask[] | null = null;
+  private _error: string | null = null;
+
   refresh(): void {
+    this._loading = true;
+    this._tasks = null;
+    this._error = null;
     this._onDidChangeTreeData.fire(undefined);
+    void this._fetch();
+  }
+
+  private async _fetch(): Promise<void> {
+    try {
+      this._tasks = await getCoordTasks();
+    } catch (err: any) {
+      this._error = err.message || "Failed to load tasks";
+      if (err.message && err.message.includes("timed out")) {
+        vscode.window.showErrorMessage(`SKCapstone: ${TIMEOUT_HINT}`);
+      }
+    } finally {
+      this._loading = false;
+      this._onDidChangeTreeData.fire(undefined);
+    }
   }
 
   getTreeItem(element: CoordItem): vscode.TreeItem {
     return element;
   }
 
-  async getChildren(element?: CoordItem): Promise<CoordItem[]> {
+  getChildren(element?: CoordItem): CoordItem[] {
     if (element) {
       return [];
     }
 
-    try {
-      const tasks = await getCoordTasks();
-      const open = tasks.filter((t) => t.status !== "done" && t.status !== "completed");
+    // Trigger initial fetch on first render
+    if (!this._loading && this._tasks === null && this._error === null) {
+      this._loading = true;
+      void this._fetch();
+    }
 
-      if (open.length === 0) {
-        return [
-          new CoordItem({
-            id: "",
-            title: "No open tasks",
-            priority: "",
-            status: "",
-            assigned_to: "",
-            tags: [],
-          }),
-        ];
-      }
-
-      // Sort: critical > high > medium > low
-      const priorityOrder: Record<string, number> = {
-        critical: 0,
-        high: 1,
-        medium: 2,
-        low: 3,
-      };
-      open.sort(
-        (a, b) =>
-          (priorityOrder[a.priority] ?? 4) - (priorityOrder[b.priority] ?? 4)
-      );
-
-      return open.slice(0, 30).map((t) => new CoordItem(t));
-    } catch (err: any) {
+    if (this._loading) {
       return [
         new CoordItem({
           id: "",
-          title: `Error: ${err.message}`,
+          title: "Loading...",
+          priority: "",
+          status: "loading",
+          assigned_to: "",
+          tags: [],
+        }),
+      ];
+    }
+
+    if (this._error) {
+      return [
+        new CoordItem({
+          id: "",
+          title: `Error: ${this._error}`,
           priority: "",
           status: "error",
           assigned_to: "",
@@ -197,6 +248,36 @@ export class CoordProvider implements vscode.TreeDataProvider<CoordItem> {
         }),
       ];
     }
+
+    const tasks = this._tasks ?? [];
+    const open = tasks.filter((t) => t.status !== "done" && t.status !== "completed");
+
+    if (open.length === 0) {
+      return [
+        new CoordItem({
+          id: "",
+          title: "No open tasks",
+          priority: "",
+          status: "",
+          assigned_to: "",
+          tags: [],
+        }),
+      ];
+    }
+
+    // Sort: critical > high > medium > low
+    const priorityOrder: Record<string, number> = {
+      critical: 0,
+      high: 1,
+      medium: 2,
+      low: 3,
+    };
+    open.sort(
+      (a, b) =>
+        (priorityOrder[a.priority] ?? 4) - (priorityOrder[b.priority] ?? 4)
+    );
+
+    return open.slice(0, 30).map((t) => new CoordItem(t));
   }
 }
 
@@ -213,6 +294,16 @@ class CoordItem extends vscode.TreeItem {
     ]
       .filter(Boolean)
       .join("\n");
+
+    // Status-based icons take precedence for special states
+    if (task.status === "loading") {
+      this.iconPath = new vscode.ThemeIcon("loading~spin");
+      return;
+    }
+    if (task.status === "error") {
+      this.iconPath = new vscode.ThemeIcon("error");
+      return;
+    }
 
     // Priority-based icons
     const iconMap: Record<string, string> = {
@@ -239,29 +330,55 @@ export class MemoryProvider implements vscode.TreeDataProvider<MemoryItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<MemoryItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-  private lastQuery = "";
-  private memories: Memory[] = [];
+  private _searching = false;
+  private _lastQuery = "";
+  private _memories: Memory[] = [];
 
   refresh(): void {
     this._onDidChangeTreeData.fire(undefined);
   }
 
   async search(query: string): Promise<void> {
-    this.lastQuery = query;
-    this.memories = await searchMemories(query);
+    this._searching = true;
+    this._lastQuery = query;
+    this._memories = [];
     this._onDidChangeTreeData.fire(undefined);
+    try {
+      this._memories = await searchMemories(query);
+    } catch (err: any) {
+      if (err.message && err.message.includes("timed out")) {
+        vscode.window.showErrorMessage(`SKCapstone: ${TIMEOUT_HINT}`);
+      }
+      this._memories = [];
+    } finally {
+      this._searching = false;
+      this._onDidChangeTreeData.fire(undefined);
+    }
   }
 
   getTreeItem(element: MemoryItem): vscode.TreeItem {
     return element;
   }
 
-  async getChildren(element?: MemoryItem): Promise<MemoryItem[]> {
+  getChildren(element?: MemoryItem): MemoryItem[] {
     if (element) {
       return [];
     }
 
-    if (this.memories.length === 0 && !this.lastQuery) {
+    if (this._searching) {
+      return [
+        new MemoryItem({
+          id: "",
+          content: `Searching for "${this._lastQuery}"...`,
+          layer: "searching",
+          importance: 0,
+          tags: [],
+          created_at: "",
+        }),
+      ];
+    }
+
+    if (this._memories.length === 0 && !this._lastQuery) {
       return [
         new MemoryItem({
           id: "",
@@ -274,11 +391,11 @@ export class MemoryProvider implements vscode.TreeDataProvider<MemoryItem> {
       ];
     }
 
-    if (this.memories.length === 0) {
+    if (this._memories.length === 0) {
       return [
         new MemoryItem({
           id: "",
-          content: `No results for "${this.lastQuery}"`,
+          content: `No results for "${this._lastQuery}"`,
           layer: "",
           importance: 0,
           tags: [],
@@ -287,7 +404,7 @@ export class MemoryProvider implements vscode.TreeDataProvider<MemoryItem> {
       ];
     }
 
-    return this.memories.map((m) => new MemoryItem(m));
+    return this._memories.map((m) => new MemoryItem(m));
   }
 }
 
@@ -319,6 +436,7 @@ class MemoryItem extends vscode.TreeItem {
       "short-term": "clock",
       "mid-term": "history",
       "long-term": "database",
+      searching: "loading~spin",
     };
     this.iconPath = new vscode.ThemeIcon(
       layerIcons[memory.layer] || "note"

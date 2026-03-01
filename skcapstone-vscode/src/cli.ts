@@ -54,15 +54,25 @@ function getAgentName(): string {
   return config.get<string>("agentName", "");
 }
 
+const CLI_TIMEOUT_MS = 15000;
+
+const TIMEOUT_MESSAGE =
+  "SKCapstone timed out. Is skcapstone installed? Run: pip install skcapstone";
+
 /**
  * Run a skcapstone CLI command and return parsed JSON output.
  */
 export function runCommand(args: string[]): Promise<any> {
   return new Promise((resolve, reject) => {
     const cli = getCliPath();
-    execFile(cli, args, { timeout: 15000 }, (error, stdout, stderr) => {
+    execFile(cli, args, { timeout: CLI_TIMEOUT_MS }, (error, stdout, stderr) => {
       if (error) {
-        reject(new Error(`skcapstone ${args.join(" ")} failed: ${stderr || error.message}`));
+        if (error.killed) {
+          // Process was killed due to timeout
+          reject(new Error(`skcapstone timed out after ${CLI_TIMEOUT_MS / 1000}s. ${TIMEOUT_MESSAGE}`));
+        } else {
+          reject(new Error(`skcapstone ${args.join(" ")} failed: ${stderr || error.message}`));
+        }
         return;
       }
       try {
@@ -73,6 +83,31 @@ export function runCommand(args: string[]): Promise<any> {
       }
     });
   });
+}
+
+/**
+ * Run a skcapstone CLI command with a progress notification in VS Code.
+ * Use this for user-triggered actions where visual feedback is helpful.
+ * Shows an error notification if the command times out.
+ */
+export function runCommandWithProgress(title: string, args: string[]): Promise<any> {
+  return vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title,
+      cancellable: false,
+    },
+    async () => {
+      try {
+        return await runCommand(args);
+      } catch (err: any) {
+        if (err.message && err.message.includes("timed out")) {
+          vscode.window.showErrorMessage(TIMEOUT_MESSAGE);
+        }
+        throw err;
+      }
+    }
+  );
 }
 
 /**

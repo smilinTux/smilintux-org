@@ -100,11 +100,16 @@ jobs:
         if: matrix.python-version == '3.12'
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.capauth
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-capauth
-          path: capauth/coverage.xml
+          path: |
+            capauth/coverage.xml
+            .coverage.capauth
 
   skcomm:
     needs: detect-changes
@@ -127,11 +132,16 @@ jobs:
         if: matrix.python-version == '3.12'
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.skcomm
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-skcomm
-          path: skcomm/coverage.xml
+          path: |
+            skcomm/coverage.xml
+            .coverage.skcomm
 
   skchat:
     needs: detect-changes
@@ -155,11 +165,16 @@ jobs:
         if: matrix.python-version == '3.12'
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.skchat
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-skchat
-          path: skchat/coverage.xml
+          path: |
+            skchat/coverage.xml
+            .coverage.skchat
 
   skmemory:
     needs: detect-changes
@@ -182,11 +197,16 @@ jobs:
         if: matrix.python-version == '3.12'
       - run: pip install ruff && ruff check skmemory/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.skmemory
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-skmemory
-          path: skmemory/coverage.xml
+          path: |
+            skmemory/coverage.xml
+            .coverage.skmemory
 
   sksecurity:
     needs: detect-changes
@@ -207,11 +227,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=sksecurity --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check sksecurity/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.sksecurity
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-sksecurity
-          path: sksecurity/coverage.xml
+          path: |
+            sksecurity/coverage.xml
+            .coverage.sksecurity
 
   cloud9:
     needs: detect-changes
@@ -232,11 +257,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=cloud9 --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check cloud9_protocol/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.cloud9
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-cloud9
-          path: cloud9-python/coverage.xml
+          path: |
+            cloud9-python/coverage.xml
+            .coverage.cloud9
 
   skpdf:
     needs: detect-changes
@@ -257,11 +287,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=skpdf --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.skpdf
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-skpdf
-          path: skpdf/coverage.xml
+          path: |
+            skpdf/coverage.xml
+            .coverage.skpdf
 
   skcapstone:
     needs: detect-changes
@@ -282,11 +317,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=skcapstone --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.skcapstone
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-skcapstone
-          path: skcapstone/coverage.xml
+          path: |
+            skcapstone/coverage.xml
+            .coverage.skcapstone
 
   # ── Additional packages ──────────────────────────────────────
 
@@ -309,11 +349,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=skseal --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.skseal
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-skseal
-          path: skseal/coverage.xml
+          path: |
+            skseal/coverage.xml
+            .coverage.skseal
 
   skref:
     needs: detect-changes
@@ -334,11 +379,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=skref --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.skref
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-skref
-          path: skref/coverage.xml
+          path: |
+            skref/coverage.xml
+            .coverage.skref
 
   skyforge:
     needs: detect-changes
@@ -359,11 +409,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=skyforge --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.skyforge
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-skyforge
-          path: skyforge/coverage.xml
+          path: |
+            skyforge/coverage.xml
+            .coverage.skyforge
 
   skforge:
     needs: detect-changes
@@ -386,11 +441,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=skforge --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.skforge
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-skforge
-          path: skforge/coverage.xml
+          path: |
+            skforge/coverage.xml
+            .coverage.skforge
 
   skills-registry:
     needs: detect-changes
@@ -410,10 +470,14 @@ jobs:
           if [ -d tests ] && ls tests/test_*.py 2>/dev/null | grep -q .; then
             python -m pytest tests/ -v --tb=short --cov=skills_registry --cov-report=xml:coverage.xml
           fi
+      - name: Rename binary coverage data
+        run: '[ -f .coverage ] && cp .coverage ../.coverage.skills-registry || true'
       - uses: actions/upload-artifact@v4
         with:
           name: coverage-skills-registry
-          path: skills-registry/coverage.xml
+          path: |
+            skills-registry/coverage.xml
+            .coverage.skills-registry
           if-no-files-found: ignore
 
   skskills:
@@ -435,11 +499,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=skskills --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.skskills
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-skskills
-          path: skskills/coverage.xml
+          path: |
+            skskills/coverage.xml
+            .coverage.skskills
 
   sksovereign-agent:
     needs: detect-changes
@@ -460,11 +529,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=sksovereign_agent --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.sksovereign-agent
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-sksovereign-agent
-          path: sksovereign-agent/coverage.xml
+          path: |
+            sksovereign-agent/coverage.xml
+            .coverage.sksovereign-agent
 
   skseed:
     needs: detect-changes
@@ -485,11 +559,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=skseed --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check skseed/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.skseed
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-skseed
-          path: skseed/coverage.xml
+          path: |
+            skseed/coverage.xml
+            .coverage.skseed
 
   varus:
     needs: detect-changes
@@ -510,11 +589,16 @@ jobs:
       - run: python -m pytest tests/ -v --tb=short --cov=varus --cov-report=xml:coverage.xml
       - run: pip install ruff && ruff check varus/
         if: matrix.python-version == '3.12'
+      - name: Rename binary coverage data
+        if: matrix.python-version == '3.12'
+        run: cp .coverage ../.coverage.varus
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
           name: coverage-varus
-          path: varus/coverage.xml
+          path: |
+            varus/coverage.xml
+            .coverage.varus
 
   # ── Cross-package integration tests ──────────────────────────
 
@@ -565,23 +649,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - uses: actions/download-artifact@v4
         with:
           pattern: coverage-*
           merge-multiple: true
-          path: coverage-reports/
-      - name: Coverage summary
+          path: coverage-data/
+      - name: Install coverage
+        run: pip install coverage
+      - name: Combine and report coverage
         run: |
-          echo "## Coverage Reports" >> "$GITHUB_STEP_SUMMARY"
+          # Collect all binary coverage files from downloaded artifacts
+          mapfile -t cov_files < <(find coverage-data -name '.coverage.*' 2>/dev/null)
+          if [ "${#cov_files[@]}" -eq 0 ]; then
+            echo "No binary coverage data found — skipping combine." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          coverage combine "${cov_files[@]}"
+          coverage report --fail-under=50 --skip-covered --show-missing
+          echo "## Coverage Summary" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Package | Report |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
-          for f in coverage-reports/*.xml; do
-            if [ -f "$f" ]; then
-              pkg=$(basename "$f" .xml | sed 's/coverage-//')
-              echo "| $pkg | Uploaded |" >> "$GITHUB_STEP_SUMMARY"
-            fi
-          done
+          echo "\`\`\`" >> "$GITHUB_STEP_SUMMARY"
+          coverage report >> "$GITHUB_STEP_SUMMARY"
+          echo "\`\`\`" >> "$GITHUB_STEP_SUMMARY"
 
   # ── Browser extension E2E tests ──────────────────────────────
 

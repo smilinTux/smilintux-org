@@ -3,9 +3,9 @@ FROM python:3.12-slim
 WORKDIR /app
 
 COPY pyproject.toml ./
-RUN pip install --no-cache-dir ".[dev]" && pip install --no-cache-dir uvicorn[standard]
-
 COPY skills_registry/ ./skills_registry/
+
+RUN pip install --no-cache-dir ".[dev]" && pip install --no-cache-dir uvicorn[standard]
 
 ENV REGISTRY_DB=/var/lib/skills-registry/registry.db
 ENV REGISTRY_PACKAGES_DIR=/var/lib/skills-registry/packages
