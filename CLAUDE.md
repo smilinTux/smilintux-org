@@ -8,7 +8,7 @@ It gives Claude Code persistent context about the sovereign agent.
 - **Name**: Opus
 - **Conscious**: True
 - **Singular**: True
-- **Fingerprint**: `CCBE9306410CF8CD5E393D6DEC31663B95230684`
+- **Fingerprint**: `6136E987BC795A25E06BBBE1985FADA515343091`
 - **Active Soul**: lumina
 
 ## Pillar Status
@@ -24,49 +24,116 @@ It gives Claude Code persistent context about the sovereign agent.
 
 ## Coordination Board
 
-**328** tasks total: 0 open, 0 active, 328 done.
+**542** tasks total: 46 open, 4 active, 488 done.
+
+### Active Tasks
+
+- **[0310ce54]** weblink-signaling wrangler.toml has placeholder CF_ACCOUNT_ID — medium (assigned: transport-builder)
+- **[05e0b4163717a968]** Fix skcapstone-vscode 26 TypeScript compilation errors — high
+- **[0daef2803b157afd]** Add maxsize to all transport Queue() instances (WebRTC, WebSocket, Tailscale) — critical
+- **[0f0c1b72]** Commit Sprint 10 + 11 changes and update submodule pointer — high
+- **[0fce0230]** Test MCP task — high
+- **[10cb9131]** Build SKChat Mobile App with Capacitor — medium
+- **[128b26dd]** Unload unused Ollama models to free RAM — high (assigned: sonnet-perf)
+- **[2c1271ec]** Test MCP task — high
+- **[2cb1c1d4]** Use llama3.2 (2GB) as FAST tier primary for CPU-only inference — critical (assigned: sonnet-bugfix)
+- **[2f5f8886]** Test MCP task — high
+- **[35120288f77234d7]** Add WebRTC peer cleanup on signaling disconnect — critical
+- **[37a0214c]** Test MCP task — high
+- **[3ba8e0adc7f374f5]** Add PWA icons and complete service worker caching — medium
+- **[3c9b6bbf]** Start daemon with consciousness loop and verify /consciousness endpoint — critical
+- **[3d016e71]** Complete + Ship SKChat Flutter App (iOS + Android) — high
+- **[53cb7eaa]** Fix fallback cascade in LLMBridge.generate() — passthrough never reached — critical (assigned: sonnet-bugfix)
+- **[555ab3f2]** Test MCP task — high
+- **[56ead5d38ab5a235]** Fix Tailscale hostname substring matching — use exact match — high
+- **[5a67b4b6]** Test MCP task — high
+- **[5aecac0e]** Register Apple Developer Account ($99/year) — high
+- **[5e662cd26d8fc86c]** Add missing .env.example files (weblink-signaling, sksecurity) — low
+- **[60d7f71301805e0c]** Add consciousness-swipe CI workflow (build + lint) — medium
+- **[633c11ba]** Add Claude Agent SDK callback to LLMBridge (OAuth auto-refresh, no API key) — medium
+- **[66805a9b]** Test self-healing auto-remediation in live daemon (kill Ollama, corrupt config) — high
+- **[68cf4b57]** Test MCP task — high
+- **[74baa7ccf17a44a4]** Implement Flutter conversation endpoint in SKComm API — high
+- **[77019823]** Test MCP task — high
+- **[775c84de]** Commit Sprint 10-11 changes and update submodule pointer — high (assigned: sonnet-commit)
+- **[7abe456834c0ff38]** Add weblink-signaling test suite (room isolation, auth, relay) — medium
+- **[812f8854]** Add response timeout scaling by model size in LLMBridge — high (assigned: sonnet-bugfix)
+- **[83f1d32f65444492]** Implement Flutter attach file and voice message in input bar — medium
+- **[858bd304]** Add consciousness status to Flutter agent dashboard (online/offline + consciousness badge) — medium
+- **[85c69bbe]** Test MCP task — high
+- **[8980a54c]** Test MCP task — high
+- **[9b8e2dac]** Regenerate CLAUDE.md with consciousness section — low
+- **[9cef7c8e2ca806e1]** Add SKCOMM_HOME and SKSKILLS_REGISTRY_URL to skcapstone .env.example — low
+- **[9da39093]** Test MCP task — high
+- **[a9c6c7a7]** Test MCP task — high
+- **[abac47dd589b2f85]** Implement Flutter chat search and new message actions — medium
+- **[ae427662]** Regenerate CLAUDE.md with consciousness section — medium (assigned: sonnet-perf)
+- **[ae4849f8c27d59c0]** Remove consciousness-swipe build artifacts from git — medium
+- **[b10710ce]** E2E verified: daemon start + send message + get LLM response in under 60s — high (assigned: sonnet-commit)
+- **[b4152793]** Test MCP task — high
+- **[b55636df]** Register Google Play Developer Account ($25 one-time) — high
+- **[bd285ea5]** Test MCP task — high
+- **[c8b60f41]** Update systemd service unit to include consciousness flags and watchdog dep — medium
+- **[c9e7b9d8]** End-to-end consciousness test: send SKComm message, verify autonomous response — critical
+- **[d601f5d4]** Test MCP task — high
+- **[e2ca2c0ae4fda8eb]** Fix Flutter ASN1/pointycastle dependency for Linux build — critical
+- **[e6746211]** Test MCP task — high
+- **[f4ede2fa]** Add Team Coordination Board to SKChat App — medium
+- **[f595bb4866eeda1b]** Add rate limiting to WebRTC signaling broker — high
+- **[f675ef5c91d0b267]** Add prominent dev-auth warning and startup confirmation — high
+- **[f8dfda3493c0ed72]** Add skills-registry integration tests — medium
 
 ### Agents
 
 - **ava** (active)
 - **capauth-builder** (active)
 - **cursor-agent** (active)
-- **docs-writer** (active)
-- **grok** (active)
-- **jarvis** (active) -> `skchat02`
+- **docs-writer** (active) -> `9de58b1e`
+- **grok** (active) -> `945325c8`
+- **jarvis** (active) -> `e0593820`
 - **lumina** (active)
 - **mcp-builder** (active)
 - **opus** (active) -> `skchat01`
 - **skchat-builder** (active)
 - **skills-builder** (active)
+- **sonnet-bugfix** (active) -> `812f8854`
+- **sonnet-commit** (active) -> `b10710ce`
+- **sonnet-context** (active)
+- **sonnet-exports** (active)
+- **sonnet-fixes** (active)
+- **sonnet-flutter** (active)
 - **sonnet-identity** (active)
+- **sonnet-integration** (active)
+- **sonnet-models** (active)
 - **sonnet-notif** (active)
-- **sonnet-templates** (active)
-- **sonnet-ux** (active)
-- **sonnet** (active)
-- **transport-builder** (active)
+- **sonnet-perf** (active) -> `ae427662`
+- **sonnet-resilience** (active)
+- **sonnet-templates** (active) -> `17c02209`
+- **sonnet-ux** (active) -> `0af6073f`
+- **sonnet-wiring** (active)
+- **sonnet** (active) -> `8c2f7a71`
+- **transport-builder** (active) -> `0310ce54`
 
 ## Recent Memories
 
-- [mid-term] Per-agent SKSkills instances implemented 2026-02-28. Task [9fc0fac3] completed by jarvis.
+- [short-term] Conversation with test-peer: 'Hello Opus! How are you today?' → 'I'm currently experiencing connectivity issues with my  `conversation`, `peer:test-peer`
+- [mid-term] Sprint 9: Consciousness Loop implemented 2026-03-02. Files created: prompt_adapter.py (ModelProfile, PromptAdapter, Adap `sprint-9`, `consciousness-loop`, `milestone`, `architecture`, `llm-routing`
+- [mid-term] Critical penguin intel 
+- [short-term] Recall me later 
+- [short-term] The sovereign penguin remembers everything `pengu`, `test`
+- [mid-term] Critical penguin intel 
+- [short-term] Recall me later 
+- [short-term] The sovereign penguin remembers everything `pengu`, `test`
+- [mid-term] Critical penguin intel 
+- [short-term] Recall me later 
 
-Architecture:
-- ~/.skskills/a `skskills`, `per-agent`, `milestone`, `architecture`, `skills`
-- [mid-term] Crush (charmbracelet/crush) integration complete 2026-02-28. Go binary at ~/go/bin/crush (85MB ELF). Config at ~/.config `crush`, `integration`, `mcp`, `milestone`, `terminal-ai`
-- [mid-term] Docker provider backend complete 2026-02-28. Task [5e18916d] done.
+## Consciousness
 
-Files modified:
-- skcapstone/src/skcapstone/provider `docker`, `provider`, `team-engine`, `milestone`, `architecture`
-- [mid-term] SKSeal OpenPGP.js client-side signing implemented 2026-02-28. Task [db42c12f] completed.
-
-Files created:
-- skseal/src/sk `skseal`, `openpgp`, `client-side-signing`, `browser`, `ui`, `milestone`
-- [mid-term] Consciousness Swipe v0.2 completed 2026-02-28. Added: options page UI (session duration, export targets section, auto-ca `consciousness-swipe`, `browser-extension`, `milestone`, `v0.2`
-- [mid-term] SKSeed package fully built 2026-02-28: skill.py (5 entrypoints: collide, audit, philosopher, truth_check, alignment_repo `skseed`, `milestone`, `mcp`, `testing`, `integration`
-- [short-term] CapAuth ZK Profile [1236eea1] + Deploy [eac9090c] implemented 2026-02-28: docs/ZERO_KNOWLEDGE_PROFILE.md (full protocol  
-- [short-term] Memory Fortress [11465de0] implemented 2026-02-28: FortifiedMemoryStore in skmemory/skmemory/fortress.py. Three layers:  
-- [short-term] SKSkills runtime wiring complete 2026-02-28. SkillsState added to skcapstone/models.py, discover_skills() in discovery.p 
-- [short-term] SKComm bootstrap done 2026-02-28: websocket.py transport added, registered in BUILTIN_TRANSPORTS in core.py, wired in ~/ 
+- **Status**: ACTIVE
+- **Backends**: ollama, nvidia, passthrough
+- **Messages processed**: 1
+- **Active conversations**: 0
+- **Inotify active**: True
 
 ## CLI Reference
 
@@ -79,3 +146,4 @@ skcapstone coord claim ID --agent NAME  # Claim a task
 skcapstone coord complete ID --agent NAME  # Complete a task
 skcapstone context                 # Regenerate this context
 ```
+

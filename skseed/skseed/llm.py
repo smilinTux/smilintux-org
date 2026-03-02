@@ -176,6 +176,7 @@ def openai_callback(
 def ollama_callback(
     model: str = "llama3.1",
     base_url: Optional[str] = None,
+    max_retries: int = 1,
 ) -> LLMCallback:
     """Create a callback that uses a local Ollama instance.
 
@@ -190,6 +191,7 @@ def ollama_callback(
         model: Model name to use.
         base_url: Ollama server URL. Defaults to OLLAMA_HOST env var or
             http://localhost:11434.
+        max_retries: Retries on empty or failed response (default 1).
 
     Returns:
         LLM callback function.
@@ -204,41 +206,87 @@ def ollama_callback(
         import json
         import urllib.request
 
-        if _is_adapted_prompt(prompt):
-            # Use /api/chat with structured messages
-            body: dict[str, Any] = {
-                "model": model,
-                "messages": prompt.messages,
-                "stream": False,
-            }
-            # Include system prompt separately if provided (Ollama supports it)
-            if getattr(prompt, "system_param", None):
-                body["system"] = prompt.system_param
-            if prompt.temperature is not None:
-                body["options"] = {"temperature": prompt.temperature}
-            payload = json.dumps(body).encode("utf-8")
-            endpoint = f"{resolved_url}/api/chat"
-        else:
-            payload = json.dumps({
+        def _parse_response(raw: bytes) -> str:
+            """Parse Ollama response body.
+
+            Handles both single-JSON (stream=False) and NDJSON (streaming),
+            since Ollama may emit chunked lines even when stream=False is set.
+            Also guards against None content fields.
+            """
+            text = raw.decode("utf-8").strip()
+            if not text:
+                return ""
+            # Happy path: single JSON object (stream=False)
+            try:
+                result = json.loads(text)
+                if "message" in result:
+                    return result["message"].get("content", "") or ""
+                return result.get("response", "") or ""
+            except json.JSONDecodeError:
+                pass
+            # Fallback: NDJSON — aggregate non-empty content chunks
+            chunks: list[str] = []
+            for line in text.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                    if "message" in obj:
+                        content = obj["message"].get("content", "") or ""
+                    else:
+                        content = obj.get("response", "") or ""
+                    if content:
+                        chunks.append(content)
+                except json.JSONDecodeError:
+                    continue
+            return "".join(chunks)
+
+        def _build_payload() -> tuple[bytes, str]:
+            if _is_adapted_prompt(prompt):
+                body: dict[str, Any] = {
+                    "model": model,
+                    "messages": prompt.messages,
+                    "stream": False,
+                }
+                if getattr(prompt, "system_param", None):
+                    body["system"] = prompt.system_param
+                if prompt.temperature is not None:
+                    body["options"] = {"temperature": prompt.temperature}
+                return json.dumps(body).encode("utf-8"), f"{resolved_url}/api/chat"
+            return json.dumps({
                 "model": model,
                 "prompt": str(prompt),
                 "stream": False,
-            }).encode("utf-8")
-            endpoint = f"{resolved_url}/api/generate"
+            }).encode("utf-8"), f"{resolved_url}/api/generate"
 
-        req = urllib.request.Request(
-            endpoint,
-            data=payload,
-            headers={"Content-Type": "application/json"},
-        )
-
-        # Use a generous timeout: CPU-only inference can take 60-180s.
-        # The LLMBridge._timed_call() enforces the tier-level deadline on top.
-        with urllib.request.urlopen(req, timeout=300) as resp:
-            result = json.loads(resp.read().decode("utf-8"))
-            if "message" in result:
-                return result["message"].get("content", "")
-            return result.get("response", "")
+        last_exc: Optional[Exception] = None
+        for attempt in range(max_retries + 1):
+            try:
+                payload, endpoint = _build_payload()
+                req = urllib.request.Request(
+                    endpoint,
+                    data=payload,
+                    headers={"Content-Type": "application/json"},
+                )
+                # Use a generous timeout: CPU-only inference can take 60-180s.
+                # The LLMBridge._timed_call() enforces the tier-level deadline.
+                with urllib.request.urlopen(req, timeout=300) as resp:
+                    raw = resp.read()
+                response_text = _parse_response(raw)
+                if response_text:
+                    return response_text
+                # Empty response — retry if attempts remain
+                if attempt < max_retries:
+                    continue
+            except Exception as exc:
+                last_exc = exc
+                if attempt < max_retries:
+                    continue
+                raise
+        if last_exc is not None:
+            raise last_exc
+        return ""
 
     return _call
 
