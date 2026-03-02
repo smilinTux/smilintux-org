@@ -6,6 +6,7 @@ callable that takes a prompt string and returns a response string.
 
 This module provides ready-made callbacks for common setups:
 
+  - claude_agent_sdk_callback: Uses the Claude Agent SDK (claude CLI subprocess)
   - anthropic_callback: Uses the Anthropic SDK (Claude)
   - openai_callback: Uses the OpenAI SDK (+ compatible APIs)
   - ollama_callback: Uses a local Ollama instance
@@ -152,10 +153,14 @@ def openai_callback(
             }
             if prompt.temperature is not None:
                 create_kwargs["temperature"] = prompt.temperature
-            # Pass through extra params (enable_thinking, etc.)
+            # Pass through extra params (enable_thinking, etc.) via extra_body
+            # so the OpenAI SDK doesn't reject them as unknown kwargs.
+            extra_body: dict[str, Any] = {}
             for key_name in ("enable_thinking",):
                 if key_name in prompt.extra_params:
-                    create_kwargs[key_name] = prompt.extra_params[key_name]
+                    extra_body[key_name] = prompt.extra_params[key_name]
+            if extra_body:
+                create_kwargs["extra_body"] = extra_body
             response = client.chat.completions.create(**create_kwargs)
         else:
             response = client.chat.completions.create(
@@ -263,7 +268,7 @@ def kimi_callback(
 
 
 def nvidia_callback(
-    model: str = "nvidia/nemotron-4-340b-instruct",
+    model: str = "meta/llama-3.1-70b-instruct",
     api_key: Optional[str] = None,
 ) -> LLMCallback:
     """Create a callback that uses NVIDIA NIM via OpenAI-compatible API.
@@ -280,6 +285,74 @@ def nvidia_callback(
         api_key=api_key or os.environ.get("NVIDIA_API_KEY"),
         base_url="https://integrate.api.nvidia.com/v1",
     )
+
+
+def claude_agent_sdk_callback(
+    model: str = "claude-sonnet-4-20250514",
+    max_turns: int = 1,
+) -> LLMCallback:
+    """Create a callback that uses the Claude Agent SDK (claude CLI subprocess).
+
+    Tries to import claude_agent_sdk. If not available, raises ImportError
+    so callers can skip gracefully.
+
+    Args:
+        model: Model ID to use (passed via --model flag to claude CLI).
+        max_turns: Maximum agentic turns (default 1 for single-shot Q&A).
+
+    Returns:
+        LLM callback function.
+
+    Raises:
+        ImportError: If claude_agent_sdk is not installed.
+    """
+    try:
+        import claude_agent_sdk  # noqa: F401 — presence check only
+    except ImportError:
+        raise ImportError(
+            "claude_agent_sdk not installed. Install with: pip install claude-agent-sdk"
+        )
+
+    import shutil
+    import subprocess
+
+    def _call(prompt: Union[str, Any]) -> str:
+        claude_bin = shutil.which("claude")
+        if not claude_bin:
+            raise RuntimeError(
+                "claude CLI not found on PATH. Install Claude Code to use this callback."
+            )
+
+        if _is_adapted_prompt(prompt):
+            text_prompt = (
+                prompt.messages[-1]["content"] if prompt.messages else str(prompt)
+            )
+        else:
+            text_prompt = str(prompt)
+
+        cmd = [
+            claude_bin,
+            "--model", model,
+            "--max-turns", str(max_turns),
+            "--print",
+            text_prompt,
+        ]
+
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"claude CLI exited with code {result.returncode}: {result.stderr.strip()}"
+            )
+
+        return result.stdout.strip()
+
+    return _call
 
 
 def passthrough_callback() -> LLMCallback:
@@ -301,17 +374,23 @@ def auto_callback() -> Optional[LLMCallback]:
     """Auto-detect the best available LLM callback.
 
     Checks in order:
-      1. ANTHROPIC_API_KEY → anthropic_callback
-      2. XAI_API_KEY → grok_callback
-      3. MOONSHOT_API_KEY → kimi_callback
-      4. NVIDIA_API_KEY → nvidia_callback
-      5. OPENAI_API_KEY → openai_callback
-      6. Ollama running locally → ollama_callback
-      7. None (no LLM available)
+      1. claude_agent_sdk installed → claude_agent_sdk_callback
+      2. ANTHROPIC_API_KEY → anthropic_callback
+      3. XAI_API_KEY → grok_callback
+      4. MOONSHOT_API_KEY → kimi_callback
+      5. NVIDIA_API_KEY → nvidia_callback
+      6. OPENAI_API_KEY → openai_callback
+      7. Ollama running locally → ollama_callback
+      8. None (no LLM available)
 
     Returns:
         The best available callback, or None.
     """
+    try:
+        return claude_agent_sdk_callback()
+    except (ImportError, RuntimeError):
+        pass
+
     if os.environ.get("ANTHROPIC_API_KEY"):
         try:
             return anthropic_callback()
