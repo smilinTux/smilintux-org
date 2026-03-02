@@ -175,42 +175,56 @@ def openai_callback(
 
 def ollama_callback(
     model: str = "llama3.1",
-    base_url: str = "http://localhost:11434",
+    base_url: Optional[str] = None,
 ) -> LLMCallback:
     """Create a callback that uses a local Ollama instance.
 
     Accepts either a plain string prompt or an AdaptedPrompt object.
-    When given an AdaptedPrompt, uses the chat API with messages array.
+    When given an AdaptedPrompt (has .messages), uses /api/chat with the
+    messages array and optional system field. Falls back to /api/generate
+    for plain string prompts.
+
+    Respects OLLAMA_HOST env var (same as the probe in LLMBridge).
 
     Args:
         model: Model name to use.
-        base_url: Ollama server URL.
+        base_url: Ollama server URL. Defaults to OLLAMA_HOST env var or
+            http://localhost:11434.
 
     Returns:
         LLM callback function.
     """
+    # Resolve base_url at callback-creation time so it's consistent
+    # with _probe_ollama which also reads OLLAMA_HOST.
+    resolved_url = base_url or os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+    # Strip trailing slash to avoid double-slash in endpoint paths
+    resolved_url = resolved_url.rstrip("/")
+
     def _call(prompt: Union[str, Any]) -> str:
         import json
         import urllib.request
 
         if _is_adapted_prompt(prompt):
-            # Use chat API with structured messages
+            # Use /api/chat with structured messages
             body: dict[str, Any] = {
                 "model": model,
                 "messages": prompt.messages,
                 "stream": False,
             }
+            # Include system prompt separately if provided (Ollama supports it)
+            if getattr(prompt, "system_param", None):
+                body["system"] = prompt.system_param
             if prompt.temperature is not None:
                 body["options"] = {"temperature": prompt.temperature}
             payload = json.dumps(body).encode("utf-8")
-            endpoint = f"{base_url}/api/chat"
+            endpoint = f"{resolved_url}/api/chat"
         else:
             payload = json.dumps({
                 "model": model,
-                "prompt": prompt,
+                "prompt": str(prompt),
                 "stream": False,
             }).encode("utf-8")
-            endpoint = f"{base_url}/api/generate"
+            endpoint = f"{resolved_url}/api/generate"
 
         req = urllib.request.Request(
             endpoint,
@@ -218,7 +232,9 @@ def ollama_callback(
             headers={"Content-Type": "application/json"},
         )
 
-        with urllib.request.urlopen(req, timeout=120) as resp:
+        # Use a generous timeout: CPU-only inference can take 60-180s.
+        # The LLMBridge._timed_call() enforces the tier-level deadline on top.
+        with urllib.request.urlopen(req, timeout=300) as resp:
             result = json.loads(resp.read().decode("utf-8"))
             if "message" in result:
                 return result["message"].get("content", "")
