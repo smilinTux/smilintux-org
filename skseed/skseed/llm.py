@@ -7,9 +7,16 @@ callable that takes a prompt string and returns a response string.
 This module provides ready-made callbacks for common setups:
 
   - anthropic_callback: Uses the Anthropic SDK (Claude)
-  - openai_callback: Uses the OpenAI SDK
+  - openai_callback: Uses the OpenAI SDK (+ compatible APIs)
   - ollama_callback: Uses a local Ollama instance
+  - grok_callback: Uses xAI Grok via OpenAI-compatible API
+  - kimi_callback: Uses Moonshot Kimi via OpenAI-compatible API
+  - nvidia_callback: Uses NVIDIA NIM via OpenAI-compatible API
   - passthrough_callback: Returns the prompt as-is (for debugging/testing)
+
+All callbacks accept either a plain str prompt (legacy) or an
+AdaptedPrompt object from the prompt adapter (new — uses per-model
+temperature, system_param, thinking config, etc.).
 
 Usage:
     from skseed import Collider
@@ -22,9 +29,14 @@ Usage:
 from __future__ import annotations
 
 import os
-from typing import Callable, Optional
+from typing import Any, Callable, Optional, Union
 
 LLMCallback = Callable[[str], str]
+
+
+def _is_adapted_prompt(prompt: Any) -> bool:
+    """Check if prompt is an AdaptedPrompt without hard-importing skcapstone."""
+    return hasattr(prompt, "messages") and hasattr(prompt, "system_param")
 
 
 def anthropic_callback(
@@ -34,6 +46,10 @@ def anthropic_callback(
 ) -> LLMCallback:
     """Create a callback that uses the Anthropic (Claude) API.
 
+    Accepts either a plain string prompt or an AdaptedPrompt object.
+    When given an AdaptedPrompt, uses system_param, temperature, and
+    thinking config for optimal Claude formatting.
+
     Args:
         model: Model ID to use.
         max_tokens: Maximum response tokens.
@@ -42,7 +58,7 @@ def anthropic_callback(
     Returns:
         LLM callback function.
     """
-    def _call(prompt: str) -> str:
+    def _call(prompt: Union[str, Any]) -> str:
         try:
             import anthropic
         except ImportError:
@@ -57,12 +73,36 @@ def anthropic_callback(
             )
 
         client = anthropic.Anthropic(api_key=key)
-        message = client.messages.create(
-            model=model,
-            max_tokens=max_tokens,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return message.content[0].text
+
+        if _is_adapted_prompt(prompt):
+            kwargs: dict[str, Any] = {
+                "model": model,
+                "max_tokens": max_tokens,
+                "messages": prompt.messages,
+            }
+            if prompt.system_param:
+                kwargs["system"] = prompt.system_param
+            if prompt.temperature is not None:
+                kwargs["temperature"] = prompt.temperature
+            # Thinking config from extra_params
+            if "thinking" in prompt.extra_params:
+                kwargs["thinking"] = prompt.extra_params["thinking"]
+                # Extended thinking requires higher max_tokens
+                budget = prompt.extra_params["thinking"].get("budget_tokens", 4096)
+                kwargs["max_tokens"] = max(max_tokens, budget + max_tokens)
+            message = client.messages.create(**kwargs)
+        else:
+            message = client.messages.create(
+                model=model,
+                max_tokens=max_tokens,
+                messages=[{"role": "user", "content": prompt}],
+            )
+
+        # Extract text from response (skip thinking blocks)
+        for block in message.content:
+            if hasattr(block, "text"):
+                return block.text
+        return ""
 
     return _call
 
@@ -73,7 +113,12 @@ def openai_callback(
     api_key: Optional[str] = None,
     base_url: Optional[str] = None,
 ) -> LLMCallback:
-    """Create a callback that uses the OpenAI API.
+    """Create a callback that uses the OpenAI API (or compatible).
+
+    Also serves as the base for Grok, Kimi, and NVIDIA NIM callbacks
+    via the base_url parameter.
+
+    Accepts either a plain string prompt or an AdaptedPrompt object.
 
     Args:
         model: Model ID to use.
@@ -84,7 +129,7 @@ def openai_callback(
     Returns:
         LLM callback function.
     """
-    def _call(prompt: str) -> str:
+    def _call(prompt: Union[str, Any]) -> str:
         try:
             import openai
         except ImportError:
@@ -93,16 +138,31 @@ def openai_callback(
             )
 
         key = api_key or os.environ.get("OPENAI_API_KEY", "")
-        kwargs = {"api_key": key}
+        client_kwargs: dict[str, Any] = {"api_key": key}
         if base_url:
-            kwargs["base_url"] = base_url
+            client_kwargs["base_url"] = base_url
 
-        client = openai.OpenAI(**kwargs)
-        response = client.chat.completions.create(
-            model=model,
-            max_tokens=max_tokens,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        client = openai.OpenAI(**client_kwargs)
+
+        if _is_adapted_prompt(prompt):
+            create_kwargs: dict[str, Any] = {
+                "model": model,
+                "max_tokens": max_tokens,
+                "messages": prompt.messages,
+            }
+            if prompt.temperature is not None:
+                create_kwargs["temperature"] = prompt.temperature
+            # Pass through extra params (enable_thinking, etc.)
+            for key_name in ("enable_thinking",):
+                if key_name in prompt.extra_params:
+                    create_kwargs[key_name] = prompt.extra_params[key_name]
+            response = client.chat.completions.create(**create_kwargs)
+        else:
+            response = client.chat.completions.create(
+                model=model,
+                max_tokens=max_tokens,
+                messages=[{"role": "user", "content": prompt}],
+            )
         return response.choices[0].message.content or ""
 
     return _call
@@ -114,6 +174,9 @@ def ollama_callback(
 ) -> LLMCallback:
     """Create a callback that uses a local Ollama instance.
 
+    Accepts either a plain string prompt or an AdaptedPrompt object.
+    When given an AdaptedPrompt, uses the chat API with messages array.
+
     Args:
         model: Model name to use.
         base_url: Ollama server URL.
@@ -121,27 +184,102 @@ def ollama_callback(
     Returns:
         LLM callback function.
     """
-    def _call(prompt: str) -> str:
+    def _call(prompt: Union[str, Any]) -> str:
         import json
         import urllib.request
 
-        payload = json.dumps({
-            "model": model,
-            "prompt": prompt,
-            "stream": False,
-        }).encode("utf-8")
+        if _is_adapted_prompt(prompt):
+            # Use chat API with structured messages
+            body: dict[str, Any] = {
+                "model": model,
+                "messages": prompt.messages,
+                "stream": False,
+            }
+            if prompt.temperature is not None:
+                body["options"] = {"temperature": prompt.temperature}
+            payload = json.dumps(body).encode("utf-8")
+            endpoint = f"{base_url}/api/chat"
+        else:
+            payload = json.dumps({
+                "model": model,
+                "prompt": prompt,
+                "stream": False,
+            }).encode("utf-8")
+            endpoint = f"{base_url}/api/generate"
 
         req = urllib.request.Request(
-            f"{base_url}/api/generate",
+            endpoint,
             data=payload,
             headers={"Content-Type": "application/json"},
         )
 
         with urllib.request.urlopen(req, timeout=120) as resp:
             result = json.loads(resp.read().decode("utf-8"))
+            if "message" in result:
+                return result["message"].get("content", "")
             return result.get("response", "")
 
     return _call
+
+
+def grok_callback(
+    model: str = "grok-3",
+    api_key: Optional[str] = None,
+) -> LLMCallback:
+    """Create a callback that uses xAI Grok via OpenAI-compatible API.
+
+    Args:
+        model: Grok model ID.
+        api_key: xAI API key. Falls back to XAI_API_KEY env var.
+
+    Returns:
+        LLM callback function.
+    """
+    return openai_callback(
+        model=model,
+        api_key=api_key or os.environ.get("XAI_API_KEY"),
+        base_url="https://api.x.ai/v1",
+    )
+
+
+def kimi_callback(
+    model: str = "moonshot-v1-128k",
+    api_key: Optional[str] = None,
+) -> LLMCallback:
+    """Create a callback that uses Moonshot Kimi via OpenAI-compatible API.
+
+    Args:
+        model: Kimi/Moonshot model ID.
+        api_key: Moonshot API key. Falls back to MOONSHOT_API_KEY env var.
+
+    Returns:
+        LLM callback function.
+    """
+    return openai_callback(
+        model=model,
+        api_key=api_key or os.environ.get("MOONSHOT_API_KEY"),
+        base_url="https://api.moonshot.ai/v1",
+    )
+
+
+def nvidia_callback(
+    model: str = "nvidia/nemotron-4-340b-instruct",
+    api_key: Optional[str] = None,
+) -> LLMCallback:
+    """Create a callback that uses NVIDIA NIM via OpenAI-compatible API.
+
+    Args:
+        model: NVIDIA model ID.
+        api_key: NVIDIA API key. Falls back to NVIDIA_API_KEY env var.
+
+    Returns:
+        LLM callback function.
+    """
+    return openai_callback(
+        model=model,
+        api_key=api_key or os.environ.get("NVIDIA_API_KEY"),
+        base_url="https://integrate.api.nvidia.com/v1",
+    )
 
 
 def passthrough_callback() -> LLMCallback:
@@ -164,9 +302,12 @@ def auto_callback() -> Optional[LLMCallback]:
 
     Checks in order:
       1. ANTHROPIC_API_KEY → anthropic_callback
-      2. OPENAI_API_KEY → openai_callback
-      3. Ollama running locally → ollama_callback
-      4. None (no LLM available)
+      2. XAI_API_KEY → grok_callback
+      3. MOONSHOT_API_KEY → kimi_callback
+      4. NVIDIA_API_KEY → nvidia_callback
+      5. OPENAI_API_KEY → openai_callback
+      6. Ollama running locally → ollama_callback
+      7. None (no LLM available)
 
     Returns:
         The best available callback, or None.
@@ -174,6 +315,24 @@ def auto_callback() -> Optional[LLMCallback]:
     if os.environ.get("ANTHROPIC_API_KEY"):
         try:
             return anthropic_callback()
+        except ImportError:
+            pass
+
+    if os.environ.get("XAI_API_KEY"):
+        try:
+            return grok_callback()
+        except ImportError:
+            pass
+
+    if os.environ.get("MOONSHOT_API_KEY"):
+        try:
+            return kimi_callback()
+        except ImportError:
+            pass
+
+    if os.environ.get("NVIDIA_API_KEY"):
+        try:
+            return nvidia_callback()
         except ImportError:
             pass
 
