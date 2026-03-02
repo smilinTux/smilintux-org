@@ -314,6 +314,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
+      - run: pip install -e ../skseed/ || true
+      - run: pip install pytest-cov coverage
       - run: python -m pytest tests/ -v --tb=short --cov=skcapstone --cov-report=xml:coverage.xml
       - name: Verify optional dep groups are importable
         if: matrix.python-version == '3.12'
@@ -664,7 +666,7 @@ jobs:
           merge-multiple: true
           path: coverage-data/
       - name: Install coverage
-        run: pip install coverage
+        run: pip install coverage pytest-cov
       - name: Combine and report coverage
         run: |
           # Collect all binary coverage files from downloaded artifacts
