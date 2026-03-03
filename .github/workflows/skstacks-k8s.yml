@@ -1,0 +1,130 @@
+name: SKStacks K8s — Kustomize Validation
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "skstacks/v2/platform/kubernetes/**"
+      - "skstacks/v2/core/**"
+      - ".github/workflows/skstacks-k8s.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "skstacks/v2/platform/kubernetes/**"
+      - "skstacks/v2/core/**"
+      - ".github/workflows/skstacks-k8s.yml"
+
+concurrency:
+  group: skstacks-k8s-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  KUBECTL_VERSION: "v1.30.3"
+  KUBECONFORM_VERSION: "0.6.7"
+
+jobs:
+  kustomize-validate:
+    name: Kustomize + kubeconform
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Tool installation ──────────────────────────────────────────────────
+
+      - name: Install kubectl
+        run: |
+          curl -fsSLo kubectl \
+            "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+          kubectl version --client
+
+      - name: Install kubeconform
+        run: |
+          curl -fsSLo kubeconform.tar.gz \
+            "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz"
+          tar -xzf kubeconform.tar.gz kubeconform
+          sudo mv kubeconform /usr/local/bin/kubeconform
+          kubeconform -v
+
+      # ── Overlay discovery ──────────────────────────────────────────────────
+
+      - name: Discover Kustomize overlay directories
+        id: discover
+        run: |
+          echo "Searching for kustomization.yaml under skstacks/v2/platform/kubernetes/overlays/ ..."
+          overlays=$(find skstacks/v2/platform/kubernetes/overlays \
+            -name 'kustomization.yaml' -maxdepth 3 \
+            | xargs -I{} dirname {} \
+            | sort)
+
+          if [ -z "$overlays" ]; then
+            echo "ERROR: No overlay directories found."
+            exit 1
+          fi
+
+          echo ""
+          echo "Overlays found:"
+          echo "$overlays"
+          echo ""
+
+          # Store list for the validation step
+          {
+            echo "OVERLAYS<<EOF"
+            echo "$overlays"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      # ── Render + validate each overlay ────────────────────────────────────
+
+      - name: kubectl kustomize + kubeconform for each overlay
+        run: |
+          set -euo pipefail
+
+          failed=0
+
+          while IFS= read -r overlay; do
+            [ -z "$overlay" ] && continue
+
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "Overlay: $overlay"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+            rendered="/tmp/rendered-$(basename "$overlay").yaml"
+
+            # Step 1: render with kubectl kustomize
+            if ! kubectl kustomize "$overlay" > "$rendered" 2>&1; then
+              echo "FAIL [kustomize] $overlay"
+              cat "$rendered"
+              failed=1
+              continue
+            fi
+            echo "  [OK]  kubectl kustomize rendered $(wc -l < "$rendered") lines"
+
+            # Step 2: validate rendered YAML with kubeconform
+            # CRD schemas (metallb, cert-manager) resolved from datreeio/CRDs-catalog;
+            # -ignore-missing-schemas lets unknown CRDs pass without error.
+            if ! kubeconform \
+                -strict \
+                -summary \
+                -output pretty \
+                -schema-location default \
+                -schema-location \
+                  'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+                -ignore-missing-schemas \
+                "$rendered"; then
+              echo "FAIL [kubeconform] $overlay"
+              failed=1
+            else
+              echo "  [OK]  kubeconform passed for $overlay"
+            fi
+
+          done <<< "$OVERLAYS"
+
+          echo ""
+          if [ "$failed" -ne 0 ]; then
+            echo "One or more overlay validations FAILED."
+            exit 1
+          fi
+          echo "All overlays passed validation."

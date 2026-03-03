@@ -1,22 +1,19 @@
 /**
  * Unit tests for skcapstone-vscode CLI bridge (src/cli.ts).
  *
- * child_process.execFile is stubbed with sinon so that no real skcapstone
- * binary is needed.  Tests verify argument construction, JSON parsing,
- * default values, and error propagation for every exported function.
+ * cli._execFile is stubbed via sinon so that no real skcapstone binary is
+ * needed.  Tests verify argument construction, JSON parsing, default values,
+ * and error propagation for every exported function.
  *
  * Runs inside the @vscode/test-electron host (headless via xvfb-run in CI).
  *
- * Note on stub mechanics: TypeScript compiles named imports to
- *   const child_process_1 = require("child_process");
- *   child_process_1.execFile(...)
- * so sinon.stub(require("child_process"), "execFile") affects the same
- * cached module object and intercepts all calls from cli.ts.
+ * Stub mechanics: cli.ts exports `_execFile` as a mutable `let` so that
+ * sinon can replace it without needing to touch the frozen child_process
+ * namespace (which is non-configurable in Electron's V8 context).
  */
 
 import * as assert from "assert";
 import * as sinon from "sinon";
-import * as childProcess from "child_process";
 import * as cli from "../../cli";
 
 // ---------------------------------------------------------------------------
@@ -62,7 +59,7 @@ suite("SKCapstone VSCode CLI — runCommand", () => {
   let execFileStub: sinon.SinonStub;
 
   setup(() => {
-    execFileStub = sinon.stub(childProcess, "execFile");
+    execFileStub = sinon.stub(cli, "_execFile");
   });
 
   teardown(() => {
@@ -136,7 +133,7 @@ suite("SKCapstone VSCode CLI — getStatus", () => {
   let execFileStub: sinon.SinonStub;
 
   setup(() => {
-    execFileStub = sinon.stub(childProcess, "execFile");
+    execFileStub = sinon.stub(cli, "_execFile");
   });
 
   teardown(() => {
@@ -201,7 +198,7 @@ suite("SKCapstone VSCode CLI — getCoordTasks", () => {
   let execFileStub: sinon.SinonStub;
 
   setup(() => {
-    execFileStub = sinon.stub(childProcess, "execFile");
+    execFileStub = sinon.stub(cli, "_execFile");
   });
 
   teardown(() => {
@@ -287,7 +284,7 @@ suite("SKCapstone VSCode CLI — searchMemories", () => {
   let execFileStub: sinon.SinonStub;
 
   setup(() => {
-    execFileStub = sinon.stub(childProcess, "execFile");
+    execFileStub = sinon.stub(cli, "_execFile");
   });
 
   teardown(() => {
@@ -373,7 +370,7 @@ suite("SKCapstone VSCode CLI — storeMemory", () => {
   let execFileStub: sinon.SinonStub;
 
   setup(() => {
-    execFileStub = sinon.stub(childProcess, "execFile");
+    execFileStub = sinon.stub(cli, "_execFile");
   });
 
   teardown(() => {
@@ -422,7 +419,7 @@ suite("SKCapstone VSCode CLI — claimTask & completeTask", () => {
   let execFileStub: sinon.SinonStub;
 
   setup(() => {
-    execFileStub = sinon.stub(childProcess, "execFile");
+    execFileStub = sinon.stub(cli, "_execFile");
   });
 
   teardown(() => {
@@ -465,7 +462,7 @@ suite("SKCapstone VSCode CLI — getSoulBlueprint", () => {
   let execFileStub: sinon.SinonStub;
 
   setup(() => {
-    execFileStub = sinon.stub(childProcess, "execFile");
+    execFileStub = sinon.stub(cli, "_execFile");
   });
 
   teardown(() => {

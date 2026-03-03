@@ -9,6 +9,10 @@ account_id = "${CF_ACCOUNT_ID}"
 [vars]
 # Default: allow all origins. Override per-environment below.
 ALLOWED_ORIGINS = "*"
+# CapAuth bearer token enforcement. Set to "true" to require a valid token.
+CAPAUTH_REQUIRE_AUTH = "false"
+# Room TTL hint (informational — actual TTL is the ROOM_TTL_MS constant in worker.ts).
+ROOM_TTL_HOURS = "24"
 
 # ── Durable Objects ───────────────────────────────────────────────────────────
 [[durable_objects.bindings]]
@@ -18,6 +22,12 @@ class_name = "SignalingRoom"
 [[migrations]]
 tag = "v1"
 new_classes = ["SignalingRoom"]
+
+# v2: room persistence (room:state KV, icebuf:* KV) + DO alarm (24h TTL)
+# No class-level change; migration tag documents the storage schema bump.
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = []
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 [[routes]]

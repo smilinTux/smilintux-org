@@ -1,0 +1,50 @@
+name: skcapstone CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'skcapstone/**'
+      - '.forgejo/workflows/skcapstone.yml'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'skcapstone/**'
+      - '.forgejo/workflows/skcapstone.yml'
+
+concurrency:
+  group: skcapstone-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    defaults:
+      run:
+        working-directory: skcapstone
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+          pip install -e ../skseed/ || true
+          pip install pytest-cov coverage mypy
+
+      - name: Run tests
+        run: python -m pytest tests/ -x -q
+
+      - name: Run mypy
+        if: matrix.python-version == '3.12'
+        run: mypy src/skcapstone/ --ignore-missing-imports
+
+      - name: Run ruff
+        if: matrix.python-version == '3.12'
+        run: ruff check src/

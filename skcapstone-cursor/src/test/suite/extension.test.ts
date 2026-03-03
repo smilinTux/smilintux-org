@@ -58,7 +58,7 @@ suite("SKCapstone Cursor Extension — Activation & Commands", () => {
     // Extension may fail to reach the CLI in the test environment — that's OK.
     // The command must not propagate an unhandled rejection.
     await assert.doesNotReject(
-      () => vscode.commands.executeCommand("skcapstone.refresh"),
+      () => Promise.resolve(vscode.commands.executeCommand("skcapstone.refresh")),
       "skcapstone.refresh must not throw even when CLI is absent"
     );
   });
@@ -66,7 +66,7 @@ suite("SKCapstone Cursor Extension — Activation & Commands", () => {
   test("skcapstone.status executes without unhandled rejection", async () => {
     // When agent is not initialised, the command shows a warning message.
     await assert.doesNotReject(
-      () => vscode.commands.executeCommand("skcapstone.status"),
+      () => Promise.resolve(vscode.commands.executeCommand("skcapstone.status")),
       "skcapstone.status must not throw"
     );
   });

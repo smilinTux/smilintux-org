@@ -330,6 +330,55 @@ services:
         limits:
           memory: 256M
 
+  # ─────────────────────────────────────────────────────────
+  # WebRTC Signaling Relay — Cloudflare Worker (local wrangler dev)
+  #
+  # Runs the weblink-signaling Cloudflare Worker locally via wrangler dev.
+  # Peers exchange SDP offers/answers and ICE candidates here before
+  # establishing a direct WebRTC P2P connection.
+  #
+  # Activate with: docker compose --profile signaling up -d
+  # Also included in: docker compose --profile full up -d
+  #
+  # WebSocket endpoint: ws://localhost:8787
+  # Health endpoint:    http://localhost:8787/
+  #
+  # Set SKCOMM_SIGNALING_URL=ws://localhost:8787 when using this locally.
+  #
+  # Note: wrangler dev --local does NOT require CF_ACCOUNT_ID.
+  # CF_ACCOUNT_ID + CLOUDFLARE_API_TOKEN are only needed for `wrangler deploy`.
+  # ─────────────────────────────────────────────────────────
+  weblink-signaling:
+    image: node:22-slim
+    container_name: skworld-weblink-signaling
+    working_dir: /app
+    command: >-
+      sh -c "npm ci --quiet && npx wrangler dev --local --ip 0.0.0.0 --port 8787 --env dev"
+    profiles:
+      - signaling
+      - full
+    networks:
+      - sk-net
+    ports:
+      - "${WEBLINK_PORT:-8787}:8787"
+    volumes:
+      - ./weblink-signaling:/app
+    environment:
+      CF_ACCOUNT_ID: "${CF_ACCOUNT_ID:-}"
+      CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_API_TOKEN:-}"
+      WRANGLER_SEND_METRICS: "false"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8787/ > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
 volumes:
   # Sovereign agent core
   skcapstone_agent:

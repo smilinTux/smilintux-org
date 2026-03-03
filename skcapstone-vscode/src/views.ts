@@ -57,15 +57,14 @@ export class StatusProvider implements vscode.TreeDataProvider<StatusItem> {
     return element;
   }
 
-  getChildren(element?: StatusItem): StatusItem[] {
+  async getChildren(element?: StatusItem): Promise<StatusItem[]> {
     if (element) {
       return [];
     }
 
-    // Trigger initial fetch on first render
+    // Initial fetch: await so that the first getChildren() call returns real data
     if (!this._loading && this._status === null && this._error === null) {
-      this._loading = true;
-      void this._fetch();
+      await this._fetch();
     }
 
     if (this._loading) {
@@ -212,15 +211,14 @@ export class CoordProvider implements vscode.TreeDataProvider<CoordItem> {
     return element;
   }
 
-  getChildren(element?: CoordItem): CoordItem[] {
+  async getChildren(element?: CoordItem): Promise<CoordItem[]> {
     if (element) {
       return [];
     }
 
-    // Trigger initial fetch on first render
+    // Initial fetch: await so that the first getChildren() call returns real data
     if (!this._loading && this._tasks === null && this._error === null) {
-      this._loading = true;
-      void this._fetch();
+      await this._fetch();
     }
 
     if (this._loading) {

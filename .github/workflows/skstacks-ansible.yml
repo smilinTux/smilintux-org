@@ -1,0 +1,88 @@
+name: SKStacks Ansible Lint
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'skstacks/v2/platform/rke2/ansible/**'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'skstacks/v2/platform/rke2/ansible/**'
+
+concurrency:
+  group: ansible-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ansible-lint:
+    name: ansible-lint (strict)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: skstacks/v2/platform/rke2/ansible
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ansible-lint and Ansible
+        run: |
+          pip install \
+            "ansible-core>=2.16" \
+            "ansible-lint[community,yamllint]>=24.0"
+
+      - name: Install required Ansible collections
+        run: |
+          ansible-galaxy collection install \
+            ansible.posix \
+            community.general \
+            --upgrade
+
+      - name: Run ansible-lint (fail on WARN+)
+        # --strict promotes warnings to errors (fail on WARN+)
+        # Config is read from .ansible-lint in the working directory
+        run: ansible-lint --strict
+
+  molecule:
+    name: molecule / rke2-common (${{ matrix.distro }})
+    runs-on: ubuntu-latest
+    # Molecule requires Docker and privileged mode for sysctl/kernel-module tasks
+    strategy:
+      fail-fast: false
+      matrix:
+        distro:
+          - ubuntu2204
+          - rockylinux8
+    env:
+      MOLECULE_DISTRO: ${{ matrix.distro }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install molecule and dependencies
+        run: |
+          pip install \
+            "ansible-core>=2.16" \
+            "molecule>=24.0" \
+            "molecule-plugins[docker]>=23.0"
+
+      - name: Install required Ansible collections
+        run: |
+          ansible-galaxy collection install \
+            ansible.posix \
+            community.general \
+            --upgrade
+
+      - name: Run molecule default scenario
+        working-directory: skstacks/v2/platform/rke2/ansible/roles/rke2-common
+        run: molecule test

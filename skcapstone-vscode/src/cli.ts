@@ -6,8 +6,12 @@
  * and works regardless of Python environment configuration.
  */
 
-import { execFile } from "child_process";
+import { execFile as _execFileNative } from "child_process";
 import * as vscode from "vscode";
+
+// Indirection allows tests to inject a mock without sinon property stubbing.
+// In production this always points to the real execFile.
+export let _execFile: typeof _execFileNative = _execFileNative;
 
 export interface AgentStatus {
   name: string;
@@ -65,7 +69,7 @@ const TIMEOUT_MESSAGE =
 export function runCommand(args: string[]): Promise<any> {
   return new Promise((resolve, reject) => {
     const cli = getCliPath();
-    execFile(cli, args, { timeout: CLI_TIMEOUT_MS }, (error, stdout, stderr) => {
+    _execFile(cli, args, { timeout: CLI_TIMEOUT_MS }, (error, stdout, stderr) => {
       if (error) {
         if (error.killed) {
           // Process was killed due to timeout

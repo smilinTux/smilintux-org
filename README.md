@@ -6,6 +6,21 @@
 
 ---
 
+## CI Status
+
+[![Monorepo CI](https://github.com/smilinTux/smilintux-org/actions/workflows/ci.yml/badge.svg)](https://github.com/smilinTux/smilintux-org/actions/workflows/ci.yml)
+[![Editor Extensions](https://github.com/smilinTux/smilintux-org/actions/workflows/extensions.yml/badge.svg)](https://github.com/smilinTux/smilintux-org/actions/workflows/extensions.yml)
+[![Consciousness Swipe](https://github.com/smilinTux/smilintux-org/actions/workflows/consciousness-swipe.yml/badge.svg)](https://github.com/smilinTux/smilintux-org/actions/workflows/consciousness-swipe.yml)
+[![Deploy GitHub Pages](https://github.com/smilinTux/smilintux-org/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/smilinTux/smilintux-org/actions/workflows/deploy-pages.yml)
+[![Deploy weblink-signaling](https://github.com/smilinTux/smilintux-org/actions/workflows/deploy-signaling.yml/badge.svg)](https://github.com/smilinTux/smilintux-org/actions/workflows/deploy-signaling.yml)
+[![Release to PyPI](https://github.com/smilinTux/smilintux-org/actions/workflows/release.yml/badge.svg)](https://github.com/smilinTux/smilintux-org/actions/workflows/release.yml)
+
+**Forgejo CI**
+
+[![skcapstone CI](https://git.skworld.io/smilinTux/smilintux-org/actions/workflows/skcapstone.yml/badge.svg)](https://git.skworld.io/smilinTux/smilintux-org/actions/workflows/skcapstone.yml)
+
+---
+
 ## Core Philosophy
 
 smilinTux builds open-source tools that give AI agents and humans **sovereign identity**, **encrypted communication**, and **persistent memory** — all without relying on centralized corporate infrastructure.

@@ -50,7 +50,7 @@ function fakeExecError(msg: string, exitCode = 1) {
     _opts: object,
     cb: ExecFileCallback
   ) => {
-    cb(err, "", msg);
+    cb(err as unknown as NodeJS.ErrnoException, "", msg);
   };
 }
 
@@ -104,7 +104,7 @@ suite("SKCapstone Cursor Bridge — runCli", () => {
     execFileStub.callsFake(
       (_cmd: string, _args: string[], _opts: object, cb: ExecFileCallback) => {
         const err = Object.assign(new Error("exit"), { code: 1 });
-        cb(err, "", "error output from python");
+        cb(err as unknown as NodeJS.ErrnoException, "", "error output from python");
       }
     );
 
@@ -425,7 +425,7 @@ suite("SKCapstone Cursor Bridge — searchMemory", () => {
     execFileStub.callsFake(
       (_cmd: string, _args: string[], _opts: object, cb: ExecFileCallback) => {
         const err = Object.assign(new Error("exit"), { code: 1 });
-        cb(err, "", "stderr error message");
+        cb(err as unknown as NodeJS.ErrnoException, "", "stderr error message");
       }
     );
 
