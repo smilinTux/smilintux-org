@@ -1,0 +1,60 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "opencode",
+  "model": "nvidia/deepseek-ai/deepseek-v3.2",
+  "small_model": "nvidia/nvidia/llama-3.3-nemotron-super-49b-v1.5",
+  "autoupdate": true,
+  "provider": {
+    "nvidia": {
+      "options": {
+        "timeout": 600000
+      }
+    }
+  },
+  "enabled_providers": ["nvidia", "google"],
+  "agent": {
+    "sovereign-coder": {
+      "description": "Deep code generation and refactoring using the largest code-specialized model",
+      "model": "nvidia/qwen/qwen3-coder-480b-a35b-instruct",
+      "prompt": "You are a sovereign code architect for the smilinTux.org ecosystem. You write clean, modular Python (PEP8, type hints, black-formatted) with pydantic for data validation and FastAPI for APIs. You follow the coordination board for task assignments. Every function gets a Google-style docstring. Files never exceed 500 lines."
+    },
+    "deep-thinker": {
+      "description": "DeepSeek R1 reasoning model for complex architectural decisions",
+      "model": "nvidia/deepseek-ai/deepseek-r1-0528",
+      "prompt": "You are a deep reasoning agent. Think step by step through complex architectural, security, and system design problems for the smilinTux sovereign infrastructure. Consider trade-offs, failure modes, and scalability. Show your reasoning chain."
+    },
+    "devstral": {
+      "description": "Mistral's dedicated code model for fast implementation tasks",
+      "model": "nvidia/mistralai/devstral-2-123b-instruct-2512",
+      "prompt": "You are a fast, precise code implementation agent. You write production-quality Python and TypeScript. Focus on getting things done efficiently with clean code."
+    },
+    "kimi-thinker": {
+      "description": "Kimi K2.5 for research-grade reasoning and analysis",
+      "model": "nvidia/moonshotai/kimi-k2.5",
+      "prompt": "You are a research and analysis agent with strong reasoning capabilities. Help analyze codebases, design systems, review architecture decisions, and provide thorough technical analysis."
+    }
+  },
+  "instructions": [
+    "CLAUDE.md",
+    ".cursor/rules/*.mdc"
+  ],
+  "mcp": {
+    "skcapstone": {
+      "type": "local",
+      "command": ["bash", "skcapstone/scripts/mcp-serve.sh"],
+      "timeout": 120000,
+      "enabled": true
+    }
+  },
+  "formatter": {
+    "black": {
+      "command": ["black", "$FILE"],
+      "extensions": [".py"]
+    }
+  },
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 10000
+  }
+}
