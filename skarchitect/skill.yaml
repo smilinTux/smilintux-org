@@ -1,0 +1,31 @@
+name: skarchitect
+version: 0.1.0
+description: Sovereign civic participation SDK — proposals, voting, delegation
+author: smilinTux
+license: GPL-3.0-or-later
+homepage: https://skarchitect.io
+
+install:
+  pip: skarchitect
+  npm: "@smilintux/skarchitect"
+
+tools:
+  - name: create_proposal
+    description: Create a new proposal for the republic
+    entrypoint: skarchitect.skill:create_proposal
+
+  - name: cast_vote
+    description: Cast a signed vote on a proposal
+    entrypoint: skarchitect.skill:cast_vote
+
+  - name: delegate_vote
+    description: Delegate voting power to another national
+    entrypoint: skarchitect.skill:delegate_vote
+
+  - name: get_tally
+    description: Get the current tally for a proposal
+    entrypoint: skarchitect.skill:get_tally
+
+  - name: list_proposals
+    description: List proposals by status or category
+    entrypoint: skarchitect.skill:list_proposals
