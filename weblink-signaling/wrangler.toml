@@ -19,6 +19,17 @@ ROOM_TTL_HOURS = "24"
 name = "SIGNALING_ROOM"
 class_name = "SignalingRoom"
 
+# ── KV Namespaces ─────────────────────────────────────────────────────────────
+# DID_DOCUMENTS: stores sovereign DID documents keyed by agent slug.
+# Create namespace: wrangler kv:namespace create DID_DOCUMENTS
+# Then set the id below and in env.production.
+[[kv_namespaces]]
+binding = "DID_DOCUMENTS"
+# Create: wrangler kv:namespace create DID_DOCUMENTS
+# Then fill in the real IDs (or set DID_KV_NAMESPACE_ID / DID_KV_NAMESPACE_PREVIEW_ID env vars).
+id = "${DID_KV_NAMESPACE_ID}"
+preview_id = "${DID_KV_NAMESPACE_PREVIEW_ID}"
+
 [[migrations]]
 tag = "v1"
 new_classes = ["SignalingRoom"]

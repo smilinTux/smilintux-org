@@ -58,6 +58,13 @@ export interface Env {
    * rejected by closing the WebSocket with code 4401.
    */
   CAPAUTH_REQUIRE_AUTH?: string;
+  /**
+   * KV namespace binding for sovereign DID documents.
+   * Keys are agent slugs (e.g. "opus"); values are JSON DID document strings.
+   * Populated by: skchat/scripts/publish-did.sh
+   * Route: GET /agents/:name/.well-known/did.json
+   */
+  DID_DOCUMENTS?: KVNamespace;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -466,6 +473,40 @@ export default {
       await roomStub.fetch(new Request(internalUrl.toString(), { method: "POST" }));
 
       return Response.json({ ok: true, room }, { headers: corsHeaders });
+    }
+
+    // ── Sovereign DID document resolution (Tier 3 public) ────────────────────
+    // Route: GET /agents/:name/.well-known/did.json
+    // Reads from CF KV namespace DID_DOCUMENTS; key = agent slug (e.g. "opus").
+    // Populated by: skchat/scripts/publish-did.sh
+    // DID string: did:web:ws.weblink.skworld.io:agents:<name>
+    const didMatch = pathname.match(/^\/agents\/([^/]+)\/.well-known\/did\.json$/);
+    if (didMatch && request.method === "GET") {
+      const agentSlug = didMatch[1];
+
+      if (!env.DID_DOCUMENTS) {
+        return Response.json(
+          { error: "DID_DOCUMENTS KV namespace not configured" },
+          { status: 503, headers: corsHeaders }
+        );
+      }
+
+      const docJson = await env.DID_DOCUMENTS.get(agentSlug);
+      if (!docJson) {
+        return new Response(`DID document not found for agent '${agentSlug}'`, {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "text/plain" },
+        });
+      }
+
+      return new Response(docJson, {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/did+json",
+          // DID documents are public and may be cached briefly
+          "Cache-Control": "public, max-age=300",
+        },
+      });
     }
 
     return new Response("Not found", { status: 404, headers: corsHeaders });
