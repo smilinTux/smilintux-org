@@ -81,7 +81,7 @@ class ChainSync:
     def _make_transport(self):
         """Return a configured FileTransport (requires skcomm)."""
         try:
-            from skcomm.transports.file import FileTransport  # type: ignore[import]
+            from skcomms.transports.file import FileTransport  # type: ignore[import]
         except ImportError as exc:
             raise RuntimeError(
                 "skcomm is required for P2P chain sync. "

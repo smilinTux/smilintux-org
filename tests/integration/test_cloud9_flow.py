@@ -419,8 +419,8 @@ class TestFullCrossStackFlow:
         from skchat.crypto import ChatCrypto
         from skchat.history import ChatHistory
         from skchat.models import ChatMessage
-        from skcomm.models import MessageEnvelope, MessagePayload
-        from skcomm.transports.file import FileTransport
+        from skcomms.models import MessageEnvelope, MessagePayload
+        from skcomms.transports.file import FileTransport
 
         alice_priv, alice_pub = alice_keys
         bob_priv, bob_pub = bob_keys

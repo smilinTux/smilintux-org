@@ -33,10 +33,10 @@ def _make_comms(tmp_path: Path):
     Returns:
         tuple: (alice_comm, bob_comm, alice_to_bob_dir, bob_to_alice_dir)
     """
-    from skcomm.config import SKCommConfig
-    from skcomm.core import SKComm
-    from skcomm.router import Router
-    from skcomm.transports.file import FileTransport
+    from skcomms.config import SKCommConfig
+    from skcomms.core import SKComm
+    from skcomms.router import Router
+    from skcomms.transports.file import FileTransport
 
     alice_to_bob = tmp_path / "a2b"
     bob_to_alice = tmp_path / "b2a"
@@ -87,7 +87,7 @@ class TestSKCommHighLevelAPI:
 
     def test_receive_returns_envelope_objects(self, tmp_path: Path) -> None:
         """SKComm.receive() returns deserialized MessageEnvelope instances."""
-        from skcomm.models import MessageEnvelope
+        from skcomms.models import MessageEnvelope
 
         alice_comm, bob_comm, _, _ = _make_comms(tmp_path)
 
@@ -186,7 +186,7 @@ class TestSKChatSKCommRoundTrip:
         tmp_path: Path,
     ) -> None:
         """Alice encrypts via SKChat, delivers via SKComm, Bob decrypts correctly."""
-        from skcomm.models import MessageEnvelope, MessagePayload
+        from skcomms.models import MessageEnvelope, MessagePayload
 
         from skchat.crypto import ChatCrypto
         from skchat.models import ChatMessage
