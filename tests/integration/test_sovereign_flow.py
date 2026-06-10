@@ -121,8 +121,8 @@ class TestSKCommFileTransport:
         shared_filedrop: tuple[Path, Path],
     ) -> None:
         """Envelope sent via file transport appears in receiver's inbox."""
-        from skcomm.models import MessageEnvelope, MessagePayload
-        from skcomm.transports.file import FileTransport
+        from skcomms.models import MessageEnvelope, MessagePayload
+        from skcomms.transports.file import FileTransport
 
         # Reason: file transport writes .skc.json files to outbox.
         # Simulating filesystem sync: Alice's outbox IS Bob's inbox.
@@ -216,8 +216,8 @@ class TestFullSovereignFlow:
         from skchat.crypto import ChatCrypto
         from skchat.history import ChatHistory
         from skchat.models import ChatMessage, DeliveryStatus
-        from skcomm.models import MessageEnvelope, MessagePayload
-        from skcomm.transports.file import FileTransport
+        from skcomms.models import MessageEnvelope, MessagePayload
+        from skcomms.transports.file import FileTransport
 
         alice_priv, alice_pub = alice_keys
         bob_priv, bob_pub = bob_keys

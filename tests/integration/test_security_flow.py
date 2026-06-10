@@ -90,8 +90,8 @@ class TestTransportSecurityBoundary:
 
     def test_oversized_envelope_rejected(self, tmp_path: Path) -> None:
         """Transport should handle extremely large payloads without crashing."""
-        from skcomm.models import MessageEnvelope, MessagePayload
-        from skcomm.transports.file import FileTransport
+        from skcomms.models import MessageEnvelope, MessagePayload
+        from skcomms.transports.file import FileTransport
 
         outbox = tmp_path / "outbox"
         outbox.mkdir()
@@ -113,7 +113,7 @@ class TestTransportSecurityBoundary:
 
     def test_malformed_envelope_handling(self, tmp_path: Path) -> None:
         """Transport receive handles malformed files without crashing."""
-        from skcomm.transports.file import FileTransport
+        from skcomms.transports.file import FileTransport
 
         inbox = tmp_path / "inbox"
         inbox.mkdir()
