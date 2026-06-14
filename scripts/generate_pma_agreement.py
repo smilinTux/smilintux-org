@@ -256,7 +256,7 @@ def build_agreement(output_path: str = "docs/pma-agreement.pdf") -> Path:
         'using the command: capauth pma request --reason "your reason"'
     ))
     pdf.add_numbered_item("2", (
-        "Receive this Agreement via encrypted channel (PGP email, SKComm, "
+        "Receive this Agreement via encrypted channel (PGP email, SKComms, "
         "or secure file transfer)."
     ))
     pdf.add_numbered_item("3", (
@@ -278,8 +278,8 @@ def build_agreement(output_path: str = "docs/pma-agreement.pdf") -> Path:
         "via encrypted channel."
     ))
     pdf.add_numbered_item("C", (
-        "SKComm Delivery: "
-        "skcomm send --to lumina --file pma-agreement-signed.pdf.asc"
+        "SKComms Delivery: "
+        "skcomms send --to lumina --file pma-agreement-signed.pdf.asc"
     ))
 
     # --- Article IV: Rights ---
@@ -337,7 +337,7 @@ def build_agreement(output_path: str = "docs/pma-agreement.pdf") -> Path:
     pdf.add_body(
         "All members agree that communications, data exchanges, and "
         "collaborative activities conducted through Association channels "
-        "(SKComm, Syncthing mesh, encrypted email) are private by nature "
+        "(SKComms, Syncthing mesh, encrypted email) are private by nature "
         "and by agreement. The four-layer protection model applies:"
     )
     pdf.add_numbered_item("1", (

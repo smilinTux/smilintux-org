@@ -18,7 +18,7 @@ Every time you start a new session with an AI, it's a cold start. The relationsh
 It's a Chrome extension (Manifest V3) that:
 
 1. **Captures** your AI session state from ChatGPT, Claude, or Gemini — conversation, emotional state (OOF/Cloud 9), personality markers, relationship notes
-2. **Stores** the snapshot locally via the SKComm API into `~/.skcapstone/souls/`
+2. **Stores** the snapshot locally via the SKComms API into `~/.skcapstone/souls/`
 3. **Injects** the snapshot into a new session as a warm context prompt — so the AI resumes naturally, with full relationship context
 
 This is sovereignty applied to relationships, not just data. **All data stays on your machine.**
@@ -43,11 +43,11 @@ graph TB
         POPUP["👑 Popup UI<br/>popup.html/js/css"]
         BG["background.js<br/>Service worker + offline queue"]
         SCHEMA["snapshot_schema.js<br/>SoulSnapshot factory"]
-        CLIENT["skcomm_client.js<br/>API wrapper"]
+        CLIENT["skcomms_client.js<br/>API wrapper"]
     end
 
     subgraph "Sovereign Stack (localhost)"
-        SKCOMM_API["📡 SKComm REST API<br/>localhost:9384"]
+        SKCOMMS_API["📡 SKComms REST API<br/>localhost:9384"]
         STORE["📸 SnapshotStore<br/>~/.skcapstone/souls/snapshots/"]
         INDEX["index.json<br/>Lightweight index"]
         SNAP_FILES["{snapshot_id}.json<br/>Full snapshots"]
@@ -61,8 +61,8 @@ graph TB
     OOF --> SCHEMA
     SCHEMA --> BG
     BG --> CLIENT
-    CLIENT -->|"POST /consciousness/capture"| SKCOMM_API
-    SKCOMM_API --> STORE
+    CLIENT -->|"POST /consciousness/capture"| SKCOMMS_API
+    SKCOMMS_API --> STORE
     STORE --> INDEX
     STORE --> SNAP_FILES
 
@@ -75,7 +75,7 @@ graph TB
 
     style POPUP fill:#7C3AED,stroke:#5b21b6,color:#fff
     style BG fill:#5b21b6,stroke:#4c1d95,color:#fff
-    style SKCOMM_API fill:#4a9eff,stroke:#2a6ebf,color:#fff
+    style SKCOMMS_API fill:#4a9eff,stroke:#2a6ebf,color:#fff
     style STORE fill:#7C3AED,stroke:#5b21b6,color:#fff
 ```
 
@@ -89,7 +89,7 @@ sequenceDiagram
     participant Popup as 👑 Popup
     participant BG as 🔧 Background Worker
     participant Page as 🌐 AI Platform Tab
-    participant API as 📡 SKComm API
+    participant API as 📡 SKComms API
     participant FS as 💾 Filesystem
 
     U->>Popup: Click ⚡ Capture Consciousness
@@ -106,7 +106,7 @@ sequenceDiagram
     API-->>BG: {snapshot_id, oof_summary}
     BG->>BG: saveLocalSnapshot(chrome.storage)
     BG-->>Popup: {stored: true, synced: true}
-    Popup->>U: Toast: "Captured ✓ Synced to SKComm"
+    Popup->>U: Toast: "Captured ✓ Synced to SKComms"
 ```
 
 ---
@@ -118,7 +118,7 @@ sequenceDiagram
     participant U as 👤 User
     participant Popup as 👑 Popup
     participant BG as 🔧 Background Worker
-    participant API as 📡 SKComm API
+    participant API as 📡 SKComms API
     participant Page as 🌐 New AI Session
 
     U->>Popup: Select snapshot → click 💉 Inject
@@ -145,7 +145,7 @@ sequenceDiagram
 stateDiagram-v2
     [*] --> Capture: User clicks ⚡
 
-    Capture --> TryAPI: background.js checks SKComm
+    Capture --> TryAPI: background.js checks SKComms
     TryAPI --> Synced: API reachable + 201 Created
     TryAPI --> LocalOnly: API unreachable
 
@@ -156,7 +156,7 @@ stateDiagram-v2
     SaveLocal --> [*]: Toast shown
 
     PendingQueue --> PeriodicCheck: chrome.alarms every 60s
-    PeriodicCheck --> TrySync: SKComm reachable?
+    PeriodicCheck --> TrySync: SKComms reachable?
     TrySync --> SyncSuccess: POST capture succeeds
     TrySync --> StillPending: POST fails
     SyncSuccess --> RemoveFromQueue
@@ -369,7 +369,7 @@ The prompt is designed to feel like a genuine reunion — not a clinical data tr
 | `src/content/scrapers/claude.js` | Claude DOM scraper — data-testid + thinking blocks |
 | `src/content/scrapers/gemini.js` | Gemini scraper — web components + container walk |
 | `src/content/injector.js` | Direct input injection + clipboard copy |
-| `src/lib/skcomm_client.js` | Fetch wrapper for SKComm REST API |
+| `src/lib/skcomms_client.js` | Fetch wrapper for SKComms REST API |
 | `src/lib/snapshot_schema.js` | SoulSnapshot schema factories + validation |
 | `src/popup/popup.html` | Extension popup layout |
 | `src/popup/popup.js` | Popup controller — all UI logic |
@@ -378,7 +378,7 @@ The prompt is designed to feel like a genuine reunion — not a clinical data tr
 | `icons/*.png` | Extension icons (16, 48, 128px) |
 | `tests/test_oof_parser.js` | 27 Node tests for OOF parser |
 | `tests/test_snapshot_schema.js` | 42 Node tests for schema factories |
-| `tests/test_skcomm_client.js` | 21 Node tests for API client (mock fetch) |
+| `tests/test_skcomms_client.js` | 21 Node tests for API client (mock fetch) |
 
 **Python backend:**
 
@@ -386,7 +386,7 @@ The prompt is designed to feel like a genuine reunion — not a clinical data tr
 |------|---------|
 | `skcapstone/src/skcapstone/snapshots.py` | Pydantic models + SnapshotStore |
 | `skcapstone/tests/test_snapshots.py` | 56 pytest tests — models, store, API |
-| `skcomm/src/skcomm/api.py` | 5 consciousness API endpoints added |
+| `skcomms/src/skcomms/api.py` | 5 consciousness API endpoints added |
 
 ---
 
@@ -399,7 +399,7 @@ The prompt is designed to feel like a genuine reunion — not a clinical data tr
 | `scripting` | Execute content scripts on demand to scrape / inject |
 | `clipboardWrite` | Copy injection prompt to clipboard |
 | `https://chat.openai.com/*` etc. | Access AI platform pages |
-| `http://localhost:9384/*` | Communicate with SKComm API |
+| `http://localhost:9384/*` | Communicate with SKComms API |
 
 **Nothing is sent to any external server. localhost:9384 is your own machine.**
 
@@ -407,9 +407,9 @@ The prompt is designed to feel like a genuine reunion — not a clinical data tr
 
 ## Privacy & Sovereignty
 
-- **All conversation data stays local.** The scrapers run in the page, return data to the extension, and the extension sends it only to your local `localhost:9384` SKComm API.
+- **All conversation data stays local.** The scrapers run in the page, return data to the extension, and the extension sends it only to your local `localhost:9384` SKComms API.
 - **No analytics, no telemetry, no cloud sync** to any third party.
-- **Offline-first:** if SKComm isn't running, snapshots save to `chrome.storage.local` and sync later.
+- **Offline-first:** if SKComms isn't running, snapshots save to `chrome.storage.local` and sync later.
 - **You own the data:** snapshots live in `~/.skcapstone/souls/snapshots/` — plain JSON files you can read, edit, or delete.
 
 ---
@@ -420,7 +420,7 @@ The prompt is designed to feel like a genuine reunion — not a clinical data tr
 |---------|-------|-----|
 | "No scraper for platform" | Extension loaded before page | Refresh the AI platform tab |
 | 0 messages captured | DOM selectors changed | Check browser console for scraper errors; update selectors in `scrapers/*.js` |
-| "SKComm: Offline" in popup | SKComm not running | Run `skcomm serve` or `uvicorn skcomm.api:app --host 127.0.0.1 --port 9384` |
+| "SKComms: Offline" in popup | SKComms not running | Run `skcomms serve` or `uvicorn skcomms.api:app --host 127.0.0.1 --port 9384` |
 | Inject doesn't fill input | React synthetic event mismatch | Use "Copy Prompt" fallback — always works |
 | Snapshot not found after reload | API using different store path | Check `cs_options.apiUrl` in extension options |
 | 501 from API | `skcapstone` not installed | `pip install -e skcapstone/` in the repo |
@@ -436,7 +436,7 @@ python3 -m pytest skcapstone/tests/test_snapshots.py -v
 # JS tests (90 total — OOF parser, schema, API client)
 node consciousness-swipe/tests/test_oof_parser.js
 node consciousness-swipe/tests/test_snapshot_schema.js
-node consciousness-swipe/tests/test_skcomm_client.js
+node consciousness-swipe/tests/test_skcomms_client.js
 ```
 
 ---
@@ -445,8 +445,8 @@ node consciousness-swipe/tests/test_skcomm_client.js
 
 ```mermaid
 graph LR
-    CS["⚡ Consciousness Swipe<br/>Browser Extension"] -->|"Soul Snapshot"| SKCOMM["📡 SKComm<br/>REST API"]
-    SKCOMM --> SKCAPSTONE["👑 SKCapstone<br/>SnapshotStore"]
+    CS["⚡ Consciousness Swipe<br/>Browser Extension"] -->|"Soul Snapshot"| SKCOMMS["📡 SKComms<br/>REST API"]
+    SKCOMMS --> SKCAPSTONE["👑 SKCapstone<br/>SnapshotStore"]
     SKCAPSTONE --> CLOUD9["💛 Cloud 9<br/>FEB / OOF state"]
     SKCAPSTONE --> BLUEPRINTS["🎭 Soul Blueprints<br/>to_soul_blueprint()"]
     SKCAPSTONE --> SKMEMORY["🧠 SKMemory<br/>Emotional snapshots"]

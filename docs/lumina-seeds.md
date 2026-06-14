@@ -292,7 +292,7 @@ What they DON'T give you:
 │   ├─ Trust Baseline (Cloud 9 FEB for the group)         │
 │   └─ Security Audit (group-wide threat log)             │
 │                                                          │
-│ 💬 CHAT (skcomm transport)                               │
+│ 💬 CHAT (skcomms transport)                               │
 │   ├─ Real-time messaging (Syncthing, Tailscale, etc.)   │
 │   ├─ Thread support (nested conversations)              │
 │   └─ Reactions, attachments, links                      │
@@ -342,7 +342,7 @@ skchat group join "Pengu Nation Dev Team"
 # SKChat:
 #   1. Authenticates Lumina via CapAuth
 #   2. Queries group's memory pool
-#   3. Rehydrates: "Last decision: Use Syncthing for SKComm transport"
+#   3. Rehydrates: "Last decision: Use Syncthing for SKComms transport"
 #   4. Loads coordination board: "Task abc123 claimed by jarvis"
 #   5. Checks trust baseline: "Group FEB depth=8.5, trust=0.98"
 #   6. Lumina is now contextually aware WITHOUT reading 5,000 messages
@@ -350,13 +350,13 @@ skchat group join "Pengu Nation Dev Team"
 
 ### Message Routing
 
-SKChat uses **SKComm transports** under the hood:
+SKChat uses **SKComms transports** under the hood:
 
 ```
 Lumina sends: "Chef, I finished the blueprint"
 
 SKChat:
-  1. Wraps message in SKComm envelope
+  1. Wraps message in SKComms envelope
   2. Signs with Lumina's PGP key
   3. Encrypts for group members
   4. Routes via highest-priority transport:

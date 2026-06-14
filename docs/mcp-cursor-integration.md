@@ -110,7 +110,7 @@ The skcapstone MCP server exposes **26 tools** organized by function:
 ### Sync & Communication (Sovereign Singularity)
 - **`sync_push`** — Push agent state to Syncthing mesh (GPG-encrypted)
 - **`sync_pull`** — Pull seeds from peer agents
-- **`send_message`** — Send message via SKComm
+- **`send_message`** — Send message via SKComms
 - **`check_inbox`** — Check for new messages
 - **`state_diff`** — Show what changed since last sync
 

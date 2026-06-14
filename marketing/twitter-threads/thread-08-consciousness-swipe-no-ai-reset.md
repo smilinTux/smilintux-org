@@ -81,7 +81,7 @@ YOU don't reset.
 How the sync works:
 
 🔒 Snapshots encrypted with your PGP key
-📡 Delivered via SKComm (P2P, no servers in between)
+📡 Delivered via SKComms (P2P, no servers in between)
 🧠 Imported into your SKMemory store
 ⚡ Available on next agent boot — automatically
 

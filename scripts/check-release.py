@@ -22,7 +22,7 @@ PACKAGES = {
     "skcapstone": REPO_ROOT / "skcapstone",
     "capauth": REPO_ROOT / "capauth",
     "skmemory": REPO_ROOT / "skmemory",
-    "skcomm": REPO_ROOT / "skcomm",
+    "skcomms": REPO_ROOT / "skcomms",
 }
 
 

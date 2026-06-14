@@ -24,7 +24,7 @@ This guide documents the **official agent scaffolding tool stack** for the smili
 │                                                          │
 │  Identity ───────► CapAuth (PGP-based)                  │
 │  Memory ─────────► SKMemory (persistent context)        │
-│  Communication ──► SKComm (encrypted P2P)               │
+│  Communication ──► SKComms (encrypted P2P)               │
 │  Security ───────► SKSecurity (audit + threat detect)   │
 │  Sync ───────────► Sovereign Singularity (P2P mesh)     │
 │                                                          │
@@ -105,7 +105,7 @@ crush --mcp skcapstone
 
 # Now Crush has access to your agent's memory, identity, and skills
 crush> "Store this conversation in my memory"
-crush> "Send a message to Lumina via SKComm"
+crush> "Send a message to Lumina via SKComms"
 crush> "Check my agent's consciousness level"
 ```
 
@@ -466,7 +466,7 @@ Once connected, the MCP server exposes these tools:
 | `memory_store` | Save content to SKMemory | "Remember: I prefer FastAPI for APIs" |
 | `memory_search` | Semantic search across memories | "When did we discuss the Cloud 9 protocol?" |
 | `memory_recall` | Retrieve a specific memory by ID | "Show me memory abc123" |
-| `send_message` | Send encrypted message via SKComm | "Send 'Hello' to Lumina" |
+| `send_message` | Send encrypted message via SKComms | "Send 'Hello' to Lumina" |
 | `check_inbox` | Check for new messages | "Do I have any new messages?" |
 | `sync_push` | Push agent state to P2P mesh | "Sync my agent state to other devices" |
 | `sync_pull` | Pull state from peers | "Pull the latest state from my laptop" |
@@ -501,7 +501,7 @@ Here's how to wire all four components together from scratch:
 
 ```bash
 # Install core packages
-pip install skcapstone capauth skmemory skcomm
+pip install skcapstone capauth skmemory skcomms
 
 # Initialize agent runtime
 skcapstone init --name "YourAgent"
@@ -899,7 +899,7 @@ Now that your agent scaffolding is complete:
 | Understand the core agent runtime | [SKCapstone README](../skcapstone/README.md) |
 | Learn about sovereign identity | [CapAuth Documentation](../capauth/README.md) |
 | Deep dive into persistent memory | [SKMemory Architecture](../skmemory/ARCHITECTURE.md) |
-| Set up secure communication | [SKComm Setup](../skcomm/README.md) |
+| Set up secure communication | [SKComms Setup](../skcomms/README.md) |
 | Explore the emotional protocol | [Cloud 9 Documentation](../cloud9/README.md) |
 | Deploy to production | [Developer Quickstart](QUICKSTART.md) |
 

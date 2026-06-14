@@ -1,9 +1,9 @@
-"""Integration tests: SKSecurity scanning + SKComm transport safety.
+"""Integration tests: SKSecurity scanning + SKComms transport safety.
 
 Tests the cross-package flow:
   1. SKSecurity: scan content for threats
   2. SKSecurity: quarantine suspicious files
-  3. SKComm envelope validation: ensure transport rejects bad payloads
+  3. SKComms envelope validation: ensure transport rejects bad payloads
 
 No mocks. Real scanning. Real filesystem quarantine.
 """
@@ -15,7 +15,7 @@ from pathlib import Path
 import pytest
 
 pytest.importorskip("sksecurity", reason="sksecurity is not installed")
-pytest.importorskip("skcomm", reason="skcomm is not installed")
+pytest.importorskip("skcomms", reason="skcomms is not installed")
 
 
 class TestSecurityScanning:
@@ -86,7 +86,7 @@ class TestQuarantineManager:
 
 
 class TestTransportSecurityBoundary:
-    """Verify SKComm transport handles adversarial payloads gracefully."""
+    """Verify SKComms transport handles adversarial payloads gracefully."""
 
     def test_oversized_envelope_rejected(self, tmp_path: Path) -> None:
         """Transport should handle extremely large payloads without crashing."""

@@ -1,7 +1,7 @@
 /**
- * Mock SKComm API server for E2E tests.
+ * Mock SKComms API server for E2E tests.
  *
- * Implements a subset of the SKComm REST API:
+ * Implements a subset of the SKComms REST API:
  *   GET    /api/v1/status
  *   POST   /api/v1/consciousness/capture
  *   GET    /api/v1/consciousness/snapshots
@@ -16,7 +16,7 @@
 import http from 'http';
 
 /**
- * Create and return a mock SKComm server.
+ * Create and return a mock SKComms server.
  *
  * @returns {{
  *   server: http.Server,
@@ -29,7 +29,7 @@ import http from 'http';
  *   simulateUp(): void,
  * }}
  */
-export function createMockSKCommServer() {
+export function createMockSKCommsServer() {
   const calls = [];
   const snapshots = new Map();
   let counter = 0;

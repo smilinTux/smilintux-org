@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# setup_skcomm_sync.sh — Bootstrap SKComm Syncthing bridge for a new node
+# setup_skcomms_sync.sh — Bootstrap SKComms Syncthing bridge for a new node
 #
 # Usage:
-#   ./scripts/setup_skcomm_sync.sh [PEER_DEVICE_ID] [PEER_NAME]
+#   ./scripts/setup_skcomms_sync.sh [PEER_DEVICE_ID] [PEER_NAME]
 #
 # Examples:
 #   # Add Lumina's node to the mesh
-#   ./scripts/setup_skcomm_sync.sh CIHSBZ4-PS46AUX-VPE37BR-YGQDTUK-K3GESSD-4PVYZ63-M33WRKV-6V6P5AC lumina
+#   ./scripts/setup_skcomms_sync.sh CIHSBZ4-PS46AUX-VPE37BR-YGQDTUK-K3GESSD-4PVYZ63-M33WRKV-6V6P5AC lumina
 #
 #   # Run with no args to only set up local directories (no peer sharing)
-#   ./scripts/setup_skcomm_sync.sh
+#   ./scripts/setup_skcomms_sync.sh
 
 set -euo pipefail
 
 # ── Config ────────────────────────────────────────────────────────────────────
-COMMS_ROOT="${SKCOMM_COMMS_ROOT:-$HOME/.skcapstone/sync/comms}"
-FOLDER_ID="${SKCOMM_FOLDER_ID:-skcapstone-comms}"
-FOLDER_LABEL="${SKCOMM_FOLDER_LABEL:-SKComm Message Bridge}"
+COMMS_ROOT="${SKCOMMS_COMMS_ROOT:-$HOME/.skcapstone/sync/comms}"
+FOLDER_ID="${SKCOMMS_FOLDER_ID:-skcapstone-comms}"
+FOLDER_LABEL="${SKCOMMS_FOLDER_LABEL:-SKComms Message Bridge}"
 
 # Auto-detect Syncthing API endpoint and key from config.xml (GUI section only)
 ST_CONFIG_XML="${XDG_CONFIG_HOME:-$HOME/.config}/syncthing/config.xml"
@@ -56,7 +56,7 @@ st_post() { curl -sf -H "X-API-Key: $ST_API" -H "Content-Type: application/json"
 # ── Sanity checks ─────────────────────────────────────────────────────────────
 echo ""
 echo "╔══════════════════════════════════════════════════╗"
-echo "║  SKComm Syncthing Bridge Setup                   ║"
+echo "║  SKComms Syncthing Bridge Setup                   ║"
 echo "╚══════════════════════════════════════════════════╝"
 echo ""
 
@@ -185,11 +185,11 @@ else
 fi
 
 # ── Step 5: Emit a bootstrap heartbeat ───────────────────────────────────────
-if command -v skcomm &>/dev/null; then
-    log "Emitting SKComm heartbeat ..."
+if command -v skcomms &>/dev/null; then
+    log "Emitting SKComms heartbeat ..."
     python3 -c "
 from pathlib import Path
-from skcomm.heartbeat import HeartbeatMonitor
+from skcomms.heartbeat import HeartbeatMonitor
 monitor = HeartbeatMonitor(
     agent_name='Opus',
     comms_root=Path('$COMMS_ROOT'),
@@ -199,13 +199,13 @@ hb = monitor.emit()
 print('  [OK]    Heartbeat written:', hb)
 "
 else
-    warn "skcomm not installed — skipping heartbeat emit. Run: pip install -e skcomm/"
+    warn "skcomms not installed — skipping heartbeat emit. Run: pip install -e skcomms/"
 fi
 
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 echo "══════════════════════════════════════════════════"
-echo "  SKComm bridge setup complete!"
+echo "  SKComms bridge setup complete!"
 echo ""
 echo "  Comms root : $COMMS_ROOT"
 echo "  Folder ID  : $FOLDER_ID"
@@ -219,7 +219,7 @@ echo "    heartbeats/          — liveness beacons (synced to all peers)"
 echo "    archive/             — processed messages"
 echo ""
 echo "  Verify with:"
-echo "    skcomm heartbeat"
-echo "    skcomm status"
+echo "    skcomms heartbeat"
+echo "    skcomms status"
 echo "══════════════════════════════════════════════════"
 echo ""

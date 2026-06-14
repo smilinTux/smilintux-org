@@ -49,7 +49,7 @@ tasks/
 # These are tracked as separate repositories, not submodules
 # Anchored with leading / to avoid matching nested dirs (e.g. skcapstone-nvim/lua/skcapstone/)
 /skcapstone/
-/skcomm/
+/skcomms/
 /skchat/
 /skskills/
 /skseal/
@@ -76,7 +76,7 @@ tasks/
 /skills/
 /skills-io/
 /skchat-io/
-/skcomm-io/
+/skcomms-io/
 /skcapstone-io/
 /sksecurity-io/
 /skstacks-io/

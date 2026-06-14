@@ -2,7 +2,7 @@
 #
 # Brings up the full skworld.io sovereign stack:
 #   skcapstone  — MCP server (identity, memory, trust, coordination)
-#   skchat      — P2P chat daemon (SKComm transport polling)
+#   skchat      — P2P chat daemon (SKComms transport polling)
 #   qdrant      — vector search backend for skmemory
 #   falkordb    — graph database backend for skmemory
 #   syncthing   — P2P sync mesh (--profile sync|full)
@@ -72,13 +72,13 @@ services:
       - sk-net
     volumes:
       - skcapstone_agent:/agent
-      - sk_skcomm:/skcomm
+      - sk_skcomms:/skcomms
     environment:
       AGENT_NAME: "${AGENT_NAME:-opus}"
       TEAM_NAME: "${TEAM_NAME:-skworld}"
       AGENT_ROLE: "${AGENT_ROLE:-coordinator}"
       AGENT_MODEL: "${AGENT_MODEL:-claude-sonnet-4-6}"
-      SKCOMM_HOME: /skcomm
+      SKCOMMS_HOME: /skcomms
       SKCAPSTONE_HOME: /agent
       ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY must be set in .env}"
     restart: unless-stopped
@@ -94,11 +94,11 @@ services:
           memory: 512M
 
   # ─────────────────────────────────────────────────────────
-  # skchat daemon — P2P encrypted chat over SKComm
+  # skchat daemon — P2P encrypted chat over SKComms
   #
-  # Always-on core service. Polls SKComm transports for incoming
+  # Always-on core service. Polls SKComms transports for incoming
   # messages, reaps ephemeral messages, drains outbox queue, and
-  # broadcasts presence. Shares sk_skcomm volume with skcapstone.
+  # broadcasts presence. Shares sk_skcomms volume with skcapstone.
   # ─────────────────────────────────────────────────────────
   skchat:
     build:
@@ -109,12 +109,12 @@ services:
                 gnupg2 ca-certificates git \
             && rm -rf /var/lib/apt/lists/*
         COPY skchat /src/skchat
-        COPY skcomm /src/skcomm
+        COPY skcomms /src/skcomms
         RUN pip install --no-cache-dir pydantic pyyaml httpx PGPy mcp \
             && pip install --no-cache-dir -e '/src/skchat[all]' \
-            && pip install --no-cache-dir -e /src/skcomm
-        RUN mkdir -p /root/.skchat /skcomm
-        ENV SKCOMM_HOME=/skcomm
+            && pip install --no-cache-dir -e /src/skcomms
+        RUN mkdir -p /root/.skchat /skcomms
+        ENV SKCOMMS_HOME=/skcomms
         CMD ["python", "-m", "skchat._daemon_entry", "--quiet"]
     image: skworld-skchat:latest
     container_name: skworld-skchat
@@ -122,12 +122,12 @@ services:
       - sk-net
     volumes:
       - skchat_data:/root/.skchat
-      - sk_skcomm:/skcomm
+      - sk_skcomms:/skcomms
     environment:
       SKCHAT_DAEMON_INTERVAL: "${SKCHAT_DAEMON_INTERVAL:-5.0}"
       SKCHAT_DAEMON_QUIET: "1"
-      SKCOMM_HOME: /skcomm
-      SKCOMM_TURN_SECRET: "${COTURN_AUTH_SECRET:-}"
+      SKCOMMS_HOME: /skcomms
+      SKCOMMS_TURN_SECRET: "${COTURN_AUTH_SECRET:-}"
       CAPAUTH_API_URL: "${CAPAUTH_API_URL:-}"
     depends_on:
       skcapstone:
@@ -196,7 +196,7 @@ services:
           memory: 256M
 
   # ─────────────────────────────────────────────────────────
-  # P2P sync mesh — vault sync, SKComm comms, seed propagation
+  # P2P sync mesh — vault sync, SKComms comms, seed propagation
   #
   # Activate with: docker compose --profile sync up -d
   # Web UI: http://localhost:8384
@@ -281,14 +281,14 @@ services:
           memory: 128M
 
   # ─────────────────────────────────────────────────────────
-  # TURN/STUN server — WebRTC relay for skcomm webrtc transport
+  # TURN/STUN server — WebRTC relay for skcomms webrtc transport
   #
   # Activate with: docker compose --profile turn up -d
   # Also included in: docker compose --profile full up -d
   #
   # Required env vars:
   #   COTURN_EXTERNAL_IP   — public IP of this host
-  #   COTURN_AUTH_SECRET   — openssl rand -hex 32  (same value as SKCOMM_TURN_SECRET)
+  #   COTURN_AUTH_SECRET   — openssl rand -hex 32  (same value as SKCOMMS_TURN_SECRET)
   # Optional:
   #   COTURN_TLS_CERT, COTURN_TLS_PKEY — cert paths inside container
   #   COTURN_CERTS_DIR     — host cert directory to mount (default: /etc/letsencrypt/live/turn.skworld.io)
@@ -306,7 +306,7 @@ services:
       - sk-net
     environment:
       COTURN_EXTERNAL_IP: "${COTURN_EXTERNAL_IP:?set COTURN_EXTERNAL_IP to your public IP}"
-      COTURN_AUTH_SECRET: "${COTURN_AUTH_SECRET:?set COTURN_AUTH_SECRET (same as SKCOMM_TURN_SECRET)}"
+      COTURN_AUTH_SECRET: "${COTURN_AUTH_SECRET:?set COTURN_AUTH_SECRET (same as SKCOMMS_TURN_SECRET)}"
       COTURN_TLS_CERT: "${COTURN_TLS_CERT:-/etc/coturn/certs/fullchain.pem}"
       COTURN_TLS_PKEY: "${COTURN_TLS_PKEY:-/etc/coturn/certs/privkey.pem}"
     ports:
@@ -343,7 +343,7 @@ services:
   # WebSocket endpoint: ws://localhost:8787
   # Health endpoint:    http://localhost:8787/
   #
-  # Set SKCOMM_SIGNALING_URL=ws://localhost:8787 when using this locally.
+  # Set SKCOMMS_SIGNALING_URL=ws://localhost:8787 when using this locally.
   #
   # Note: wrangler dev --local does NOT require CF_ACCOUNT_ID.
   # CF_ACCOUNT_ID + CLOUDFLARE_API_TOKEN are only needed for `wrangler deploy`.
@@ -385,10 +385,10 @@ volumes:
     driver: local
     labels:
       io.skworld.volume: "skcapstone agent state (memory, config, session)"
-  sk_skcomm:
+  sk_skcomms:
     driver: local
     labels:
-      io.skworld.volume: "shared SKComm transport directory (inbox/outbox)"
+      io.skworld.volume: "shared SKComms transport directory (inbox/outbox)"
   skchat_data:
     driver: local
     labels:

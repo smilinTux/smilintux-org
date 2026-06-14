@@ -2,7 +2,7 @@
 
 ![PyPI](https://img.shields.io/pypi/v/varus) ![License](https://img.shields.io/badge/license-GPL--3.0-blue) ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 
-Sovereign append-only blockchain. SHA-256 chained blocks, local audit trail, zero dependencies. Optional P2P sync via SKComm.
+Sovereign append-only blockchain. SHA-256 chained blocks, local audit trail, zero dependencies. Optional P2P sync via SKComms.
 
 ## Features
 
@@ -11,14 +11,14 @@ Sovereign append-only blockchain. SHA-256 chained blocks, local audit trail, zer
 - **JSON block data** — store any structured payload per block
 - **Full validation** — `validate` walks the entire chain and verifies every hash link
 - **Node daemon** — background process that watches an inbox directory and appends submitted blocks automatically
-- **P2P sync** — optional SKComm transport layer for multi-node replication
+- **P2P sync** — optional SKComms transport layer for multi-node replication
 
 ## Install
 
 ```bash
 pip install varus
 
-# Optional: P2P sync over SKComm
+# Optional: P2P sync over SKComms
 pip install "varus[sync]"
 ```
 

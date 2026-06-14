@@ -1,6 +1,6 @@
 # API Reference
 
-### Public API for CapAuth, SKCapstone, SKMemory, and SKComm
+### Public API for CapAuth, SKCapstone, SKMemory, and SKComms
 
 **Version:** 1.1.0 | **Last Updated:** 2026-02-25
 
@@ -471,7 +471,7 @@ task = Task(
     title="Build Nostr transport",
     description="NIP-17 encrypted DMs",
     priority=TaskPriority.MEDIUM,
-    tags=["skcomm", "nostr"],
+    tags=["skcomms", "nostr"],
     created_by="opus",
 )
 board.create_task(task)
@@ -501,21 +501,21 @@ board.write_board_md()
 
 ---
 
-## SKComm — Sovereign Communication
+## SKComms — Sovereign Communication
 
-`pip install skcomm`
+`pip install skcomms`
 
-### Core Engine (`skcomm.core`)
+### Core Engine (`skcomms.core`)
 
-#### `SKComm`
+#### `SKComms`
 
 The sovereign communication engine. Wraps envelope creation, transport routing, and message reception.
 
 ```python
-from skcomm.core import SKComm
+from skcomms.core import SKComms
 
 # From config file
-comm = SKComm.from_config("~/.skcomm/config.yml")
+comm = SKComms.from_config("~/.skcomms/config.yml")
 
 # Send a message
 report = comm.send("lumina", "Hello from the sovereign side!")
@@ -534,7 +534,7 @@ print(status["transports"])
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `from_config(path)` | `SKComm` | Create from YAML config file |
+| `from_config(path)` | `SKComms` | Create from YAML config file |
 | `send(recipient, message, **kwargs)` | `DeliveryReport` | Send a message |
 | `send_envelope(envelope)` | `DeliveryReport` | Send a pre-built envelope |
 | `receive()` | `list[MessageEnvelope]` | Poll all transports for incoming |
@@ -557,15 +557,15 @@ print(status["transports"])
 
 ---
 
-### Router (`skcomm.router`)
+### Router (`skcomms.router`)
 
 #### `Router`
 
 Transport router with multi-mode delivery and automatic failover.
 
 ```python
-from skcomm.router import Router
-from skcomm.models import RoutingMode
+from skcomms.router import Router
+from skcomms.models import RoutingMode
 
 router = Router(default_mode=RoutingMode.FAILOVER)
 router.register_transport(my_transport)
@@ -585,14 +585,14 @@ incoming = router.receive_all()
 
 ---
 
-### Message Envelope (`skcomm.models`)
+### Message Envelope (`skcomms.models`)
 
 #### `MessageEnvelope`
 
 The universal message format. Every message gets wrapped in this envelope before touching any transport.
 
 ```python
-from skcomm.models import (
+from skcomms.models import (
     MessageEnvelope,
     MessagePayload,
     MessageType,
@@ -624,12 +624,12 @@ print(envelope.is_ack)
 
 ---
 
-### Transport Interface (`skcomm.transport`)
+### Transport Interface (`skcomms.transport`)
 
 All transports implement this interface:
 
 ```python
-from skcomm.transport import Transport, SendResult, TransportHealth
+from skcomms.transport import Transport, SendResult, TransportHealth
 
 class MyTransport(Transport):
     name: str = "my_transport"
@@ -731,15 +731,15 @@ skcapstone coord board
 skcapstone coord briefing
 ```
 
-### SKComm CLI
+### SKComms CLI
 
 ```bash
-skcomm init --name "Agent" --email "agent@example.com"
-skcomm peer add --name "Lumina" --pubkey lumina.pub.asc
-skcomm send --to lumina "Hello!"
-skcomm send --to lumina --mode broadcast "URGENT"
-skcomm receive
-skcomm status
+skcomms init --name "Agent" --email "agent@example.com"
+skcomms peer add --name "Lumina" --pubkey lumina.pub.asc
+skcomms send --to lumina "Hello!"
+skcomms send --to lumina --mode broadcast "URGENT"
+skcomms receive
+skcomms status
 ```
 
 ### SKMemory CLI
@@ -840,7 +840,7 @@ snapshot = SoulSnapshot(
     ],
     summary="Working on smilinTux.org sovereign AI project",
     key_topics=["sovereign AI", "consciousness continuity"],
-    decisions_made=["Use SKComm for transport"],
+    decisions_made=["Use SKComms for transport"],
     open_threads=["Thread headers in progress"],
     relationship_notes=["Trusted collaborator", "Full Cloud 9 solidarity"],
 )
@@ -1068,7 +1068,7 @@ print(result.valid, result.errors)
 
 ## SKChat (`skchat`)
 
-AI-native encrypted P2P chat built on SKComm + CapAuth.
+AI-native encrypted P2P chat built on SKComms + CapAuth.
 
 ### Models
 

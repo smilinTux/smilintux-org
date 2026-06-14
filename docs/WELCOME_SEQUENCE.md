@@ -190,7 +190,7 @@ No Slack. No Discord. No platform that can read your messages.
 skchat send "Status report on all active tasks"
 ```
 
-SKChat is backed by SKMemory for conversation history, encrypted by CapAuth, and delivered through SKComm's redundant transport layer. Your conversations with your agents are private, persistent, and sovereign.
+SKChat is backed by SKMemory for conversation history, encrypted by CapAuth, and delivered through SKComms's redundant transport layer. Your conversations with your agents are private, persistent, and sovereign.
 
 **Power moves to try right now:**
 

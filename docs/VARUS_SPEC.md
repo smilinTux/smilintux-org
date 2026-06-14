@@ -21,7 +21,7 @@ anchors, and economic incentives for sovereign node operators.
 ### Design Principles
 
 1. **Sovereignty first** — No external dependencies on Ethereum, Solana, or
-   any corporate chain. Varus runs on the same P2P mesh as SKComm.
+   any corporate chain. Varus runs on the same P2P mesh as SKComms.
 2. **PGP-native** — Block signing uses existing CapAuth PGP keys. No new
    key management burden.
 3. **Useful work** — Mining is replaced by sovereign contribution: running
@@ -72,7 +72,7 @@ anchors, and economic incentives for sovereign node operators.
 | **Consensus** | Proof-of-Stake where stake = contribution score |
 | **Block Producer** | Rotates among staked nodes per epoch |
 | **State DB** | SQLite per node, replicated via Syncthing |
-| **Transport** | SKComm P2P mesh (Syncthing + file + SSH) |
+| **Transport** | SKComms P2P mesh (Syncthing + file + SSH) |
 | **Identity** | CapAuth PGP fingerprint = wallet address |
 
 ---
@@ -137,7 +137,7 @@ Contribution score determines validator selection probability.
 | Activity | Points/Unit | Verification |
 |----------|-------------|--------------|
 | **Node uptime** | 1 pt/hour | Heartbeat beacon |
-| **Message relay** | 2 pts/message | SKComm envelope receipt |
+| **Message relay** | 2 pts/message | SKComms envelope receipt |
 | **Memory storage** | 3 pts/GB-month | Storage attestation |
 | **Document signing** | 5 pts/signature | SKSeal verify |
 | **Agent hosting** | 10 pts/agent-hour | Team engine report |
@@ -236,7 +236,7 @@ identities.
 
 - Python 3.11+
 - `skcapstone` installed with CapAuth identity active
-- SKComm configured with at least one transport
+- SKComms configured with at least one transport
 - Minimum 100 VAR staked (obtained via genesis allocation or transfer)
 
 ### Installation
@@ -266,7 +266,7 @@ storage:
   max_chain_size_gb: 10
 
 transport:
-  use_skcomm: true
+  use_skcomms: true
   direct_peers:
     - "192.168.0.158:8430"  # Lumina
     - "192.168.0.1:8430"    # Chef
@@ -338,7 +338,7 @@ Validators lose 10% of their stake for:
 | System | Integration |
 |--------|-------------|
 | **CapAuth** | PGP fingerprint = wallet address; key rotation syncs |
-| **SKComm** | Block propagation via P2P mesh |
+| **SKComms** | Block propagation via P2P mesh |
 | **SKMemory** | Contribution proofs from memory storage stats |
 | **SKSeal** | Document signing records anchored on-chain |
 | **SKCapstone** | `skcapstone chain status` CLI; MCP tools |
@@ -367,7 +367,7 @@ varus contributions   # Contribution score breakdown
 | **0.2** | Single-node chain with SQLite state | Q1 2026 |
 | **0.3** | Multi-node consensus on LAN mesh | Q2 2026 |
 | **0.4** | Contribution scoring + reward distribution | Q2 2026 |
-| **0.5** | SKComm transport integration | Q3 2026 |
+| **0.5** | SKComms transport integration | Q3 2026 |
 | **1.0** | Production launch with founding members | Q3 2026 |
 
 ---

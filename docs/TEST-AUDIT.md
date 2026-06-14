@@ -19,7 +19,7 @@
 | Package | Tests Dir | Test Files | conftest | pytest Config | pytest-cov | Status |
 |---------|-----------|------------|----------|---------------|------------|--------|
 | capauth | tests/ | 14 | Yes | Yes | Yes | HEALTHY |
-| skcomm | tests/ | 20 | Yes | Yes | Yes | HEALTHY |
+| skcomms | tests/ | 20 | Yes | Yes | Yes | HEALTHY |
 | skchat | tests/ | 12 | Yes | Yes | Yes | HEALTHY |
 | skmemory | tests/ | 24 | Yes | Yes (minimal) | Yes | HEALTHY |
 | sksecurity | tests/ | 12 | No | **ADDED** | Yes | NEEDS CONFTEST |
@@ -74,7 +74,7 @@
 - **Expanded integration job:** Now depends on skseal + sksecurity
 - **Expanded gate job:** `all-tests` now checks all 13 packages + integration
 - **Standardized Python matrix:** All packages now test 3.11, 3.12, 3.13 (skpdf was 3.12-only)
-- **Fixed fragile `continue-on-error`:** skcomm now uses `|| pip install` fallback
+- **Fixed fragile `continue-on-error`:** skcomms now uses `|| pip install` fallback
 
 ### Integration Tests (tests/integration/)
 - **New:** `test_seal_flow.py` — CapAuth identity -> SKSeal signing -> verification
@@ -105,7 +105,7 @@ push/PR to main/master
     │
     ├── 13 package jobs (parallel, matrix: 3.11/3.12/3.13)
     │   ├── capauth      (+ black lint on 3.12)
-    │   ├── skcomm       (+ black lint on 3.12)
+    │   ├── skcomms       (+ black lint on 3.12)
     │   ├── skchat       (+ black lint on 3.12)
     │   ├── skmemory     (+ black lint on 3.12)
     │   ├── sksecurity
@@ -119,7 +119,7 @@ push/PR to main/master
     │   └── sksovereign-agent [NEW]
     │
     ├── integration (after core packages pass)
-    │   └── installs capauth + skmemory + skcomm + skchat + skseal + sksecurity
+    │   └── installs capauth + skmemory + skcomms + skchat + skseal + sksecurity
     │
     ├── coverage (aggregates XML reports)
     │

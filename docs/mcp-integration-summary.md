@@ -477,7 +477,7 @@ Lines 97-110 (Usage):
 
  # Now Crush has access to your agent's memory, identity, and skills
  crush> "Store this conversation in my memory"
- crush> "Send a message to Lumina via SKComm"
+ crush> "Send a message to Lumina via SKComms"
  crush> "Check my agent's consciousness level"
  ```
 ```

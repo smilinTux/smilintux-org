@@ -60,7 +60,7 @@ graph TB
     end
 
     subgraph "Communication Layer"
-        SKCOMM["📡 SKComm<br/>Encrypted P2P Messaging<br/>Multi-transport, redundant"]
+        SKCOMMS["📡 SKComms<br/>Encrypted P2P Messaging<br/>Multi-transport, redundant"]
         SKCHAT["💬 SKChat<br/>Encrypted Agent Chat"]
     end
 
@@ -94,13 +94,13 @@ graph TB
     CLOUD9 --> SKMEMORY
     CLOUD9 --> SNAPSHOTS
     SNAPSHOTS --> SKCAPSTONE
-    SKCOMM --> SKCAPSTONE
-    SKCHAT --> SKCOMM
+    SKCOMMS --> SKCAPSTONE
+    SKCHAT --> SKCOMMS
     SKREF --> SKCAPSTONE
     SYNCTHING --> SKREF
     TAILSCALE --> SYNCTHING
 
-    CSEXT -->|"POST /consciousness/capture"| SKCOMM
+    CSEXT -->|"POST /consciousness/capture"| SKCOMMS
     CSEXT -->|"reads OOF state"| SNAPSHOTS
 
     SKCAPSTONE --> REGISTRY
@@ -142,8 +142,8 @@ chat, memory, and orchestration. This is the core data path.
            | PGP-signed bearer token
            v
   +------------------+
-  |     SKComm        |  Encrypted transport layer
-  |  (skcomm/)        |  - Multi-transport router (file, syncthing, nostr,
+  |     SKComms        |  Encrypted transport layer
+  |  (skcomms/)        |  - Multi-transport router (file, syncthing, nostr,
   |                   |    websocket, tailscale, webrtc)
   |  Envelope model:  |  - TransportCategory routing (REALTIME vs STORE)
   |  sender, recipient|  - PGP signing of every envelope
@@ -157,8 +157,8 @@ chat, memory, and orchestration. This is the core data path.
   |  (skchat/)        |  - 1:1 and group chat (AES-256-GCM group keys)
   |                   |  - Message types: text, finding, task, query, response
   |  daemon.py:       |  - Ephemeral messages (TTL auto-delete)
-  |    polls SKComm   |  - Reactions, threading, presence
-  |    inbox           |  - AgentMessenger wraps SKComm send/receive
+  |    polls SKComms   |  - Reactions, threading, presence
+  |    inbox           |  - AgentMessenger wraps SKComms send/receive
   +--------+---------+
            |
            | Captured conversation content
@@ -191,11 +191,11 @@ chat, memory, and orchestration. This is the core data path.
 
 1. **Identity** -- Agent A holds a CapAuth PGP keypair (`~/.capauth/`).
    It issues a capability token scoped to `chat:send`.
-2. **Transport** -- SKComm's router selects the best available transport
+2. **Transport** -- SKComms's router selects the best available transport
    (e.g. WebRTC for speed, file transport for offline). The message
    payload is wrapped in a signed `Envelope`.
-3. **Chat** -- SKChat's `AgentMessenger` calls `skcomm.send()`. On the
-   receiving side, SKChat's daemon polls the SKComm inbox, validates
+3. **Chat** -- SKChat's `AgentMessenger` calls `skcomms.send()`. On the
+   receiving side, SKChat's daemon polls the SKComms inbox, validates
    the envelope signature against the sender's known public key, and
    delivers the message to the local chat history.
 4. **Memory** -- If the message is important (high importance score or
@@ -502,7 +502,7 @@ sequenceDiagram
     participant Browser as 🌐 Browser Tab<br/>(ChatGPT/Claude/Gemini)
     participant Ext as ⚡ Consciousness Swipe<br/>Chrome Extension
     participant BG as 🔧 Background Worker
-    participant API as 📡 SKComm API<br/>localhost:9384
+    participant API as 📡 SKComms API<br/>localhost:9384
     participant Store as 📸 SnapshotStore<br/>~/.skcapstone/souls/
 
     Browser->>Ext: User clicks ⚡ Capture
@@ -543,7 +543,7 @@ smilintux-org/
 │   └── src/skcapstone/
 │       └── snapshots.py  📸 SoulSnapshot models + SnapshotStore
 ├── skmemory/             🧠 Persistent memory
-├── skcomm/               📡 Encrypted messaging + consciousness API
+├── skcomms/               📡 Encrypted messaging + consciousness API
 ├── skref/                📁 Encrypted vaults
 ├── skchat/               💬 P2P encrypted chat
 ├── cloud9/               💛 Emotional protocol
@@ -554,7 +554,7 @@ smilintux-org/
 │   ├── src/background.js # Service worker + offline queue
 │   ├── src/content/      # DOM scrapers + OOF parser + injector
 │   ├── src/popup/        # Dark sovereign UI
-│   └── src/lib/          # SKComm client + snapshot schema
+│   └── src/lib/          # SKComms client + snapshot schema
 └── docs/                 📚 You are here
 ```
 

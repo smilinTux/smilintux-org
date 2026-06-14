@@ -7,7 +7,7 @@ async function StorageView(container) {
     const data = await SKApi.get('/api/v1/profile/storage');
     const bloat = data.bloat || {};
 
-    const dirRows = ['skcapstone', 'skmemory', 'skcomm', 'capauth']
+    const dirRows = ['skcapstone', 'skmemory', 'skcomms', 'capauth']
       .map((name) => {
         const d = data[name];
         if (!d) return '';

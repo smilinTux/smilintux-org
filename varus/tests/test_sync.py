@@ -1,7 +1,7 @@
-"""Tests for varus.sync — P2P chain sharing via SKComm FileTransport.
+"""Tests for varus.sync — P2P chain sharing via SKComms FileTransport.
 
 All tests use a minimal stub that mimics the FileTransport interface so that
-skcomm is not required to run the test suite.
+skcomms is not required to run the test suite.
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ class _SendResult:
 
 
 class _FileTransportStub:
-    """Minimal stand-in for skcomm.transports.file.FileTransport."""
+    """Minimal stand-in for skcomms.transports.file.FileTransport."""
 
     def __init__(self, *, outbox_path=None, inbox_path=None):
         self.sent: list[tuple[bytes, str]] = []
@@ -182,19 +182,19 @@ class TestExportChain:
         with pytest.raises(RuntimeError, match="disk full"):
             sync.export_chain()
 
-    def test_missing_skcomm_raises_runtime_error(self, tmp_path):
+    def test_missing_skcomms_raises_runtime_error(self, tmp_path):
         chain = _make_chain(tmp_path)
         sync = ChainSync(chain)
         import builtins
         real_import = builtins.__import__
 
-        def block_skcomm(name, *args, **kwargs):
-            if name.startswith("skcomm"):
-                raise ImportError("No module named 'skcomm'")
+        def block_skcomms(name, *args, **kwargs):
+            if name.startswith("skcomms"):
+                raise ImportError("No module named 'skcomms'")
             return real_import(name, *args, **kwargs)
 
-        with patch("builtins.__import__", side_effect=block_skcomm):
-            with pytest.raises(RuntimeError, match="skcomm is required"):
+        with patch("builtins.__import__", side_effect=block_skcomms):
+            with pytest.raises(RuntimeError, match="skcomms is required"):
                 sync.export_chain()
 
 

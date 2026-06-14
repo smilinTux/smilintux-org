@@ -4,14 +4,14 @@
  * Tests the full capture and export pipeline via the extension popup:
  *   - Popup loads and communicates with background worker
  *   - Background pings, check_connection, capture_snapshot
- *   - Multi-target export: SKComm API receives correct payload
+ *   - Multi-target export: SKComms API receives correct payload
  *   - Conflict detection prevents duplicate exports
- *   - Offline queue stores snapshot when SKComm is unavailable
+ *   - Offline queue stores snapshot when SKComms is unavailable
  *   - list_snapshots and get_snapshot return stored data
  */
 
 import { test, expect, sendBgMessage, setCsOptions } from '../helpers/cs-fixture.js';
-import { createMockSKCommServer } from '../helpers/mock-skcomm.js';
+import { createMockSKCommsServer } from '../helpers/mock-skcomms.js';
 
 // ---------------------------------------------------------------------------
 // Fixtures / setup
@@ -65,7 +65,7 @@ test.describe('Check connection', () => {
   let mockUrl;
 
   test.beforeEach(async () => {
-    mock = createMockSKCommServer();
+    mock = createMockSKCommsServer();
     mockUrl = await mock.start();
   });
 
@@ -74,7 +74,7 @@ test.describe('Check connection', () => {
     await mock.stop();
   });
 
-  test('returns connected: true when SKComm API is reachable', async ({ popupPage }) => {
+  test('returns connected: true when SKComms API is reachable', async ({ popupPage }) => {
     await setCsOptions(popupPage, { apiUrl: mockUrl, exportSkcomm: true });
 
     const response = await sendBgMessage(popupPage, 'check_connection');
@@ -82,7 +82,7 @@ test.describe('Check connection', () => {
     expect(response.identity).toBeTruthy();
   });
 
-  test('returns connected: false when SKComm API is down', async ({ popupPage }) => {
+  test('returns connected: false when SKComms API is down', async ({ popupPage }) => {
     // Point to an unreachable port
     await setCsOptions(popupPage, { apiUrl: 'http://127.0.0.1:19999', exportSkcomm: true });
 
@@ -104,7 +104,7 @@ test.describe('Capture and export snapshot', () => {
   let mockUrl;
 
   test.beforeEach(async () => {
-    mock = createMockSKCommServer();
+    mock = createMockSKCommsServer();
     mockUrl = await mock.start();
   });
 
@@ -113,7 +113,7 @@ test.describe('Capture and export snapshot', () => {
     await mock.stop();
   });
 
-  test('capture_snapshot exports to SKComm and returns snapshot_id', async ({ popupPage }) => {
+  test('capture_snapshot exports to SKComms and returns snapshot_id', async ({ popupPage }) => {
     await setCsOptions(popupPage, {
       apiUrl: mockUrl,
       exportSkcomm: true,
@@ -130,7 +130,7 @@ test.describe('Capture and export snapshot', () => {
     expect(response).not.toHaveProperty('error');
     expect(response.snapshot_id).toBeTruthy();
 
-    // Verify SKComm received the POST
+    // Verify SKComms received the POST
     const postCalls = mock.callsTo('POST', '/api/v1/consciousness/capture');
     expect(postCalls).toHaveLength(1);
     expect(postCalls[0].body.source_platform).toBe('claude');
@@ -153,7 +153,7 @@ test.describe('Capture and export snapshot', () => {
     expect(body?.personality?.name).toBe('Claude');
   });
 
-  test('snapshot is queued locally when SKComm is unreachable', async ({ popupPage }) => {
+  test('snapshot is queued locally when SKComms is unreachable', async ({ popupPage }) => {
     // Point to a down server
     await setCsOptions(popupPage, {
       apiUrl: 'http://127.0.0.1:19999',
@@ -178,7 +178,7 @@ test.describe('Conflict detection', () => {
   let mockUrl;
 
   test.beforeEach(async () => {
-    mock = createMockSKCommServer();
+    mock = createMockSKCommsServer();
     mockUrl = await mock.start();
   });
 
@@ -199,7 +199,7 @@ test.describe('Conflict detection', () => {
     // Second capture with same messages (same fingerprint)
     const second = await sendBgMessage(popupPage, 'capture_snapshot', payload);
     expect(second.conflict).toBe(true);
-    expect(second.conflicts).toHaveProperty('skcomm');
+    expect(second.conflicts).toHaveProperty('skcomms');
   });
 
   test('force=true bypasses conflict detection', async ({ popupPage }) => {
@@ -237,7 +237,7 @@ test.describe('List and retrieve snapshots', () => {
   let mockUrl;
 
   test.beforeEach(async () => {
-    mock = createMockSKCommServer();
+    mock = createMockSKCommsServer();
     mockUrl = await mock.start();
   });
 
@@ -261,10 +261,10 @@ test.describe('List and retrieve snapshots', () => {
   test('get_snapshot returns full snapshot for valid id', async ({ popupPage }) => {
     await setCsOptions(popupPage, { apiUrl: mockUrl, exportSkcomm: true });
 
-    // SKComm returns snap_0001 for first POST
+    // SKComms returns snap_0001 for first POST
     await sendBgMessage(popupPage, 'capture_snapshot', makeCapturePayload());
 
-    // Retrieve from SKComm
+    // Retrieve from SKComms
     const getResponse = await sendBgMessage(popupPage, 'get_snapshot', {
       snapshot_id: 'snap_0001',
     });

@@ -1,7 +1,7 @@
-"""P2P chain synchronization via SKComm FileTransport.
+"""P2P chain synchronization via SKComms FileTransport.
 
 Export: serializes the local chain as a JSON envelope and drops it into
-the SKComm FileTransport outbox directory so peers can pick it up.
+the SKComms FileTransport outbox directory so peers can pick it up.
 
 Import: polls the FileTransport inbox for varus chain snapshots, validates
 each received chain fully (per-block hashes + link integrity + genesis check),
@@ -19,7 +19,7 @@ Usage::
     sync.export_chain(recipient="peer-node")   # push to outbox
     results = sync.import_chain()              # pull from inbox
 
-skcomm is an optional dependency; an ImportError with a clear message is
+skcomms is an optional dependency; an ImportError with a clear message is
 raised if it is not installed.
 """
 
@@ -40,7 +40,7 @@ _ENVELOPE_TYPE = "varus_chain_snapshot"
 
 
 class ChainSync:
-    """Sync a VarusChain with peers using SKComm FileTransport.
+    """Sync a VarusChain with peers using SKComms FileTransport.
 
     Parameters
     ----------
@@ -49,9 +49,9 @@ class ChainSync:
     agent_name:
         Identifier included in outgoing envelopes so receivers know the sender.
     outbox_path:
-        Override the SKComm outbox directory (default: ``~/.skcomm/outbox``).
+        Override the SKComms outbox directory (default: ``~/.skcomms/outbox``).
     inbox_path:
-        Override the SKComm inbox directory (default: ``~/.skcomm/inbox``).
+        Override the SKComms inbox directory (default: ``~/.skcomms/inbox``).
     """
 
     def __init__(
@@ -66,12 +66,12 @@ class ChainSync:
         self._outbox = (
             Path(outbox_path).expanduser()
             if outbox_path
-            else Path("~/.skcomm/outbox").expanduser()
+            else Path("~/.skcomms/outbox").expanduser()
         )
         self._inbox = (
             Path(inbox_path).expanduser()
             if inbox_path
-            else Path("~/.skcomm/inbox").expanduser()
+            else Path("~/.skcomms/inbox").expanduser()
         )
 
     # ------------------------------------------------------------------
@@ -79,13 +79,13 @@ class ChainSync:
     # ------------------------------------------------------------------
 
     def _make_transport(self):
-        """Return a configured FileTransport (requires skcomm)."""
+        """Return a configured FileTransport (requires skcomms)."""
         try:
             from skcomms.transports.file import FileTransport  # type: ignore[import]
         except ImportError as exc:
             raise RuntimeError(
-                "skcomm is required for P2P chain sync. "
-                "Install with: pip install skcomm  "
+                "skcomms is required for P2P chain sync. "
+                "Install with: pip install skcomms  "
                 "or: pip install 'varus[sync]'"
             ) from exc
         return FileTransport(outbox_path=self._outbox, inbox_path=self._inbox)

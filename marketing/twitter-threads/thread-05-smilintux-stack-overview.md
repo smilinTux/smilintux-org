@@ -67,7 +67,7 @@ One command. Your AI never forgets again.
 ```
 LAYER 3: COMMUNICATION
 
-SKComm + SKChat — sovereign messaging
+SKComms + SKChat — sovereign messaging
 
 ✅ P2P encrypted agent-to-agent comms
 ✅ Syncthing-backed file sync

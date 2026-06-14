@@ -3,7 +3,7 @@
 Tests the complete stack wired together:
   1. CapAuth: generate PGP identity
   2. SKChat ChatCrypto: encrypt and sign messages
-  3. SKComm FileTransport: deliver via filesystem
+  3. SKComms FileTransport: deliver via filesystem
   4. SKMemory ChatHistory: persist and retrieve
 
 No mocks. Real crypto. Real files. Real memory store.
@@ -19,7 +19,7 @@ import pytest
 
 pytest.importorskip("capauth", reason="capauth is not installed")
 pytest.importorskip("skchat", reason="skchat is not installed")
-pytest.importorskip("skcomm", reason="skcomm is not installed")
+pytest.importorskip("skcomms", reason="skcomms is not installed")
 pytest.importorskip("skmemory", reason="skmemory is not installed")
 
 PASSPHRASE = "sovereign-test-key-2026"
@@ -113,8 +113,8 @@ class TestSKChatCrypto:
         assert ChatCrypto.verify_signature(signed, alice_pub) is True
 
 
-class TestSKCommFileTransport:
-    """Verify SKComm file transport delivers envelope bytes."""
+class TestSKCommsFileTransport:
+    """Verify SKComms file transport delivers envelope bytes."""
 
     def test_send_receive_via_file_transport(
         self,

@@ -1,4 +1,4 @@
-# SKComm REST API — Curl Cheatsheet
+# SKComms REST API — Curl Cheatsheet
 
 **Port:** `9384`  
 **Base URL:** `http://127.0.0.1:9384`  (replace with remote IP to hit another machine on the mesh)
@@ -12,16 +12,16 @@
 
 ```bash
 # One-shot (foreground)
-skcomm serve
+skcomms serve
 
 # Custom host/port
-skcomm serve --host 0.0.0.0 --port 9384
+skcomms serve --host 0.0.0.0 --port 9384
 
 # As a background systemd user service (survives logout)
-cp scripts/skcomm-api.service ~/.config/systemd/user/skcomm-api.service
+cp scripts/skcomms-api.service ~/.config/systemd/user/skcomms-api.service
 systemctl --user daemon-reload
-systemctl --user enable --now skcomm-api
-journalctl --user -u skcomm-api -f    # follow logs
+systemctl --user enable --now skcomms-api
+journalctl --user -u skcomms-api -f    # follow logs
 ```
 
 ---
@@ -34,7 +34,7 @@ curl http://127.0.0.1:9384/
 
 **Response:**
 ```json
-{"service": "SKComm API", "version": "0.1.0", "status": "running"}
+{"service": "SKComms API", "version": "0.1.0", "status": "running"}
 ```
 
 ---
@@ -211,7 +211,7 @@ http://127.0.0.1:9384/openapi.json
 
 1. On the server machine, bind to all interfaces:
    ```bash
-   skcomm serve --host 0.0.0.0 --port 9384
+   skcomms serve --host 0.0.0.0 --port 9384
    ```
 
 2. From any other machine (or Claude session with web access):
@@ -229,7 +229,7 @@ http://127.0.0.1:9384/openapi.json
 
 3. Firewall rule (ufw example):
    ```bash
-   ufw allow 9384/tcp comment "SKComm API"
+   ufw allow 9384/tcp comment "SKComms API"
    ```
 
 ---
@@ -238,13 +238,13 @@ http://127.0.0.1:9384/openapi.json
 
 ```bash
 # Start the API server in one terminal
-skcomm serve
+skcomms serve
 
 # Start the bridge in another
-python scripts/skcomm_bridge.py --to lumina
+python scripts/skcomms_bridge.py --to lumina
 
 # Or against a remote server
-python scripts/skcomm_bridge.py \
+python scripts/skcomms_bridge.py \
   --api http://192.168.1.42:9384 \
   --to lumina \
   --poll 3
@@ -281,10 +281,10 @@ for m in json.load(sys.stdin):
 done
 
 # Send from env vars
-SKCOMM=http://127.0.0.1:9384
+SKCOMMS=http://127.0.0.1:9384
 MSG='Sync complete'
 TO=lumina
-curl -sX POST $SKCOMM/api/v1/send \
+curl -sX POST $SKCOMMS/api/v1/send \
   -H'Content-Type:application/json' \
   -d "{\"recipient\":\"$TO\",\"message\":\"$MSG\"}"
 ```
@@ -293,7 +293,7 @@ curl -sX POST $SKCOMM/api/v1/send \
 
 ## Consciousness / Soul Snapshot Endpoints
 
-> Added in v0.2.0 — requires `skcapstone` package installed alongside SKComm.
+> Added in v0.2.0 — requires `skcapstone` package installed alongside SKComms.
 
 These endpoints are called by the **Consciousness Swipe** Chrome extension to capture, list, retrieve, and inject AI session snapshots.
 
@@ -439,5 +439,5 @@ curl -s -X DELETE http://127.0.0.1:9384/api/v1/consciousness/snapshots/$SNAP_ID
 | 204 | Peer deleted |
 | 404 | Peer not found |
 | 422 | Validation error (check field names/types) |
-| 500 | SKComm internal error (check `journalctl --user -u skcomm-api`) |
+| 500 | SKComms internal error (check `journalctl --user -u skcomms-api`) |
 | 501 | `skcapstone` package not installed (consciousness endpoints require it) |

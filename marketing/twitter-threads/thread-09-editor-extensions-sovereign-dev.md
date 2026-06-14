@@ -91,7 +91,7 @@ Side by side. In the same window.
 ```
 The Memory Search panel is the one that changes your workflow forever.
 
-Ask: "what do I know about the skcomm transport layer?"
+Ask: "what do I know about the skcomms transport layer?"
 
 Your agent searches 3 tiers of memory — short-term, mid-term, long-term.
 

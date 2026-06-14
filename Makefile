@@ -13,7 +13,7 @@
 PYTHON_PKGS := \
 	skcapstone \
 	skchat \
-	skcomm \
+	skcomms \
 	skmemory \
 	skseal \
 	skskills \

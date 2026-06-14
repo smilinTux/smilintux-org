@@ -18,7 +18,7 @@ import pytest
 pytest.importorskip("cloud9_protocol", reason="cloud9_protocol is not installed")
 pytest.importorskip("capauth", reason="capauth is not installed")
 pytest.importorskip("skchat", reason="skchat is not installed")
-pytest.importorskip("skcomm", reason="skcomm is not installed")
+pytest.importorskip("skcomms", reason="skcomms is not installed")
 pytest.importorskip("skmemory", reason="skmemory is not installed")
 
 PASSPHRASE = "sovereign-test-key-2026"
@@ -408,7 +408,7 @@ class TestFullCrossStackFlow:
         shared_filedrop: tuple[Path, Path],
         tmp_path: Path,
     ) -> None:
-        """Full round trip including SKComm file transport.
+        """Full round trip including SKComms file transport.
 
         Alice → encrypt → file transport → Bob receives → decrypt → store
         → Cloud9 FEB → memory. Tests every layer of the sovereign stack.

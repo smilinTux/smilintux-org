@@ -21,7 +21,7 @@ All Python packages follow the same conventions:
 |---|---|---|
 | `skcapstone/` | `skcapstone` | Sovereign agent framework core |
 | `skmemory/` | `skmemory` | Persistent agent memory (SQLite + vector) |
-| `skcomm/` | `skcomm` | Secure inter-agent messaging |
+| `skcomms/` | `skcomms` | Secure inter-agent messaging |
 | `skchat/` | `skchat` | Chat interface and conversation management |
 | `capauth/` | `capauth` | CapAuth PMA identity and trust |
 | `skseal/` | `skseal` | Data sealing / cryptographic integrity |

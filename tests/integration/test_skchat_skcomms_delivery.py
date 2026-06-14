@@ -1,10 +1,10 @@
-"""End-to-end integration tests: SKChat → SKComm delivery round-trip.
+"""End-to-end integration tests: SKChat → SKComms delivery round-trip.
 
-Tests the full message flow through the SKComm high-level engine:
-  1. SKComm: instantiate engine with Router + registered FileTransport
+Tests the full message flow through the SKComms high-level engine:
+  1. SKComms: instantiate engine with Router + registered FileTransport
   2. SKChat ChatCrypto: compose and encrypt message with CapAuth keys
-  3. SKComm send(): wraps encrypted payload in envelope, routes via FileTransport
-  4. SKComm receive(): deserializes received bytes into MessageEnvelope objects
+  3. SKComms send(): wraps encrypted payload in envelope, routes via FileTransport
+  4. SKComms receive(): deserializes received bytes into MessageEnvelope objects
   5. SKChat: decrypt recovered payload — content matches original
   6. Thread IDs and urgency levels survive the round-trip
   7. Reply chain: in_reply_to propagates through transport correctly
@@ -18,14 +18,14 @@ from pathlib import Path
 
 import pytest
 
-pytest.importorskip("skcomm", reason="skcomm is not installed")
+pytest.importorskip("skcomms", reason="skcomms is not installed")
 pytest.importorskip("skchat", reason="skchat is not installed")
 
 PASSPHRASE = "sovereign-test-key-2026"
 
 
 def _make_comms(tmp_path: Path):
-    """Build two SKComm instances connected via crossed FileTransports.
+    """Build two SKComms instances connected via crossed FileTransports.
 
     ACK is disabled (ack=False) so auto-ACK control envelopes do not
     interfere with assertions on data message counts.
@@ -33,8 +33,8 @@ def _make_comms(tmp_path: Path):
     Returns:
         tuple: (alice_comm, bob_comm, alice_to_bob_dir, bob_to_alice_dir)
     """
-    from skcomms.config import SKCommConfig
-    from skcomms.core import SKComm
+    from skcomms.config import SKCommsConfig
+    from skcomms.core import SKComms
     from skcomms.router import Router
     from skcomms.transports.file import FileTransport
 
@@ -59,26 +59,26 @@ def _make_comms(tmp_path: Path):
     # Disable ACK: these tests verify data delivery, not ACK behaviour.
     # Default ack=True causes auto-ACK envelopes to accumulate in inboxes
     # and would pollute message-count assertions.
-    no_ack_config = SKCommConfig(ack=False)
+    no_ack_config = SKCommsConfig(ack=False)
 
     alice_router = Router()
     alice_router.register_transport(alice_transport)
-    alice_comm = SKComm(config=no_ack_config, router=alice_router)
+    alice_comm = SKComms(config=no_ack_config, router=alice_router)
     alice_comm._identity = "alice"
 
     bob_router = Router()
     bob_router.register_transport(bob_transport)
-    bob_comm = SKComm(config=no_ack_config, router=bob_router)
+    bob_comm = SKComms(config=no_ack_config, router=bob_router)
     bob_comm._identity = "bob"
 
     return alice_comm, bob_comm, alice_to_bob, bob_to_alice
 
 
-class TestSKCommHighLevelAPI:
-    """Verify SKComm high-level send/receive API wired to FileTransport."""
+class TestSKCommsHighLevelAPI:
+    """Verify SKComms high-level send/receive API wired to FileTransport."""
 
     def test_send_returns_delivery_report(self, tmp_path: Path) -> None:
-        """SKComm.send() returns a successful DeliveryReport."""
+        """SKComms.send() returns a successful DeliveryReport."""
         alice_comm, _, _, _ = _make_comms(tmp_path)
 
         report = alice_comm.send("bob", "Hello from the high-level API!")
@@ -86,7 +86,7 @@ class TestSKCommHighLevelAPI:
         assert report.successful_transport is not None
 
     def test_receive_returns_envelope_objects(self, tmp_path: Path) -> None:
-        """SKComm.receive() returns deserialized MessageEnvelope instances."""
+        """SKComms.receive() returns deserialized MessageEnvelope instances."""
         from skcomms.models import MessageEnvelope
 
         alice_comm, bob_comm, _, _ = _make_comms(tmp_path)
@@ -137,8 +137,8 @@ class TestSKCommHighLevelAPI:
         assert bob_received[0].payload.content == "Alice to Bob."
 
 
-class TestSKCommThreading:
-    """Verify thread_id and reply chain propagate through SKComm."""
+class TestSKCommsThreading:
+    """Verify thread_id and reply chain propagate through SKComms."""
 
     def test_thread_id_survives_round_trip(self, tmp_path: Path) -> None:
         """thread_id set on send is present in received envelope."""
@@ -176,8 +176,8 @@ class TestSKCommThreading:
         assert replies[0].metadata.thread_id == "reply-test"
 
 
-class TestSKChatSKCommRoundTrip:
-    """Full round-trip: SKChat encrypt → SKComm transport → SKChat decrypt."""
+class TestSKChatSKCommsRoundTrip:
+    """Full round-trip: SKChat encrypt → SKComms transport → SKChat decrypt."""
 
     def test_encrypted_message_delivered_and_decrypted(
         self,
@@ -185,7 +185,7 @@ class TestSKChatSKCommRoundTrip:
         bob_keys: tuple[str, str],
         tmp_path: Path,
     ) -> None:
-        """Alice encrypts via SKChat, delivers via SKComm, Bob decrypts correctly."""
+        """Alice encrypts via SKChat, delivers via SKComms, Bob decrypts correctly."""
         from skcomms.models import MessageEnvelope, MessagePayload
 
         from skchat.crypto import ChatCrypto
@@ -203,8 +203,8 @@ class TestSKChatSKCommRoundTrip:
         msg = ChatMessage(
             sender="capauth:alice@skworld.io",
             recipient="capauth:bob@skworld.io",
-            content="SKChat payload delivered via SKComm.",
-            thread_id="skchat-skcomm-thread",
+            content="SKChat payload delivered via SKComms.",
+            thread_id="skchat-skcomms-thread",
         )
         encrypted = alice_crypto.encrypt_message(msg, bob_pub)
         assert encrypted.encrypted is True
@@ -212,7 +212,7 @@ class TestSKChatSKCommRoundTrip:
         alice_comm.send(
             "bob",
             encrypted.model_dump_json(),
-            thread_id="skchat-skcomm-thread",
+            thread_id="skchat-skcomms-thread",
         )
 
         # Bob: receive, extract, decrypt
@@ -225,8 +225,8 @@ class TestSKChatSKCommRoundTrip:
         assert received_msg.encrypted is True
 
         decrypted = bob_crypto.decrypt_message(received_msg)
-        assert decrypted.content == "SKChat payload delivered via SKComm."
-        assert decrypted.thread_id == "skchat-skcomm-thread"
+        assert decrypted.content == "SKChat payload delivered via SKComms."
+        assert decrypted.thread_id == "skchat-skcomms-thread"
 
     def test_full_conversation_round_trip(
         self,

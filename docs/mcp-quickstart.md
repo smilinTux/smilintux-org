@@ -280,7 +280,7 @@ Terminal session:
 | `coord_create` | Create new task |
 | `sync_push` | Push state to Syncthing mesh |
 | `sync_pull` | Pull seeds from peers |
-| `send_message` | Send message via SKComm |
+| `send_message` | Send message via SKComms |
 | `check_inbox` | Check for new messages |
 | `state_diff` | Show what changed since last sync |
 | `ritual` | Memory Rehydration Ritual (boot context) |

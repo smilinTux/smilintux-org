@@ -1,7 +1,7 @@
 """Shared fixtures for cross-package integration tests.
 
 These tests verify the full sovereign agent stack works end-to-end:
-CapAuth identity -> SKChat crypto -> SKComm transport -> SKMemory history.
+CapAuth identity -> SKChat crypto -> SKComms transport -> SKMemory history.
 
 All fixtures use temporary directories so tests are isolated and repeatable.
 """

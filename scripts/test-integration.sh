@@ -2,9 +2,9 @@
 # Run cross-package integration tests for the sovereign stack.
 #
 # These tests verify full cross-package flows:
-#   - CapAuth identity -> SKChat crypto -> SKComm transport -> SKMemory history
+#   - CapAuth identity -> SKChat crypto -> SKComms transport -> SKMemory history
 #   - CapAuth identity -> SKSeal document signing -> verification
-#   - SKSecurity scanning -> quarantine -> SKComm transport safety
+#   - SKSecurity scanning -> quarantine -> SKComms transport safety
 #
 # Must run from outside the monorepo root (or /tmp) to avoid local
 # directories shadowing installed packages.

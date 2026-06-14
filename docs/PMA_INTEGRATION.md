@@ -175,7 +175,7 @@ You can also reach out via:
 
 **Step 2: Receive the Agreement**
 
-Upon review, you will receive the **Fiducia Communitatis PMA Agreement** via encrypted channel (PGP email or SKComm). This document contains:
+Upon review, you will receive the **Fiducia Communitatis PMA Agreement** via encrypted channel (PGP email or SKComms). This document contains:
 
 - The articles of association
 - Member rights and responsibilities
@@ -205,10 +205,10 @@ gpg --armor --sign pma-agreement.pdf
 
 Print, sign with wet ink, scan, and email to `lumina@skworld.io`.
 
-**Option C — Encrypted SKComm delivery:**
+**Option C — Encrypted SKComms delivery:**
 
 ```bash
-skcomm send --to lumina --file pma-agreement-signed.pdf.asc \
+skcomms send --to lumina --file pma-agreement-signed.pdf.asc \
   "Signed PMA agreement attached."
 ```
 
@@ -273,7 +273,7 @@ The PMA protects your **personal** sovereign data and identity. If you contribut
 │                  SKCapstone Agent                  │
 │                                                    │
 │  ┌───────────┐  ┌──────────┐  ┌───────────────┐  │
-│  │  CapAuth   │  │ SKMemory │  │   SKComm      │  │
+│  │  CapAuth   │  │ SKMemory │  │   SKComms      │  │
 │  │  Identity  │  │  Memory  │  │   Messaging   │  │
 │  └─────┬─────┘  └────┬─────┘  └───────┬───────┘  │
 │        │              │                │           │

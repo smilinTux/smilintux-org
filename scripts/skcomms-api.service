@@ -1,22 +1,22 @@
-# SKComm REST API — systemd user service
+# SKComms REST API — systemd user service
 #
-# Runs the SKComm FastAPI server as a persistent background service
+# Runs the SKComms FastAPI server as a persistent background service
 # under the current user account (no root required).
 #
 # INSTALL
 # -------
 #   mkdir -p ~/.config/systemd/user
-#   cp scripts/skcomm-api.service ~/.config/systemd/user/skcomm-api.service
+#   cp scripts/skcomms-api.service ~/.config/systemd/user/skcomms-api.service
 #   systemctl --user daemon-reload
-#   systemctl --user enable --now skcomm-api
+#   systemctl --user enable --now skcomms-api
 #
 # MANAGE
 # ------
-#   systemctl --user status skcomm-api
-#   systemctl --user restart skcomm-api
-#   systemctl --user stop skcomm-api
-#   journalctl --user -u skcomm-api -f          # follow logs
-#   journalctl --user -u skcomm-api --since today
+#   systemctl --user status skcomms-api
+#   systemctl --user restart skcomms-api
+#   systemctl --user stop skcomms-api
+#   journalctl --user -u skcomms-api -f          # follow logs
+#   journalctl --user -u skcomms-api --since today
 #
 # EXPOSE TO LAN (optional)
 # ------------------------
@@ -30,11 +30,11 @@
 #
 # ENVIRONMENT OVERRIDES
 # ---------------------
-#   Drop a file at ~/.config/skcomm-api.env and reference it in
-#   EnvironmentFile below to set SKCOMM_HOME, LOG_LEVEL, etc.
+#   Drop a file at ~/.config/skcomms-api.env and reference it in
+#   EnvironmentFile below to set SKCOMMS_HOME, LOG_LEVEL, etc.
 
 [Unit]
-Description=SKComm REST API Server (port 9384)
+Description=SKComms REST API Server (port 9384)
 Documentation=https://github.com/smilinTux/smilinTux-org
 After=network-online.target
 Wants=network-online.target
@@ -48,17 +48,17 @@ StandardOutput=journal
 StandardError=journal
 
 # --- Optional environment file (create if you need overrides) ---
-# EnvironmentFile=-%h/.config/skcomm-api.env
+# EnvironmentFile=-%h/.config/skcomms-api.env
 
 # --- Environment ---
 Environment="PYTHONUNBUFFERED=1"
 Environment="LOG_LEVEL=info"
 
 # --- Command ---
-# Uses the `skcomm serve` CLI so it respects ~/.skcomm/config.yml automatically.
-# If skcomm is installed in a virtualenv, replace the ExecStart path accordingly:
-#   ExecStart=/path/to/venv/bin/skcomm serve --host 127.0.0.1 --port 9384
-ExecStart=%h/.pyenv/shims/skcomm serve --host 127.0.0.1 --port 9384
+# Uses the `skcomms serve` CLI so it respects ~/.skcomms/config.yml automatically.
+# If skcomms is installed in a virtualenv, replace the ExecStart path accordingly:
+#   ExecStart=/path/to/venv/bin/skcomms serve --host 127.0.0.1 --port 9384
+ExecStart=%h/.pyenv/shims/skcomms serve --host 127.0.0.1 --port 9384
 
 # --- Resilience ---
 Restart=on-failure
@@ -70,7 +70,7 @@ StartLimitBurst=5
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectHome=read-only
-ReadWritePaths=%h/.skcomm %h/.skcapstone
+ReadWritePaths=%h/.skcomms %h/.skcapstone
 
 [Install]
 WantedBy=default.target

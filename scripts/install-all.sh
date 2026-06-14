@@ -24,7 +24,7 @@ declare -A PACKAGES=(
   [skcapstone]=skcapstone
   [skmemory]=skmemory
   [skchat]=skchat
-  [skcomm]=skcomm
+  [skcomms]=skcomms
   [capauth]=capauth
   [sksecurity]=sksecurity
   [skseal]=skseal
@@ -41,7 +41,7 @@ INSTALL_ORDER=(
   capauth
   cloud9-python
   skchat
-  skcomm
+  skcomms
   skmemory
   skpdf
   skref

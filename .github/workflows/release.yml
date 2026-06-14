@@ -11,7 +11,7 @@ on:
       - "skcapstone-v*"
       - "capauth-v*"
       - "skmemory-v*"
-      - "skcomm-v*"
+      - "skcomms-v*"
       - "skseed-v*"
       - "varus-v*"
       - "skseal-v*"
@@ -51,7 +51,7 @@ jobs:
         run: |
           pip install -e capauth/[dev]
           pip install -e skmemory/[dev]
-          pip install -e skcomm/[dev]
+          pip install -e skcomms/[dev]
           pip install -e skcapstone/[dev]
           pip install -e skseed/[dev]
           pip install -e varus/[dev]
@@ -72,8 +72,8 @@ jobs:
       - name: Test skmemory
         run: python -m pytest skmemory/tests/ -v --tb=short
 
-      - name: Test skcomm
-        run: python -m pytest skcomm/tests/ -v --tb=short
+      - name: Test skcomms
+        run: python -m pytest skcomms/tests/ -v --tb=short
 
       - name: Test skcapstone
         run: python -m pytest skcapstone/tests/ -v --tb=short
@@ -120,7 +120,7 @@ jobs:
     outputs:
       publish_capauth: ${{ steps.resolve.outputs.capauth }}
       publish_skmemory: ${{ steps.resolve.outputs.skmemory }}
-      publish_skcomm: ${{ steps.resolve.outputs.skcomm }}
+      publish_skcomms: ${{ steps.resolve.outputs.skcomms }}
       publish_skcapstone: ${{ steps.resolve.outputs.skcapstone }}
       publish_skseed: ${{ steps.resolve.outputs.skseed }}
       publish_varus: ${{ steps.resolve.outputs.varus }}
@@ -144,7 +144,7 @@ jobs:
           if [[ "$TAG" =~ ^v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
             echo "capauth=true" >> "$GITHUB_OUTPUT"
             echo "skmemory=true" >> "$GITHUB_OUTPUT"
-            echo "skcomm=true" >> "$GITHUB_OUTPUT"
+            echo "skcomms=true" >> "$GITHUB_OUTPUT"
             echo "skcapstone=true" >> "$GITHUB_OUTPUT"
             echo "skseed=true" >> "$GITHUB_OUTPUT"
             echo "varus=true" >> "$GITHUB_OUTPUT"
@@ -169,8 +169,8 @@ jobs:
             echo "skmemory=true" >> "$GITHUB_OUTPUT"
             echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
           fi
-          if [[ "$TAG" =~ ^skcomm-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "skcomm=true" >> "$GITHUB_OUTPUT"
+          if [[ "$TAG" =~ ^skcomms-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            echo "skcomms=true" >> "$GITHUB_OUTPUT"
             echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
           fi
           if [[ "$TAG" =~ ^skcapstone-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
@@ -271,9 +271,9 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_SKMEMORY_TOKEN }}
 
-  publish-skcomm:
+  publish-skcomms:
     needs: [test, resolve]
-    if: needs.resolve.outputs.publish_skcomm == 'true'
+    if: needs.resolve.outputs.publish_skcomms == 'true'
     runs-on: ubuntu-latest
     environment: pypi
     steps:
@@ -282,18 +282,18 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - run: pip install build twine
-      - name: Build skcomm
-        working-directory: skcomm
+      - name: Build skcomms
+        working-directory: skcomms
         run: python -m build
       - name: Verify
-        working-directory: skcomm
+        working-directory: skcomms
         run: twine check dist/*
       - name: Publish
-        working-directory: skcomm
+        working-directory: skcomms
         run: twine upload dist/*
         env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKCOMM_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_SKCOMMS_TOKEN }}
 
   publish-skcapstone:
     needs: [test, resolve]
@@ -307,7 +307,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - run: pip install build twine
       - name: Install build deps
-        run: pip install -e capauth/ -e skmemory/ -e skcomm/
+        run: pip install -e capauth/ -e skmemory/ -e skcomms/
       - name: Build skcapstone
         working-directory: skcapstone
         run: python -m build
@@ -503,7 +503,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - run: pip install build twine
       - name: Install build deps
-        run: pip install -e skcomm/ -e skmemory/
+        run: pip install -e skcomms/ -e skmemory/
       - name: Build skchat
         working-directory: skchat
         run: python -m build

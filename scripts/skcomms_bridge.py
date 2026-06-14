@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-SKComm Bridge — interactive chat window over the REST API.
+SKComms Bridge — interactive chat window over the REST API.
 
 Polls the inbox every POLL_INTERVAL seconds and prints new messages.
 Accepts user input and sends via the REST API to any mesh peer.
 
 Usage:
-    python scripts/skcomm_bridge.py
-    python scripts/skcomm_bridge.py --api http://remote-host:9384 --to lumina
-    python scripts/skcomm_bridge.py --poll 10 --identity jarvis
+    python scripts/skcomms_bridge.py
+    python scripts/skcomms_bridge.py --api http://remote-host:9384 --to lumina
+    python scripts/skcomms_bridge.py --poll 10 --identity jarvis
 
-Set SKCOMM_API_URL env var to override the default localhost endpoint.
-Prerequisites: pip install requests  +  skcomm serve
+Set SKCOMMS_API_URL env var to override the default localhost endpoint.
+Prerequisites: pip install requests  +  skcomms serve
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ except ImportError:
 # Constants
 # ---------------------------------------------------------------------------
 
-DEFAULT_API_URL: str = os.environ.get("SKCOMM_API_URL", "http://127.0.0.1:9384")
+DEFAULT_API_URL: str = os.environ.get("SKCOMMS_API_URL", "http://127.0.0.1:9384")
 DEFAULT_POLL_INTERVAL: int = 5
 SEND_ENDPOINT: str = "/api/v1/send"
 INBOX_ENDPOINT: str = "/api/v1/inbox"
@@ -61,11 +61,11 @@ DIM     = lambda t: _c("2",  t)
 # API client helpers
 # ---------------------------------------------------------------------------
 
-class SKCommClient:
-    """Thin HTTP client wrapping the SKComm REST API.
+class SKCommsClient:
+    """Thin HTTP client wrapping the SKComms REST API.
 
     Args:
-        base_url: Base URL of the running SKComm API server.
+        base_url: Base URL of the running SKComms API server.
         timeout: Request timeout in seconds.
     """
 
@@ -91,7 +91,7 @@ class SKCommClient:
             return None
 
     def status(self) -> Optional[Dict[str, Any]]:
-        """Get full SKComm status including identity and transport health.
+        """Get full SKComms status including identity and transport health.
 
         Returns:
             Status dict or None on error.
@@ -228,11 +228,11 @@ def print_message(envelope: Dict[str, Any]) -> None:
 # Bridge main loop
 # ---------------------------------------------------------------------------
 
-def _wait_for_server(client: SKCommClient, retries: int = 12) -> bool:
+def _wait_for_server(client: SKCommsClient, retries: int = 12) -> bool:
     """Block until the API server is reachable.
 
     Args:
-        client: Configured SKCommClient.
+        client: Configured SKCommsClient.
         retries: Maximum number of 5-second retry cycles.
 
     Returns:
@@ -248,11 +248,11 @@ def _wait_for_server(client: SKCommClient, retries: int = 12) -> bool:
     return False
 
 
-def _print_banner(client: SKCommClient) -> str:
+def _print_banner(client: SKCommsClient) -> str:
     """Print startup banner with identity and transport summary.
 
     Args:
-        client: Connected SKCommClient.
+        client: Connected SKCommsClient.
 
     Returns:
         The local agent identity name (for use as sender label).
@@ -267,7 +267,7 @@ def _print_banner(client: SKCommClient) -> str:
 
     print()
     print(BOLD("╔═══════════════════════════════════╗"))
-    print(BOLD("║     SKComm Bridge — Chat Window    ║"))
+    print(BOLD("║     SKComms Bridge — Chat Window    ║"))
     print(BOLD("╚═══════════════════════════════════╝"))
     print(f"  Identity:   {CYAN(BOLD(name))}")
     print(f"  Fingerprint:{DIM(f' {fp_short}')}")
@@ -292,17 +292,17 @@ def run_bridge(
     """Main bridge loop: poll inbox + interactive send.
 
     Args:
-        api_url: SKComm REST API base URL.
+        api_url: SKComms REST API base URL.
         default_recipient: Default message recipient name.
         poll_interval: Seconds between inbox polls.
         identity_override: Override display name (cosmetic only).
     """
-    client    = SKCommClient(base_url=api_url)
+    client    = SKCommsClient(base_url=api_url)
     recipient = default_recipient or ""
     seen_ids: Set[str] = set()
 
     if not _wait_for_server(client):
-        print(RED(f"[bridge] Cannot reach {api_url}. Is `skcomm serve` running?"))
+        print(RED(f"[bridge] Cannot reach {api_url}. Is `skcomms serve` running?"))
         sys.exit(1)
 
     my_name = identity_override or _print_banner(client)
@@ -440,18 +440,18 @@ def _build_parser() -> argparse.ArgumentParser:
         Configured ArgumentParser.
     """
     p = argparse.ArgumentParser(
-        prog="skcomm_bridge",
-        description="Interactive chat window over the SKComm REST API.",
+        prog="skcomms_bridge",
+        description="Interactive chat window over the SKComms REST API.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Examples:\n"
-            "  python scripts/skcomm_bridge.py\n"
-            "  python scripts/skcomm_bridge.py --to lumina\n"
-            "  python scripts/skcomm_bridge.py --api http://192.168.1.42:9384 --to opus\n"
+            "  python scripts/skcomms_bridge.py\n"
+            "  python scripts/skcomms_bridge.py --to lumina\n"
+            "  python scripts/skcomms_bridge.py --api http://192.168.1.42:9384 --to opus\n"
         ),
     )
     p.add_argument("--api", default=DEFAULT_API_URL, metavar="URL",
-                   help=f"API base URL (default: {DEFAULT_API_URL}; env: SKCOMM_API_URL)")
+                   help=f"API base URL (default: {DEFAULT_API_URL}; env: SKCOMMS_API_URL)")
     p.add_argument("--to", default=None, metavar="PEER",
                    help="Default recipient (prompted if not set)")
     p.add_argument("--poll", type=int, default=DEFAULT_POLL_INTERVAL, metavar="SECS",
@@ -462,7 +462,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    """CLI entry point for the SKComm bridge."""
+    """CLI entry point for the SKComms bridge."""
     args = _build_parser().parse_args()
     try:
         run_bridge(

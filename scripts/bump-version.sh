@@ -8,7 +8,7 @@
 #   ./scripts/bump-version.sh 0.2.0 --dry-run # show what would change
 #
 # Updates pyproject.toml and __init__.py for:
-#   skcapstone, capauth, skmemory, skcomm
+#   skcapstone, capauth, skmemory, skcomms
 #
 # Tool-agnostic: run from any terminal (Claude Code, Cursor, etc.)
 # -------------------------------------------------------------------
@@ -40,7 +40,7 @@ if ! [[ "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     exit 1
 fi
 
-PACKAGES=(skcapstone capauth skmemory skcomm)
+PACKAGES=(skcapstone capauth skmemory skcomms)
 
 echo "Bumping to v${NEW_VERSION}..."
 echo ""

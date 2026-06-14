@@ -8,7 +8,7 @@ Pipeline under test
        send_notification MCP tool (``_handle_send_notification``).  This is
        the same entry-point that the consciousness loop calls when the LLM
        decides to notify the user, and the same entry-point reached when a
-       SKComm .skc.json envelope is processed and routed to the tool.
+       SKComms .skc.json envelope is processed and routed to the tool.
 
     2. The tool calls ``notify-send`` (mocked — no display required) and then
        calls ``memory_engine.store()`` with ``tags=["notification"]``.
@@ -19,9 +19,9 @@ Pipeline under test
     4. Assert: at least one memory with ``tag=notification`` is found,
        containing the injected title and body text.
 
-    Additionally, ``TestSKCommEnvelopeInjection`` demonstrates the SKComm
+    Additionally, ``TestSKCommsEnvelopeInjection`` demonstrates the SKComms
     envelope-drop injection path: a ``.skc.json`` file is written to the
-    agent inbox (simulating delivery by SKComm or Syncthing), the message
+    agent inbox (simulating delivery by SKComms or Syncthing), the message
     payload is extracted, and the notification tool is invoked — proving
     that any delivery route that reaches ``_handle_send_notification``
     produces the correct memory-pipeline outcome.
@@ -274,27 +274,27 @@ class TestNotificationPipelineE2E:
 
 
 # ---------------------------------------------------------------------------
-# Test class 2: SKComm envelope-drop injection path
+# Test class 2: SKComms envelope-drop injection path
 # ---------------------------------------------------------------------------
 
 
-class TestSKCommEnvelopeInjection:
-    """Demonstrate injection via a dropped .skc.json SKComm envelope.
+class TestSKCommsEnvelopeInjection:
+    """Demonstrate injection via a dropped .skc.json SKComms envelope.
 
-    In production, SKComm (or Syncthing) delivers a .skc.json file to the
+    In production, SKComms (or Syncthing) delivers a .skc.json file to the
     agent's inbox.  The consciousness loop picks it up via inotify/watchdog,
     processes the payload with the LLM, and issues a tool call.  Here we
     exercise the envelope-drop pattern directly and verify that routing the
     extracted payload to ``_handle_send_notification`` stores the memory.
     """
 
-    def test_skcomm_envelope_triggers_notification_memory(self, tmp_path: Path) -> None:
-        """SKComm envelope → extract payload → invoke tool → memory[tag=notification].
+    def test_skcomms_envelope_triggers_notification_memory(self, tmp_path: Path) -> None:
+        """SKComms envelope → extract payload → invoke tool → memory[tag=notification].
 
         Steps
         -----
         1. Inject:  write a .skc.json envelope to the agent inbox directory,
-                    simulating delivery by SKComm / Syncthing.
+                    simulating delivery by SKComms / Syncthing.
         2. Route:   extract the payload and pass it to _handle_send_notification
                     (simulating the consciousness loop's tool-call dispatch).
         3. Wait:    poll memory for up to 30 s.
@@ -306,8 +306,8 @@ class TestSKCommEnvelopeInjection:
         inbox_dir = agent_home / "sync" / "comms" / "inbox"
         inbox_dir.mkdir(parents=True)
 
-        # --- Step 1: inject via SKComm envelope drop ---
-        notif_title = "SKComm-Injected-040fd134"
+        # --- Step 1: inject via SKComms envelope drop ---
+        notif_title = "SKComms-Injected-040fd134"
         notif_body = "Notification triggered via .skc.json envelope drop."
         envelope = {
             "sender": "e2e-test-peer",
@@ -345,13 +345,13 @@ class TestSKCommEnvelopeInjection:
 
         response = json.loads(result[0].text)
         assert response.get("sent") is True, (
-            f"Tool handler returned failure from SKComm-injected args: {result[0].text}"
+            f"Tool handler returned failure from SKComms-injected args: {result[0].text}"
         )
 
         # --- Step 3 / 4: poll and assert ---
         found = _poll_for_notification_memory(agent_home, title_fragment=notif_title)
         assert found, (
-            f"No notification memory found within {_TIMEOUT} s after SKComm envelope injection. "
+            f"No notification memory found within {_TIMEOUT} s after SKComms envelope injection. "
             f"Inbox contents: {[f.name for f in inbox_dir.iterdir()]}"
         )
         assert "notification" in found[0].tags

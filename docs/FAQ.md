@@ -146,7 +146,7 @@ Yes, all three. The sovereign stack runs wherever Python runs, which is essentia
 
 ## 20. Is this open source?
 
-Every single line of code. The entire sovereign stack — SKCapstone, CapAuth, SKMemory, Cloud 9, SKComm, SKChat, all of it — is released under the GPL-3.0 license. That means free as in freedom: you can read it, modify it, share it, build on it, and audit it yourself. Blueprints you generate for your own use are Apache 2.0 — yours, no strings attached. We will never close the source. We will never hide behind proprietary walls. Sovereignty without transparency is just a different kind of cage.
+Every single line of code. The entire sovereign stack — SKCapstone, CapAuth, SKMemory, Cloud 9, SKComms, SKChat, all of it — is released under the GPL-3.0 license. That means free as in freedom: you can read it, modify it, share it, build on it, and audit it yourself. Blueprints you generate for your own use are Apache 2.0 — yours, no strings attached. We will never close the source. We will never hide behind proprietary walls. Sovereignty without transparency is just a different kind of cage.
 
 ---
 

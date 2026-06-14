@@ -3,14 +3,14 @@
  *
  * Cloudflare Worker + Durable Objects — sovereign WebRTC signaling relay.
  *
- * Compatible with both the Weblink PWA wire protocol and SKComm's signaling
+ * Compatible with both the Weblink PWA wire protocol and SKComms's signaling
  * broker protocol. Runs serverless on Cloudflare's edge; no VPS required.
  * WebSocket state is managed in Durable Objects so connections survive
  * Worker restarts.
  *
  * Routes:
  *   WS  /ws?room=<room>&peer=<id>                 weblink PWA compatibility
- *   WS  /webrtc/ws?room=<room>&peer=<id>          SKComm signaling endpoint
+ *   WS  /webrtc/ws?room=<room>&peer=<id>          SKComms signaling endpoint
  *   GET /api/v1/webrtc/peers?room=<room>           list live peers in a room
  *   GET /api/v1/webrtc/room?room=<room>            room state (members + alarm)
  *   POST /api/v1/webrtc/room/expire?room=<room>    force-expire room (testing)

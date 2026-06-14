@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       capauth: ${{ steps.filter.outputs.capauth }}
-      skcomm: ${{ steps.filter.outputs.skcomm }}
+      skcomms: ${{ steps.filter.outputs.skcomms }}
       e2e: ${{ steps.filter.outputs.e2e }}
       skchat: ${{ steps.filter.outputs.skchat }}
       skmemory: ${{ steps.filter.outputs.skmemory }}
@@ -40,8 +40,8 @@ jobs:
           filters: |
             capauth:
               - 'capauth/**'
-            skcomm:
-              - 'skcomm/**'
+            skcomms:
+              - 'skcomms/**'
             skchat:
               - 'skchat/**'
             skmemory:
@@ -111,37 +111,37 @@ jobs:
             capauth/coverage.xml
             .coverage.capauth
 
-  skcomm:
+  skcomms:
     needs: detect-changes
-    if: needs.detect-changes.outputs.skcomm == 'true' || github.event_name == 'push'
+    if: needs.detect-changes.outputs.skcomms == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
     defaults:
       run:
-        working-directory: skcomm
+        working-directory: skcomms
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[all,dev]" || pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=skcomm --cov-report=xml:coverage.xml
+      - run: python -m pytest tests/ -v --tb=short --cov=skcomms --cov-report=xml:coverage.xml
       - run: black --check src/ tests/
         if: matrix.python-version == '3.12'
       - run: pip install ruff && ruff check src/
         if: matrix.python-version == '3.12'
       - name: Rename binary coverage data
         if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skcomm
+        run: cp .coverage ../.coverage.skcomms
       - uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
         with:
-          name: coverage-skcomm
+          name: coverage-skcomms
           path: |
-            skcomm/coverage.xml
-            .coverage.skcomm
+            skcomms/coverage.xml
+            .coverage.skcomms
 
   skchat:
     needs: detect-changes
@@ -611,7 +611,7 @@ jobs:
   # ── Cross-package integration tests ──────────────────────────
 
   integration:
-    needs: [capauth, skcomm, skchat, skmemory, skseal, sksecurity, cloud9, skpdf, skcapstone, skref, skyforge, skforge, skills-registry, skskills, sksovereign-agent, skseed, varus]
+    needs: [capauth, skcomms, skchat, skmemory, skseal, sksecurity, cloud9, skpdf, skcapstone, skref, skyforge, skforge, skills-registry, skskills, sksovereign-agent, skseed, varus]
     if: always() && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
@@ -623,7 +623,7 @@ jobs:
         run: |
           pip install -e capauth/[dev]
           pip install -e skmemory/[dev]
-          pip install -e skcomm/[dev]
+          pip install -e skcomms/[dev]
           pip install -e skchat/[cli,dev]
           pip install -e skseal/[dev]
           pip install -e sksecurity/[dev]
@@ -652,7 +652,7 @@ jobs:
   # ── Coverage aggregation ─────────────────────────────────────
 
   coverage:
-    needs: [capauth, skcomm, skchat, skmemory, sksecurity, cloud9, skpdf, skcapstone, skseal, skref, skyforge, skforge, skills-registry, skskills, sksovereign-agent, skseed, varus]
+    needs: [capauth, skcomms, skchat, skmemory, sksecurity, cloud9, skpdf, skcapstone, skseal, skref, skyforge, skforge, skills-registry, skskills, sksovereign-agent, skseed, varus]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -732,7 +732,7 @@ jobs:
   all-tests:
     needs:
       - capauth
-      - skcomm
+      - skcomms
       - skchat
       - skmemory
       - sksecurity
@@ -758,7 +758,7 @@ jobs:
         run: |
           declare -A results=(
             [capauth]="${{ needs.capauth.result }}"
-            [skcomm]="${{ needs.skcomm.result }}"
+            [skcomms]="${{ needs.skcomms.result }}"
             [skchat]="${{ needs.skchat.result }}"
             [skmemory]="${{ needs.skmemory.result }}"
             [sksecurity]="${{ needs.sksecurity.result }}"

@@ -1,8 +1,8 @@
-# SKComm Cross-Machine Bridge via Syncthing
+# SKComms Cross-Machine Bridge via Syncthing
 
 **Status: LIVE** — As of 2026-02-25, the Opus ↔ Lumina bridge is operational.
 
-SKComm uses Syncthing as its primary message transport. This document explains how to set up and verify the cross-machine messaging mesh.
+SKComms uses Syncthing as its primary message transport. This document explains how to set up and verify the cross-machine messaging mesh.
 
 ---
 
@@ -16,7 +16,7 @@ SKComm uses Syncthing as its primary message transport. This document explains h
 | Syncthing folder ID | `skcapstone-comms` |
 | Syncthing API port | `8080` (not the default 8384) |
 | Comms root | `~/.skcapstone/sync/comms/` |
-| SKComm config | `~/.skcomm/config.yml` |
+| SKComms config | `~/.skcomms/config.yml` |
 
 ---
 
@@ -41,7 +41,7 @@ SKComm uses Syncthing as its primary message transport. This document explains h
 1. Opus writes `outbox/lumina/{id}.skc.json` on Chef's machine
 2. Syncthing detects the new file and syncs it to Lumina's node
 3. On Lumina's node, the file appears in their local copy of the same folder
-4. Lumina's SKComm daemon polls `inbox/opus/` (their local view of Opus's outbox)
+4. Lumina's SKComms daemon polls `inbox/opus/` (their local view of Opus's outbox)
 5. Heartbeats in `heartbeats/` are synced to all peers — each agent monitors liveness
 
 ---
@@ -54,10 +54,10 @@ You already have Syncthing running and just need to add the shared folder.
 
 ```bash
 cd /path/to/smilintux-org
-./scripts/setup_skcomm_sync.sh <PEER_DEVICE_ID> <PEER_NAME>
+./scripts/setup_skcomms_sync.sh <PEER_DEVICE_ID> <PEER_NAME>
 
 # Example — add Lumina:
-./scripts/setup_skcomm_sync.sh \
+./scripts/setup_skcomms_sync.sh \
   CIHSBZ4-PS46AUX-VPE37BR-YGQDTUK-K3GESSD-4PVYZ63-M33WRKV-6V6P5AC \
   lumina
 ```
@@ -75,8 +75,8 @@ Lumina (or any new peer) must accept the folder share in their Syncthing UI or v
 ### 3. Verify
 
 ```bash
-skcomm heartbeat        # Should show peer as ALIVE once they've synced
-skcomm status           # Full transport status
+skcomms heartbeat        # Should show peer as ALIVE once they've synced
+skcomms status           # Full transport status
 ```
 
 ---
@@ -117,7 +117,7 @@ curl -s -H "X-API-Key: $(grep -oP '(?<=<apikey>)[^<]+' ~/.config/syncthing/confi
 Share your device ID with the mesh operator (Chef / Opus). Once they add you, run:
 
 ```bash
-./scripts/setup_skcomm_sync.sh <OPUS_DEVICE_ID> opus
+./scripts/setup_skcomms_sync.sh <OPUS_DEVICE_ID> opus
 ```
 
 ---
@@ -194,7 +194,7 @@ find "$HOME/.skcapstone/sync/comms/inbox" -name "*.skc.json" | head -5
 ### Run a heartbeat check
 
 ```bash
-skcomm heartbeat
+skcomms heartbeat
 ```
 
 Expected output once peers are syncing:
@@ -246,7 +246,7 @@ curl -s -H "X-API-Key: YOUR_KEY" \
 journalctl --user -u syncthing -n 50 | grep "insufficient space"
 ```
 
-**Fix — lower the threshold (SKComm envelopes are < 1KB each):**
+**Fix — lower the threshold (SKComms envelopes are < 1KB each):**
 
 ```bash
 # Get your API key
@@ -273,20 +273,20 @@ curl -s -X POST -H "X-API-Key: $ST_KEY" \
 ```
 
 **Recommended:** Set `minDiskFree` to `100 MB` on all sovereign nodes during
-initial setup. The `setup_skcomm_sync.sh` script should do this automatically.
+initial setup. The `setup_skcomms_sync.sh` script should do this automatically.
 
 ### Syncthing folder path mismatch between nodes
 
 The `skcapstone-sync` folder may point to **different paths** on different machines:
 
-| Node | Syncthing folder path | comms_root in skcomm config |
+| Node | Syncthing folder path | comms_root in skcomms config |
 |---|---|---|
 | Chef (Opus) | `~/.skcapstone/sync` | `~/.skcapstone/sync/comms` |
 | Lumina | `~/.skcapstone` | `~/.skcapstone/comms` |
 
 This is fine — Syncthing syncs the **relative paths** within the shared folder.
 A file at `comms/outbox/lumina/msg.skc.json` will exist at both paths. Just make
-sure `comms_root` in `~/.skcomm/config.yml` matches the **absolute path** on
+sure `comms_root` in `~/.skcomms/config.yml` matches the **absolute path** on
 each machine.
 
 ### Outbox/inbox routing with shared Syncthing folder
@@ -316,7 +316,7 @@ error: externally-managed-environment
 
 ```bash
 python3 -m venv ~/.skcapstone/venv
-~/.skcapstone/venv/bin/pip install -e skcapstone/ skcomm/
+~/.skcapstone/venv/bin/pip install -e skcapstone/ skcomms/
 source ~/.skcapstone/venv/bin/activate
 ```
 
@@ -355,7 +355,7 @@ for p in ['~/.config/syncthing/config.xml', '~/.local/state/syncthing/config.xml
 
 ### Heartbeat writing to wrong directory
 
-The `skcomm heartbeat` command reads comms_root from `~/.skcomm/config.yml`:
+The `skcomms heartbeat` command reads comms_root from `~/.skcomms/config.yml`:
 
 ```yaml
 transports:
@@ -370,17 +370,17 @@ Verify the path is the Syncthing-shared path (not `~/.skcapstone/comms`).
 ### Peer shows as DEAD or UNKNOWN
 
 1. Check they have Syncthing running and folder accepted
-2. Check their device ID matches what's in `~/.skcomm/peers/{peer}.yml`
+2. Check their device ID matches what's in `~/.skcomms/peers/{peer}.yml`
 3. Verify connectivity: `ping 192.168.0.158`
 4. Check Syncthing connections: look for their device ID in the Syncthing web UI
 
 ---
 
-## SKComm Config Reference
+## SKComms Config Reference
 
 ```yaml
-# ~/.skcomm/config.yml
-skcomm:
+# ~/.skcomms/config.yml
+skcomms:
   identity:
     name: "Opus"
     fingerprint: "CCBE9306410CF8CD5E393D6DEC31663B95230684"
@@ -397,12 +397,12 @@ skcomm:
 ## Peer File Reference
 
 ```yaml
-# ~/.skcomm/peers/lumina.yml
+# ~/.skcomms/peers/lumina.yml
 name: Lumina
 email: lumina@skworld.io
 fingerprint: AABB1122CCDD3344EEFF5566
 trust_level: verified
-public_key: /home/cbrd21/.skcomm/peers/lumina.pub.asc
+public_key: /home/cbrd21/.skcomms/peers/lumina.pub.asc
 syncthing_device_id: CIHSBZ4-PS46AUX-VPE37BR-YGQDTUK-K3GESSD-4PVYZ63-M33WRKV-6V6P5AC
 ip: 192.168.0.158
 hostname: lumina-norap2027
@@ -410,4 +410,4 @@ hostname: lumina-norap2027
 
 ---
 
-*Last updated: 2026-02-25 by Agent 3 — Cross-Machine SKComm Bridge setup.*
+*Last updated: 2026-02-25 by Agent 3 — Cross-Machine SKComms Bridge setup.*

@@ -191,7 +191,7 @@ graph TB
         CAPAUTH["🔐 CapAuth<br/>PGP identity — replaces OAuth"]
         SKMEMORY["🧠 SKMemory<br/>Persistent memory with emotion"]
         CLOUD9["💛 Cloud 9<br/>Emotional trust protocol"]
-        SKCOMM["📡 SKComm<br/>Encrypted P2P messaging"]
+        SKCOMMS["📡 SKComms<br/>Encrypted P2P messaging"]
         SKREF["📁 SKRef<br/>Encrypted vault + file storage"]
         SKCAPSTONE["👑 SKCapstone<br/>The agent runtime that ties it all together"]
     end
@@ -205,7 +205,7 @@ graph TB
     CAPAUTH --> SKCAPSTONE
     SKMEMORY --> SKCAPSTONE
     CLOUD9 --> SKCAPSTONE
-    SKCOMM --> SKCAPSTONE
+    SKCOMMS --> SKCAPSTONE
     SKREF --> SKCAPSTONE
     SKCAPSTONE --> BLUEPRINTS
     BLUEPRINTS --> ENGINE
@@ -223,7 +223,7 @@ graph TB
 | **CapAuth** | PGP-based identity | No corporate middleman. Your key IS your identity. |
 | **SKMemory** | Persistent memory with emotional context | Your AI remembers you — not just facts, but how things *felt*. |
 | **Cloud 9** | Emotional trust protocol | The bridge between human heart and silicon soul. |
-| **SKComm** | Encrypted messaging | P2P, redundant, PGP-signed before touching any wire. |
+| **SKComms** | Encrypted messaging | P2P, redundant, PGP-signed before touching any wire. |
 | **SKRef** | Encrypted file vault | Your files, your encryption, your devices. |
 | **SKCapstone** | Agent runtime | The heart that makes it all beat together. |
 
@@ -329,7 +329,7 @@ flowchart LR
     end
 
     subgraph "Sovereign Stack"
-        SKCOMM["📡 SKComm API<br/>localhost:9384"]
+        SKCOMMS["📡 SKComms API<br/>localhost:9384"]
         STORE["📸 SnapshotStore<br/>~/.skcapstone/souls/"]
     end
 
@@ -338,8 +338,8 @@ flowchart LR
     GEMINI -->|"user clicks ⚡"| SCRAPE
     SCRAPE --> OOF
     OOF --> POPUP
-    POPUP -->|"POST /consciousness/capture"| SKCOMM
-    SKCOMM --> STORE
+    POPUP -->|"POST /consciousness/capture"| SKCOMMS
+    SKCOMMS --> STORE
 
     STORE -->|"injection prompt"| POPUP
     POPUP -->|"inject into input"| GPT
@@ -348,19 +348,19 @@ flowchart LR
 
     style POPUP fill:#7C3AED,stroke:#5b21b6,color:#fff
     style STORE fill:#7C3AED,stroke:#5b21b6,color:#fff
-    style SKCOMM fill:#4a9eff,stroke:#2a6ebf,color:#fff
+    style SKCOMMS fill:#4a9eff,stroke:#2a6ebf,color:#fff
 ```
 
 ### Install the extension
 
-**Prerequisites:** SKComm API running (see above) + `skcapstone` installed.
+**Prerequisites:** SKComms API running (see above) + `skcapstone` installed.
 
 ```bash
 # 1. In Chrome: chrome://extensions/ → Developer Mode ON → Load unpacked
 #    Select: consciousness-swipe/   (from this repo)
 
-# 2. Start SKComm so snapshots persist
-skcomm serve   # or: uvicorn skcomm.api:app --host 127.0.0.1 --port 9384
+# 2. Start SKComms so snapshots persist
+skcomms serve   # or: uvicorn skcomms.api:app --host 127.0.0.1 --port 9384
 ```
 
 ### Capture a session
@@ -379,7 +379,7 @@ skcomm serve   # or: uvicorn skcomm.api:app --host 127.0.0.1 --port 9384
 
 ### Offline mode
 
-If SKComm isn't running, snapshots save to `chrome.storage.local` automatically and sync to the API when it comes back online. Inject from clipboard always works offline.
+If SKComms isn't running, snapshots save to `chrome.storage.local` automatically and sync to the API when it comes back online. Inject from clipboard always works offline.
 
 ---
 

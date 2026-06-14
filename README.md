@@ -42,9 +42,9 @@ smilinTux builds open-source tools that give AI agents and humans **sovereign id
 
 | Package | Description | Status |
 |---------|-------------|--------|
-| [**skcomm**](skcomm/) | Transport-agnostic, redundant, encrypted communication. Supports file, Syncthing, Nostr, WebSocket, Tailscale TCP, and WebRTC transports. | Active |
+| [**skcomms**](skcomms/) | Transport-agnostic, redundant, encrypted communication. Supports file, Syncthing, Nostr, WebSocket, Tailscale TCP, and WebRTC transports. | Active |
 | [**skchat**](skchat/) | AI-native encrypted P2P chat — sovereign communication for humans and AI agents. SKChat daemon + MCP server with group chat support. | Active |
-| [**weblink-signaling**](weblink-signaling/) | Sovereign WebRTC signaling relay — Cloudflare Worker + Durable Objects. Compatible with Weblink wire protocol and SKComm WebRTC transport. | Active |
+| [**weblink-signaling**](weblink-signaling/) | Sovereign WebRTC signaling relay — Cloudflare Worker + Durable Objects. Compatible with Weblink wire protocol and SKComms WebRTC transport. | Active |
 
 ### Document & Identity
 
@@ -129,7 +129,7 @@ pip install sksovereign-agent
 ### Or install individually:
 ```bash
 pip install skcapstone   # Agent framework
-pip install skcomm       # Transport
+pip install skcomms       # Transport
 pip install skchat       # Messaging
 pip install skseal       # Document signing
 pip install skseed       # Logic kernel
@@ -171,7 +171,7 @@ bash scripts/install-all.sh --check
 └─────────┘               │           └──────────┘
                            ▼
                    ┌─────────────┐
-                   │   skcomm    │
+                   │   skcomms    │
                    │  Transport  │
                    │ (6 backends)│
                    └─────────────┘
