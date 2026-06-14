@@ -1,7 +1,7 @@
 # weblink-signaling — Sovereign WebRTC Signaling Relay
 
 A Cloudflare Worker + Durable Objects WebSocket signaling relay, compatible with the
-[Weblink](https://github.com/99percentpeople/weblink) wire protocol and the SKComm
+[Weblink](https://github.com/99percentpeople/weblink) wire protocol and the SKComms
 WebRTC transport signaling format.
 
 Deployed at: `wss://ws.weblink.skworld.io`
@@ -11,7 +11,7 @@ Deployed at: `wss://ws.weblink.skworld.io`
 ## Architecture
 
 ```
-Browser / SKComm WebRTC Transport
+Browser / SKComms WebRTC Transport
         │ wss://ws.weblink.skworld.io/webrtc/ws?room=R&peer=FP
         ▼
 Cloudflare Worker  (cloudflare/worker.ts)
@@ -72,11 +72,11 @@ The `signed_at` timestamp prevents replay attacks (reject if older than 5 minute
 |----------|-------------|
 | `GET /health` | Health check — returns `{"status":"ok"}` |
 | `WS /ws?room=R&peer=P` | Weblink-compatible signaling (no auth) |
-| `WS /webrtc/ws?room=R&peer=P` | SKComm-compatible signaling (CapAuth auth) |
+| `WS /webrtc/ws?room=R&peer=P` | SKComms-compatible signaling (CapAuth auth) |
 | `GET /api/v1/webrtc/peers` | List connected peers per room |
 
 Both WebSocket endpoints implement the same wire protocol. The `/webrtc/ws` path
-passes `Authorization: Bearer <token>` from SKComm's CapAuth token.
+passes `Authorization: Bearer <token>` from SKComms's CapAuth token.
 
 ---
 
@@ -140,7 +140,7 @@ tailscale funnel --bg 8080
 #   WSS: wss://HOSTNAME.tailscale.net/ws
 ```
 
-Configure SKComm to use this signaling URL:
+Configure SKComms to use this signaling URL:
 ```yaml
 transports:
   webrtc:
@@ -171,25 +171,25 @@ vars = { ALLOWED_ORIGINS = "*" }
 
 ---
 
-## Integration with SKComm
+## Integration with SKComms
 
-The SKComm WebRTC transport (`skcomm.transports.webrtc`) connects to this signaling
+The SKComms WebRTC transport (`skcomms.transports.webrtc`) connects to this signaling
 server to negotiate P2P data channels. Configure:
 
 ```yaml
-# ~/.skcomm/config.yml
+# ~/.skcomms/config.yml
 transports:
   webrtc:
     enabled: true
     priority: 1
     settings:
       signaling_url: "wss://ws.weblink.skworld.io/webrtc/ws"
-      # or: wss://skcomm.skworld.io/webrtc/ws  (SKComm serve broker)
+      # or: wss://skcomm.skworld.io/webrtc/ws  (SKComms serve broker)
       turn_server: "turn:turn.skworld.io:3478"
-      turn_secret: "${SKCOMM_TURN_SECRET}"
+      turn_secret: "${SKCOMMS_TURN_SECRET}"
 ```
 
-The `skcomm serve` API server also includes an equivalent in-process signaling broker
+The `skcomms serve` API server also includes an equivalent in-process signaling broker
 at `WS /webrtc/ws` — use either this Cloudflare Worker (edge, always-on, free tier)
 or the in-process broker (same machine, lower latency for local agents).
 
