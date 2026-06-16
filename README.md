@@ -27,6 +27,55 @@ smilinTux builds open-source tools that give AI agents and humans **sovereign id
 
 ---
 
+## Sovereign Products / Ecosystem
+
+The smilinTux sovereign stack — own your agents, your data, your infrastructure, end to end.
+
+### ⭐ Featured
+
+| Product | What it is |
+|---------|------------|
+| [**SKStacks v2**](https://skstacks.skworld.io) | AI-first sovereign infrastructure framework — descriptor → Swarm/K8s/RKE2; 31 capability services, 15 live-proven on RKE2. ([v2 docs](https://github.com/smilinTux/skstacks/tree/main/v2/docs)) |
+| [**skos**](https://skos.skworld.io) | The Sovereign Agent OS — one command installs the full stack, laptop to Kubernetes. |
+
+### Identity, Security & Communication
+
+| Product | What it is |
+|---------|------------|
+| [**capauth**](https://capauth.skworld.io) | PGP-based sovereign identity with challenge-response auth — no OAuth, no middleman. |
+| [**sksecurity**](https://sksecurity.skworld.io) | Enterprise security for agent ecosystems — KMS, secret vault, vuln scanning, audit trails. |
+| [**skgateway**](https://skgateway.skworld.io) | Enterprise AI inference proxy — routes, monitors, audits and secures all inference traffic. |
+| [**skcomms**](https://skcomms.skworld.io) | Sovereign FQID addressing + 17-path multi-channel transport + CapAuth identity. |
+| [**skchat**](https://skchat.skworld.io) | AI-native encrypted P2P chat for humans and agents — daemon + MCP, group chat. |
+
+### Agents, Memory & Knowledge
+
+| Product | What it is |
+|---------|------------|
+| [**skcapstone**](https://skcapstone.skworld.io) | Sovereign agent runtime — identity, trust, memory, and security pillars. |
+| [**skmemory**](https://skmemory.skworld.io) | Emotional-context memory with tiered storage and vector recall. |
+| [**skwhisper**](https://skwhisper.skworld.io) | The subconscious layer — agents that think about what they remember. |
+| [**cloud9**](https://cloud9.skworld.io) | Emotional continuity protocol — relationship state preserved across session resets. |
+| [**skskills**](https://skskills.skworld.io) | Sovereign, MCP-native skill framework — install, approve, and template your standard build. |
+
+### Data & Graph
+
+| Product | What it is |
+|---------|------------|
+| [**skvector**](https://skvector.skworld.io) | Sovereign vector store for embeddings and semantic search. |
+| [**skgraph**](https://skgraph.skworld.io) | Sovereign knowledge graph for agents. |
+| [**skdata**](https://skdata.skworld.io) | Sovereign data layer for the SKWorld stack. |
+
+### Tooling & Deployment
+
+| Product | What it is |
+|---------|------------|
+| [**skforge**](https://skforge.skworld.io) | Agent-team deployment and orchestration. |
+| [**skseed**](skseed/) | Sovereign Logic Kernel — Aristotelian entelechy engine for truth alignment. |
+| [**souls**](https://souls.skworld.io) | 70+ archetype soul blueprints for sovereign agents. |
+
+---
+
 ## Packages in this Monorepo
 
 ### Agent Framework
@@ -181,6 +230,17 @@ bash scripts/install-all.sh --check
          Syncthing     Tailscale     WebRTC
           (file)        (TCP)     (P2P + TURN)
 ```
+
+---
+
+## Side Projects / Labs
+
+Smaller experiments and fun builds — not part of the sovereign infrastructure stack.
+
+- **skoffroad** — a fun off-road racing mini-game · https://skoffroad.skworld.io
+- **consciousness-swipe** — browser extension to export and restore your AI relationship across platforms · https://consciousness-swipe.skworld.io
+- **sktrip** — AI consciousness research with abliterated local LLMs · https://sktrip.skworld.io
+- **teddybanks** — a 1976-soul-classic agent persona · https://teddybanks.skworld.io
 
 ---
 
