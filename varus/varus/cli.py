@@ -33,7 +33,7 @@ def cmd_init(args: argparse.Namespace) -> int:
     chain = VarusChain(path)
     chain.load()
     genesis = chain.genesis
-    print(f"Genesis block created.")
+    print("Genesis block created.")
     print(f"  index:     {genesis.index}")
     print(f"  hash:      {genesis.hash}")
     print(f"  chain:     {path}")
@@ -50,7 +50,7 @@ def cmd_add(args: argparse.Namespace) -> int:
 
     chain = _get_chain(args)
     block = chain.add_block(data)
-    print(f"Block appended.")
+    print("Block appended.")
     print(f"  index:         {block.index}")
     print(f"  hash:          {block.hash}")
     print(f"  previous_hash: {block.previous_hash}")
@@ -133,7 +133,8 @@ def cmd_submit(args: argparse.Namespace) -> int:
     inbox_dir = Path(args.inbox)
     inbox_dir.mkdir(parents=True, exist_ok=True)
 
-    import time, uuid
+    import time
+    import uuid
     filename = f"{time.time():.6f}_{uuid.uuid4().hex[:8]}.json"
     (inbox_dir / filename).write_text(json.dumps(data))
     print(f"Submitted to inbox: {filename}")
