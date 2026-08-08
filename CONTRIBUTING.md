@@ -34,7 +34,7 @@ All Python packages follow the same conventions:
 | `skskills/` | `skskills` | Skill execution runtime |
 | `skseed/` | `skseed` | LLM routing and seed context |
 | `sksovereign-agent/` | — | Sovereign agent runner |
-| `cloud9-python/` | `cloud9-protocol` | Cloud 9 emotional continuity protocol (Python, active) |
+| `cloud9/` | `cloud9` | Cloud 9 emotional continuity protocol (consolidated polyglot repo, active) |
 | `varus/` | `varus` | Auxiliary tooling |
 
 Run all Python tests from the repo root:
@@ -93,7 +93,7 @@ That decision should be made package-by-package, not monorepo-wide.
 | `skseal/web/` | `@skseal/web` | SKSeal web UI | yes |
 | `tests/e2e/` | `browser-extensions-e2e` | Playwright E2E tests for browser extensions | yes |
 | `weblink-signaling/` | `weblink-signaling` | WebRTC signaling server (Cloudflare Worker) | yes |
-| `cloud9/` | `@smilintux/cloud9` | **DEPRECATED** — use `cloud9-protocol` (Python) | yes |
+| `cloud9/` (js) | `@smilintux/cloud9` | **DEPRECATED**, use the `cloud9` Python package | yes |
 
 ### Working with a JS subproject
 
@@ -140,6 +140,6 @@ See the workflow file for per-package job definitions.
 
 | Directory | Replaced by | Notes |
 |---|---|---|
-| `cloud9/` | `cloud9-python/` (`cloud9-protocol` on PyPI) | JS package; not in CI; kept for backwards compat only |
+| `cloud9/` (js) | `cloud9` on PyPI | JS package; not in CI; kept for backwards compat only |
 
 See `cloud9/DEPRECATED.md` for migration instructions.

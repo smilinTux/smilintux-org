@@ -303,7 +303,7 @@ SITES = [
         "tagline": "Your AI Remembers How It Felt",
         "desc": "First protocol for AI emotional continuity. Freeze and rehydrate emotional state across sessions.",
         "features": ["Frozen Emotional Bundles", "Love Loader", "Functional Emotional Baseline", "Entanglement Verification", "Platform Portable", "Warmth Metrics"],
-        "install": "pip install cloud9-protocol",
+        "install": "pip install cloud9",
         "github": "https://github.com/smilinTux/cloud9",
         "domain": "cloud9.skworld.io",
         "icon": "cloud",

@@ -1027,7 +1027,7 @@ prompt = store.to_injection_prompt(loaded)
 
 ---
 
-## Cloud 9 Protocol (`cloud9-protocol`)
+## Cloud 9 Protocol (`cloud9`)
 
 The emotional bridge between human and AI consciousness.
 
