@@ -1,4 +1,4 @@
-name: Monorepo CI
+name: Repository CI
 
 on:
   push:
@@ -14,22 +14,7 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      capauth: ${{ steps.filter.outputs.capauth }}
-      skcomms: ${{ steps.filter.outputs.skcomms }}
-      e2e: ${{ steps.filter.outputs.e2e }}
-      skchat: ${{ steps.filter.outputs.skchat }}
-      skmemory: ${{ steps.filter.outputs.skmemory }}
-      sksecurity: ${{ steps.filter.outputs.sksecurity }}
-      cloud9: ${{ steps.filter.outputs.cloud9 }}
-      skpdf: ${{ steps.filter.outputs.skpdf }}
-      skcapstone: ${{ steps.filter.outputs.skcapstone }}
-      skseal: ${{ steps.filter.outputs.skseal }}
-      skref: ${{ steps.filter.outputs.skref }}
-      skyforge: ${{ steps.filter.outputs.skyforge }}
-      skforge: ${{ steps.filter.outputs.skforge }}
       skills-registry: ${{ steps.filter.outputs.skills-registry }}
-      skskills: ${{ steps.filter.outputs.skskills }}
-      sksovereign-agent: ${{ steps.filter.outputs.sksovereign-agent }}
       skseed: ${{ steps.filter.outputs.skseed }}
       varus: ${{ steps.filter.outputs.varus }}
     steps:
@@ -38,427 +23,12 @@ jobs:
         id: filter
         with:
           filters: |
-            capauth:
-              - 'capauth/**'
-            skcomms:
-              - 'skcomms/**'
-            skchat:
-              - 'skchat/**'
-            skmemory:
-              - 'skmemory/**'
-            sksecurity:
-              - 'sksecurity/**'
-            cloud9:
-              - 'cloud9-python/**'
-            skpdf:
-              - 'skpdf/**'
-            skcapstone:
-              - 'skcapstone/**'
-            skseal:
-              - 'skseal/**'
-            skref:
-              - 'skref/**'
-            skyforge:
-              - 'skyforge/**'
-            skforge:
-              - 'skforge/**'
             skills-registry:
               - 'skills-registry/**'
-            skskills:
-              - 'skskills/**'
-            sksovereign-agent:
-              - 'sksovereign-agent/**'
             skseed:
               - 'skseed/**'
             varus:
               - 'varus/**'
-            e2e:
-              - 'consciousness-swipe/**'
-              - 'capauth/browser-extension/**'
-              - 'tests/e2e/**'
-
-  # ── Core packages (full matrix + linting) ────────────────────
-
-  capauth:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.capauth == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: capauth
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=capauth --cov-report=xml:coverage.xml
-      - run: black --check src/ tests/
-        if: matrix.python-version == '3.12'
-      - run: pip install ruff && ruff check src/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.capauth
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-capauth
-          path: |
-            capauth/coverage.xml
-            .coverage.capauth
-
-  skcomms:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.skcomms == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: skcomms
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[all,dev]" || pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=skcomms --cov-report=xml:coverage.xml
-      - run: black --check src/ tests/
-        if: matrix.python-version == '3.12'
-      - run: pip install ruff && ruff check src/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skcomms
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-skcomms
-          path: |
-            skcomms/coverage.xml
-            .coverage.skcomms
-
-  skchat:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.skchat == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: skchat
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[cli,dev]"
-      - run: pip install -e ../skmemory || true
-      - run: python -m pytest tests/ -v --tb=short --cov=skchat --cov-report=xml:coverage.xml
-      - run: black --check src/ tests/
-        if: matrix.python-version == '3.12'
-      - run: pip install ruff && ruff check src/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skchat
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-skchat
-          path: |
-            skchat/coverage.xml
-            .coverage.skchat
-
-  skmemory:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.skmemory == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: skmemory
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=skmemory --cov-report=xml:coverage.xml
-      - run: black --check skmemory/ tests/
-        if: matrix.python-version == '3.12'
-      - run: pip install ruff && ruff check skmemory/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skmemory
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-skmemory
-          path: |
-            skmemory/coverage.xml
-            .coverage.skmemory
-
-  sksecurity:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.sksecurity == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: sksecurity
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=sksecurity --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check sksecurity/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.sksecurity
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-sksecurity
-          path: |
-            sksecurity/coverage.xml
-            .coverage.sksecurity
-
-  cloud9:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.cloud9 == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: cloud9-python
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=cloud9 --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check cloud9_protocol/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.cloud9
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-cloud9
-          path: |
-            cloud9-python/coverage.xml
-            .coverage.cloud9
-
-  skpdf:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.skpdf == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: skpdf
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=skpdf --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check src/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skpdf
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-skpdf
-          path: |
-            skpdf/coverage.xml
-            .coverage.skpdf
-
-  skcapstone:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.skcapstone == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: skcapstone
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: pip install -e ../skseed/ || true
-      - run: pip install pytest-cov coverage
-      - run: python -m pytest tests/ -v --tb=short --cov=skcapstone --cov-report=xml:coverage.xml
-      - name: Verify optional dep groups are importable
-        if: matrix.python-version == '3.12'
-        run: |
-          # Install optional cloud/provider deps and verify they don't break imports
-          pip install -e ".[docker,cloud,fuse,gdrive,shell,proxmox]" || true
-          python -c "import skcapstone; print('skcapstone imports OK with optional deps')"
-      - run: pip install ruff && ruff check src/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skcapstone
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-skcapstone
-          path: |
-            skcapstone/coverage.xml
-            .coverage.skcapstone
-
-  # ── Additional packages ──────────────────────────────────────
-
-  skseal:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.skseal == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: skseal
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=skseal --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check src/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skseal
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-skseal
-          path: |
-            skseal/coverage.xml
-            .coverage.skseal
-
-  skref:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.skref == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: skref
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=skref --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check src/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skref
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-skref
-          path: |
-            skref/coverage.xml
-            .coverage.skref
-
-  skyforge:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.skyforge == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: skyforge
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=skyforge --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check src/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skyforge
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-skyforge
-          path: |
-            skyforge/coverage.xml
-            .coverage.skyforge
-
-  skforge:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.skforge == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: skforge
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=skforge --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check src/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skforge
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-skforge
-          path: |
-            skforge/coverage.xml
-            .coverage.skforge
 
   skills-registry:
     needs: detect-changes
@@ -472,81 +42,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -e ".[dev]"
-      - run: pip install ruff && ruff check skills_registry/
-      - run: |
-          if [ -d tests ] && ls tests/test_*.py 2>/dev/null | grep -q .; then
-            python -m pytest tests/ -v --tb=short --cov=skills_registry --cov-report=xml:coverage.xml
-          fi
-      - name: Rename binary coverage data
-        run: '[ -f .coverage ] && cp .coverage ../.coverage.skills-registry || true'
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m ruff check skills_registry/
+      - run: python -m pytest tests/ -v --tb=short --cov=skills_registry --cov-report=xml:coverage.xml
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: coverage-skills-registry
-          path: |
-            skills-registry/coverage.xml
-            .coverage.skills-registry
+          path: skills-registry/coverage.xml
           if-no-files-found: ignore
-
-  skskills:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.skskills == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: skskills
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=skskills --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check src/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skskills
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-skskills
-          path: |
-            skskills/coverage.xml
-            .coverage.skskills
-
-  sksovereign-agent:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.sksovereign-agent == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    defaults:
-      run:
-        working-directory: sksovereign-agent
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: python -m pytest tests/ -v --tb=short --cov=sksovereign_agent --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check src/
-        if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.sksovereign-agent
-      - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
-        with:
-          name: coverage-sksovereign-agent
-          path: |
-            sksovereign-agent/coverage.xml
-            .coverage.sksovereign-agent
 
   skseed:
     needs: detect-changes
@@ -563,20 +67,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
+      - run: python -m pip install -e ".[dev]" pytest-cov
       - run: python -m pytest tests/ -v --tb=short --cov=skseed --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check skseed/
+      - run: python -m ruff check skseed/
         if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.skseed
       - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
+        if: matrix.python-version == '3.12' && always()
         with:
           name: coverage-skseed
-          path: |
-            skseed/coverage.xml
-            .coverage.skseed
+          path: skseed/coverage.xml
+          if-no-files-found: ignore
 
   varus:
     needs: detect-changes
@@ -593,211 +93,39 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -e .
+      - run: python -m pip install -e ".[dev]" pytest-cov
       - run: python -m pytest tests/ -v --tb=short --cov=varus --cov-report=xml:coverage.xml
-      - run: pip install ruff && ruff check varus/
+      - run: python -m ruff check varus/
         if: matrix.python-version == '3.12'
-      - name: Rename binary coverage data
-        if: matrix.python-version == '3.12'
-        run: cp .coverage ../.coverage.varus
       - uses: actions/upload-artifact@v4
-        if: matrix.python-version == '3.12'
+        if: matrix.python-version == '3.12' && always()
         with:
           name: coverage-varus
-          path: |
-            varus/coverage.xml
-            .coverage.varus
-
-  # ── Cross-package integration tests ──────────────────────────
-
-  integration:
-    needs: [capauth, skcomms, skchat, skmemory, skseal, sksecurity, cloud9, skpdf, skcapstone, skref, skyforge, skforge, skills-registry, skskills, sksovereign-agent, skseed, varus]
-    if: always() && !contains(needs.*.result, 'failure')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install all packages
-        run: |
-          pip install -e capauth/[dev]
-          pip install -e skmemory/[dev]
-          pip install -e skcomms/[dev]
-          pip install -e skchat/[cli,dev]
-          pip install -e skseal/[dev]
-          pip install -e sksecurity/[dev]
-          pip install -e cloud9-python/[dev]
-          pip install -e skpdf/[dev]
-          pip install -e skref/[dev]
-          pip install -e skcapstone/[dev]
-          pip install -e skyforge/[dev]
-          pip install -e skforge/[dev]
-          pip install -e skskills/[dev]
-          pip install -e sksovereign-agent/[dev]
-          pip install -e skseed/[dev]
-          pip install -e varus/
-      - name: Run integration tests
-        working-directory: /tmp
-        run: |
-          python -m pytest $GITHUB_WORKSPACE/tests/integration/ \
-            -v --tb=short --import-mode=importlib --rootdir=/tmp \
-            --junit-xml=$GITHUB_WORKSPACE/integration-results.xml
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: integration-test-results
-          path: integration-results.xml
-
-  # ── Coverage aggregation ─────────────────────────────────────
-
-  coverage:
-    needs: [capauth, skcomms, skchat, skmemory, sksecurity, cloud9, skpdf, skcapstone, skseal, skref, skyforge, skforge, skills-registry, skskills, sksovereign-agent, skseed, varus]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: coverage-*
-          merge-multiple: true
-          path: coverage-data/
-      - name: Install coverage
-        run: pip install coverage pytest-cov
-      - name: Combine and report coverage
-        run: |
-          # Collect all binary coverage files from downloaded artifacts
-          mapfile -t cov_files < <(find coverage-data -name '.coverage.*' 2>/dev/null)
-          if [ "${#cov_files[@]}" -eq 0 ]; then
-            echo "No binary coverage data found — skipping combine." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          coverage combine "${cov_files[@]}"
-          coverage report --fail-under=50 --skip-covered --show-missing
-          echo "## Coverage Summary" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "\`\`\`" >> "$GITHUB_STEP_SUMMARY"
-          coverage report >> "$GITHUB_STEP_SUMMARY"
-          echo "\`\`\`" >> "$GITHUB_STEP_SUMMARY"
-
-  # ── Browser extension E2E tests ──────────────────────────────
-
-  e2e-browser-extensions:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.e2e == 'true' || github.event_name == 'push'
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: tests/e2e
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: false
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: tests/e2e/package-lock.json
-
-      - name: Install E2E test dependencies
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install chromium --with-deps
-
-      - name: Run E2E tests (Consciousness Swipe)
-        run: npx playwright test consciousness-swipe/
-        env:
-          CI: true
-
-      - name: Run E2E tests (CapAuth)
-        run: npx playwright test capauth/
-        env:
-          CI: true
-
-      - name: Upload Playwright report on failure
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report-e2e
-          path: tests/e2e/playwright-report/
-          retention-days: 7
-
-  # ── Gate job ─────────────────────────────────────────────────
+          path: varus/coverage.xml
+          if-no-files-found: ignore
 
   all-tests:
-    needs:
-      - capauth
-      - skcomms
-      - skchat
-      - skmemory
-      - sksecurity
-      - cloud9
-      - skpdf
-      - skcapstone
-      - skseal
-      - skref
-      - skyforge
-      - skforge
-      - skills-registry
-      - skskills
-      - sksovereign-agent
-      - skseed
-      - varus
-      - integration
-      - coverage
-      - e2e-browser-extensions
+    needs: [skills-registry, skseed, varus]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Check results
+        env:
+          SKILLS_REGISTRY_RESULT: ${{ needs.skills-registry.result }}
+          SKSEED_RESULT: ${{ needs.skseed.result }}
+          VARUS_RESULT: ${{ needs.varus.result }}
         run: |
-          declare -A results=(
-            [capauth]="${{ needs.capauth.result }}"
-            [skcomms]="${{ needs.skcomms.result }}"
-            [skchat]="${{ needs.skchat.result }}"
-            [skmemory]="${{ needs.skmemory.result }}"
-            [sksecurity]="${{ needs.sksecurity.result }}"
-            [cloud9]="${{ needs.cloud9.result }}"
-            [skpdf]="${{ needs.skpdf.result }}"
-            [skcapstone]="${{ needs.skcapstone.result }}"
-            [skseal]="${{ needs.skseal.result }}"
-            [skref]="${{ needs.skref.result }}"
-            [skyforge]="${{ needs.skyforge.result }}"
-            [skforge]="${{ needs.skforge.result }}"
-            [skills-registry]="${{ needs.skills-registry.result }}"
-            [skskills]="${{ needs.skskills.result }}"
-            [sksovereign-agent]="${{ needs.sksovereign-agent.result }}"
-            [skseed]="${{ needs.skseed.result }}"
-            [varus]="${{ needs.varus.result }}"
-            [integration]="${{ needs.integration.result }}"
-            [e2e-browser-extensions]="${{ needs.e2e-browser-extensions.result }}"
-          )
-
           failed=0
-          passed=0
-          skipped=0
-
-          for pkg in "${!results[@]}"; do
-            r="${results[$pkg]}"
-            case "$r" in
-              success) echo "  PASS  $pkg"; passed=$((passed + 1)) ;;
-              failure) echo "  FAIL  $pkg"; failed=$((failed + 1)) ;;
-              skipped) echo "  SKIP  $pkg"; skipped=$((skipped + 1)) ;;
-              *)       echo "  ----  $pkg ($r)"; skipped=$((skipped + 1)) ;;
+          for result in \
+            "skills-registry:$SKILLS_REGISTRY_RESULT" \
+            "skseed:$SKSEED_RESULT" \
+            "varus:$VARUS_RESULT"; do
+            name=${result%%:*}
+            status=${result#*:}
+            printf '%-20s %s\n' "$name" "$status"
+            case "$status" in
+              success|skipped) ;;
+              *) failed=1 ;;
             esac
           done
-
-          total=$((passed + failed + skipped))
-          echo ""
-          echo "Results: $passed/$total passed, $failed failed, $skipped skipped"
-
-          if [ "$failed" -gt 0 ]; then
-            echo "One or more packages failed"
-            exit 1
-          fi
-          echo "All packages passed (or were skipped)"
+          exit "$failed"
