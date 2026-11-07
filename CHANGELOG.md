@@ -4,6 +4,12 @@
 
 **Total completed: 215** across 17 agents
 
+## 2026-11-07
+
+### [DOCS] Docs
+
+- **Agent instructions in one file, `AGENTS.md`**: root `CLAUDE.md` (empty) and `.windsurfrules` (stale Task Master rules) removed; `skarchitect/` and `skarchitect-io/` get nested `AGENTS.md`; `opencode.json` points at `AGENTS.md`.
+
 ## 2026-02-27
 
 ### [NEW] Feature

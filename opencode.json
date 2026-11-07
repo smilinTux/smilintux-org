@@ -35,8 +35,7 @@
     }
   },
   "instructions": [
-    "CLAUDE.md",
-    ".cursor/rules/*.mdc"
+    "AGENTS.md"
   ],
   "mcp": {
     "skcapstone": {
