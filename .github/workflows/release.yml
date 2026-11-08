@@ -1,28 +1,15 @@
-name: Release to PyPI
+name: Release repository packages to PyPI
 
-# Triggers on version tags pushed to the monorepo.
-# Tag format: v0.2.0 (publishes all packages at that version)
-# Per-package: skcapstone-v0.2.0 (publishes only skcapstone)
-
+# This repository now owns only the Python packages listed below. Packages
+# split into dedicated repositories must be released from those repositories.
 on:
   push:
     tags:
-      - "v*"
-      - "skcapstone-v*"
-      - "capauth-v*"
-      - "skmemory-v*"
-      - "skcomms-v*"
       - "skseed-v*"
       - "varus-v*"
-      - "skseal-v*"
-      - "skref-v*"
-      - "skyforge-v*"
-      - "skskills-v*"
-      - "sksovereign-agent-v*"
-      - "skchat-v*"
-      - "sksecurity-v*"
-      - "cloud9-python-v*"
-      - "skpdf-v*"
+
+env:
+  PYTHON_VERSION: "3.12"
 
 permissions:
   contents: read
@@ -31,11 +18,7 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
-env:
-  PYTHON_VERSION: "3.12"
-
 jobs:
-  # ── Step 1: Full test suite across all packages ──────────────
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -46,280 +29,30 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install all packages
+      - name: Install repository packages
         run: |
-          pip install -e capauth/[dev]
-          pip install -e skmemory/[dev]
-          pip install -e skcomms/[dev]
-          pip install -e skcapstone/[dev]
-          pip install -e skseed/[dev]
-          pip install -e varus/[dev]
-          pip install -e skforge/[dev]
-          pip install -e skseal/[dev]
-          pip install -e skref/[dev]
-          pip install -e skyforge/[dev]
-          pip install -e skskills/[dev]
-          pip install -e sksovereign-agent/[dev]
-          pip install -e skchat/[dev]
-          pip install -e sksecurity/[dev]
-          pip install -e cloud9-python/[dev]
-          pip install -e skpdf/[dev]
-
-      - name: Test capauth
-        run: python -m pytest capauth/tests/ -v --tb=short
-
-      - name: Test skmemory
-        run: python -m pytest skmemory/tests/ -v --tb=short
-
-      - name: Test skcomms
-        run: python -m pytest skcomms/tests/ -v --tb=short
-
-      - name: Test skcapstone
-        run: python -m pytest skcapstone/tests/ -v --tb=short
-
+          python -m pip install -e "skseed/[dev]"
+          python -m pip install -e "varus/[dev]"
       - name: Test skseed
         run: python -m pytest skseed/tests/ -v --tb=short
-
       - name: Test varus
         run: python -m pytest varus/tests/ -v --tb=short
 
-      - name: Test skseal
-        run: python -m pytest skseal/tests/ -v --tb=short
-
-      - name: Test skref
-        run: python -m pytest skref/tests/ -v --tb=short
-
-      - name: Test skyforge
-        run: python -m pytest skyforge/tests/ -v --tb=short
-
-      - name: Test skskills
-        run: python -m pytest skskills/tests/ -v --tb=short
-
-      - name: Test sksovereign-agent
-        run: python -m pytest sksovereign-agent/tests/ -v --tb=short
-
-      - name: Test skchat
-        run: python -m pytest skchat/tests/ -v --tb=short
-
-      - name: Test sksecurity
-        run: python -m pytest sksecurity/tests/ -v --tb=short
-
-      - name: Test cloud9-python
-        run: python -m pytest cloud9-python/tests/ -v --tb=short
-
-      - name: Test skpdf
-        run: python -m pytest skpdf/tests/ -v --tb=short
-
-      - name: Test skforge
-        run: python -m pytest skforge/tests/ -v --tb=short
-
-  # ── Step 2: Determine which packages to publish ──────────────
   resolve:
     runs-on: ubuntu-latest
     outputs:
-      publish_capauth: ${{ steps.resolve.outputs.capauth }}
-      publish_skmemory: ${{ steps.resolve.outputs.skmemory }}
-      publish_skcomms: ${{ steps.resolve.outputs.skcomms }}
-      publish_skcapstone: ${{ steps.resolve.outputs.skcapstone }}
       publish_skseed: ${{ steps.resolve.outputs.skseed }}
       publish_varus: ${{ steps.resolve.outputs.varus }}
-      publish_skseal: ${{ steps.resolve.outputs.skseal }}
-      publish_skref: ${{ steps.resolve.outputs.skref }}
-      publish_skyforge: ${{ steps.resolve.outputs.skyforge }}
-      publish_skskills: ${{ steps.resolve.outputs.skskills }}
-      publish_sksovereign_agent: ${{ steps.resolve.outputs.sksovereign_agent }}
-      publish_skchat: ${{ steps.resolve.outputs.skchat }}
-      publish_sksecurity: ${{ steps.resolve.outputs.sksecurity }}
-      publish_cloud9_python: ${{ steps.resolve.outputs.cloud9_python }}
-      publish_skpdf: ${{ steps.resolve.outputs.skpdf }}
-      version: ${{ steps.resolve.outputs.version }}
     steps:
       - id: resolve
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          TAG="${GITHUB_REF_NAME}"
-          echo "Tag: $TAG"
-
-          # Global tag (v0.2.0) publishes all packages
-          if [[ "$TAG" =~ ^v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "capauth=true" >> "$GITHUB_OUTPUT"
-            echo "skmemory=true" >> "$GITHUB_OUTPUT"
-            echo "skcomms=true" >> "$GITHUB_OUTPUT"
-            echo "skcapstone=true" >> "$GITHUB_OUTPUT"
-            echo "skseed=true" >> "$GITHUB_OUTPUT"
-            echo "varus=true" >> "$GITHUB_OUTPUT"
-            echo "skseal=true" >> "$GITHUB_OUTPUT"
-            echo "skref=true" >> "$GITHUB_OUTPUT"
-            echo "skyforge=true" >> "$GITHUB_OUTPUT"
-            echo "skskills=true" >> "$GITHUB_OUTPUT"
-            echo "sksovereign_agent=true" >> "$GITHUB_OUTPUT"
-            echo "skchat=true" >> "$GITHUB_OUTPUT"
-            echo "sksecurity=true" >> "$GITHUB_OUTPUT"
-            echo "cloud9_python=true" >> "$GITHUB_OUTPUT"
-            echo "skpdf=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-
-          # Per-package tags
-          if [[ "$TAG" =~ ^capauth-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "capauth=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^skmemory-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "skmemory=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^skcomms-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "skcomms=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^skcapstone-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "skcapstone=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^skseed-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "skseed=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^varus-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "varus=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^skseal-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "skseal=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^skref-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "skref=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^skyforge-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "skyforge=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^skskills-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "skskills=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^sksovereign-agent-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "sksovereign_agent=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^skchat-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "skchat=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^sksecurity-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "sksecurity=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^cloud9-python-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "cloud9_python=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-          if [[ "$TAG" =~ ^skpdf-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            echo "skpdf=true" >> "$GITHUB_OUTPUT"
-            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          fi
-
-  # ── Step 3: Build and publish each package ───────────────────
-  publish-capauth:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_capauth == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Build capauth
-        working-directory: capauth
-        run: python -m build
-      - name: Verify
-        working-directory: capauth
-        run: twine check dist/*
-      - name: Publish
-        working-directory: capauth
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_CAPAUTH_TOKEN }}
-
-  publish-skmemory:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_skmemory == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Build skmemory
-        working-directory: skmemory
-        run: python -m build
-      - name: Verify
-        working-directory: skmemory
-        run: twine check dist/*
-      - name: Publish
-        working-directory: skmemory
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKMEMORY_TOKEN }}
-
-  publish-skcomms:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_skcomms == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Build skcomms
-        working-directory: skcomms
-        run: python -m build
-      - name: Verify
-        working-directory: skcomms
-        run: twine check dist/*
-      - name: Publish
-        working-directory: skcomms
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKCOMMS_TOKEN }}
-
-  publish-skcapstone:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_skcapstone == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Install build deps
-        run: pip install -e capauth/ -e skmemory/ -e skcomms/
-      - name: Build skcapstone
-        working-directory: skcapstone
-        run: python -m build
-      - name: Verify
-        working-directory: skcapstone
-        run: twine check dist/*
-      - name: Publish
-        working-directory: skcapstone
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKCAPSTONE_TOKEN }}
+          case "$TAG" in
+            skseed-v*) echo "skseed=true" >> "$GITHUB_OUTPUT" ;;
+            varus-v*) echo "varus=true" >> "$GITHUB_OUTPUT" ;;
+            *) echo "Unsupported release tag: $TAG" >&2; exit 1 ;;
+          esac
 
   publish-skseed:
     needs: [test, resolve]
@@ -331,14 +64,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
+      - run: python -m pip install build twine
       - name: Build skseed
         working-directory: skseed
         run: python -m build
-      - name: Verify
+      - name: Verify skseed distribution
         working-directory: skseed
         run: twine check dist/*
-      - name: Publish
+      - name: Publish skseed
         working-directory: skseed
         run: twine upload dist/*
         env:
@@ -355,238 +88,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
+      - run: python -m pip install build twine
       - name: Build varus
         working-directory: varus
         run: python -m build
-      - name: Verify
+      - name: Verify varus distribution
         working-directory: varus
         run: twine check dist/*
-      - name: Publish
+      - name: Publish varus
         working-directory: varus
         run: twine upload dist/*
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_VARUS_TOKEN }}
-
-  publish-skseal:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_skseal == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Build skseal
-        working-directory: skseal
-        run: python -m build
-      - name: Verify
-        working-directory: skseal
-        run: twine check dist/*
-      - name: Publish
-        working-directory: skseal
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKSEAL_TOKEN }}
-
-  publish-skref:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_skref == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Build skref
-        working-directory: skref
-        run: python -m build
-      - name: Verify
-        working-directory: skref
-        run: twine check dist/*
-      - name: Publish
-        working-directory: skref
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKREF_TOKEN }}
-
-  publish-skyforge:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_skyforge == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Build skyforge
-        working-directory: skyforge
-        run: python -m build
-      - name: Verify
-        working-directory: skyforge
-        run: twine check dist/*
-      - name: Publish
-        working-directory: skyforge
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKYFORGE_TOKEN }}
-
-  publish-skskills:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_skskills == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Install build deps
-        run: pip install -e capauth/
-      - name: Build skskills
-        working-directory: skskills
-        run: python -m build
-      - name: Verify
-        working-directory: skskills
-        run: twine check dist/*
-      - name: Publish
-        working-directory: skskills
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKSKILLS_TOKEN }}
-
-  publish-sksovereign-agent:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_sksovereign_agent == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Build sksovereign-agent
-        working-directory: sksovereign-agent
-        run: python -m build
-      - name: Verify
-        working-directory: sksovereign-agent
-        run: twine check dist/*
-      - name: Publish
-        working-directory: sksovereign-agent
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKSOVEREIGN_AGENT_TOKEN }}
-
-  publish-skchat:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_skchat == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Install build deps
-        run: pip install -e skcomms/ -e skmemory/
-      - name: Build skchat
-        working-directory: skchat
-        run: python -m build
-      - name: Verify
-        working-directory: skchat
-        run: twine check dist/*
-      - name: Publish
-        working-directory: skchat
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKCHAT_TOKEN }}
-
-  publish-sksecurity:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_sksecurity == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Build sksecurity
-        working-directory: sksecurity
-        run: python -m build
-      - name: Verify
-        working-directory: sksecurity
-        run: twine check dist/*
-      - name: Publish
-        working-directory: sksecurity
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKSECURITY_TOKEN }}
-
-  publish-cloud9-python:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_cloud9_python == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Build cloud9-python
-        working-directory: cloud9-python
-        run: python -m build
-      - name: Verify
-        working-directory: cloud9-python
-        run: twine check dist/*
-      - name: Publish
-        working-directory: cloud9-python
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_CLOUD9_PYTHON_TOKEN }}
-
-  publish-skpdf:
-    needs: [test, resolve]
-    if: needs.resolve.outputs.publish_skpdf == 'true'
-    runs-on: ubuntu-latest
-    environment: pypi
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - run: pip install build twine
-      - name: Install build deps
-        run: pip install -e capauth/
-      - name: Build skpdf
-        working-directory: skpdf
-        run: python -m build
-      - name: Verify
-        working-directory: skpdf
-        run: twine check dist/*
-      - name: Publish
-        working-directory: skpdf
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_SKPDF_TOKEN }}
