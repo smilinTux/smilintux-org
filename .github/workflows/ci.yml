@@ -612,7 +612,10 @@ jobs:
 
   integration:
     needs: [capauth, skcomms, skchat, skmemory, skseal, sksecurity, cloud9, skpdf, skcapstone, skref, skyforge, skforge, skills-registry, skskills, sksovereign-agent, skseed, varus]
-    if: always() && !contains(needs.*.result, 'failure')
+    # Only when at least one package job actually ran: a change that touches no
+    # Python package (a site's package.json, say) skips every package job, and
+    # installing all packages then tests nothing that changed.
+    if: always() && !contains(needs.*.result, 'failure') && contains(needs.*.result, 'success')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
