@@ -619,7 +619,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # The Python packages moved to their own repos; without their sources
+      # here there is nothing to install or integration-test.
       - name: Install all packages
+        if: hashFiles('capauth/pyproject.toml') != ''
         run: |
           pip install -e capauth/[dev]
           pip install -e skmemory/[dev]
@@ -638,6 +641,7 @@ jobs:
           pip install -e skseed/[dev]
           pip install -e varus/
       - name: Run integration tests
+        if: hashFiles('capauth/pyproject.toml') != ''
         working-directory: /tmp
         run: |
           python -m pytest $GITHUB_WORKSPACE/tests/integration/ \
