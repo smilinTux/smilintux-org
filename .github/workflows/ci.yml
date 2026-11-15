@@ -612,17 +612,17 @@ jobs:
 
   integration:
     needs: [capauth, skcomms, skchat, skmemory, skseal, sksecurity, cloud9, skpdf, skcapstone, skref, skyforge, skforge, skills-registry, skskills, sksovereign-agent, skseed, varus]
-    # Only when at least one package job actually ran: a change that touches no
-    # Python package (a site's package.json, say) skips every package job, and
-    # installing all packages then tests nothing that changed.
-    if: always() && !contains(needs.*.result, 'failure') && contains(needs.*.result, 'success')
+    if: always() && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # The Python packages moved to their own repos; without their sources
+      # here there is nothing to install or integration-test.
       - name: Install all packages
+        if: hashFiles('capauth/pyproject.toml') != ''
         run: |
           pip install -e capauth/[dev]
           pip install -e skmemory/[dev]
@@ -641,6 +641,7 @@ jobs:
           pip install -e skseed/[dev]
           pip install -e varus/
       - name: Run integration tests
+        if: hashFiles('capauth/pyproject.toml') != ''
         working-directory: /tmp
         run: |
           python -m pytest $GITHUB_WORKSPACE/tests/integration/ \
